@@ -120,6 +120,7 @@ Config.SaleLocations = {
 }
 
 Config.AdminGroupName = 'admin' --Make this the name of the user group that will handle creaing ranches deleting ranches etc
+Config.CreateRanchCommand = 'createranch' --name of the command used to create ranches!
 
 ------------- Translate Here ------------------------
 Config.Language = {
