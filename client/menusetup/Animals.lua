@@ -1,9 +1,5 @@
 ----- Variabless -----
-Cowcoords = nil
-Chickencoords = nil
-Goatcoords = nil
-Pigcoords = nil
-Herdlocation = nil
+Cowcoords, Chickencoords, Goatcoords, Pigcoords, Herdlocation = nil, nil, nil, nil, nil
 
 ------ Buy Animals Menu --------
 function BuyAnimalMenu()
@@ -92,6 +88,7 @@ RegisterNetEvent('bcc-ranch:ManageOwnedCowsMenu', function(cow_cond, ranchcond)
         { label = Config.Language.SetCoords, value = 'setcowscoords', desc = Config.Language.SetCoords_desc },
         { label = Config.Language.HerdAnimal, value = 'herdcows', desc = Config.Language.HerdAnimal_desc },
         { label = Config.Language.SellCows, value = 'sellcows', desc = Config.Language.SellCows_desc },
+        { label = Config.Language.ButcherAnimal, value = 'butchercows', desc = Config.Language.ButcherAnimal_desc },
     }
 
     MenuData.Open('default', GetCurrentResourceName(), 'menuapi',
@@ -124,6 +121,13 @@ RegisterNetEvent('bcc-ranch:ManageOwnedCowsMenu', function(cow_cond, ranchcond)
                 else
                     VORPcore.NotifyRightTip(Config.Language.NoLocationSet, 4000)
                 end
+            elseif data.current.value == 'butchercows' then
+                if Cowcoords ~= nil then
+                    MenuData.CloseAll()
+                    ButcherAnimals('cows')
+                else
+                    VORPcore.NotifyRightTip(Config.Language.NoLocationSet, 4000)
+                end
             end
         end)
 end)
@@ -137,6 +141,7 @@ RegisterNetEvent('bcc-ranch:ManageOwnedChickenMenu', function(cow_cond, ranchcon
         { label = Config.Language.SetCoords, value = 'setchickenscoords', desc = Config.Language.SetCoords_desc },
         { label = Config.Language.HerdAnimal, value = 'herdcows', desc = Config.Language.HerdAnimal_desc },
         { label = Config.Language.SellCows, value = 'sellchickens', desc = Config.Language.SellCows_desc },
+        { label = Config.Language.ButcherAnimal, value = 'butchercows', desc = Config.Language.ButcherAnimal_desc },
     }
 
     MenuData.Open('default', GetCurrentResourceName(), 'menuapi',
@@ -169,6 +174,13 @@ RegisterNetEvent('bcc-ranch:ManageOwnedChickenMenu', function(cow_cond, ranchcon
                 else
                     VORPcore.NotifyRightTip(Config.Language.NoLocationSet, 4000)
                 end
+            elseif data.current.value == 'butchercows' then
+                if Chickencoords ~= nil then
+                    MenuData.CloseAll()
+                    ButcherAnimals('chickens')
+                else
+                    VORPcore.NotifyRightTip(Config.Language.NoLocationSet, 4000)
+                end
             end
         end)
 end)
@@ -182,6 +194,7 @@ RegisterNetEvent('bcc-ranch:ManageOwnedGoatMenu', function(cow_cond, ranchcond)
         { label = Config.Language.SetCoords, value = 'setgoatscoords', desc = Config.Language.SetCoords_desc },
         { label = Config.Language.HerdAnimal, value = 'herdcows', desc = Config.Language.HerdAnimal_desc },
         { label = Config.Language.SellCows, value = 'sellgoats', desc = Config.Language.SellCows_desc },
+        { label = Config.Language.ButcherAnimal, value = 'butchercows', desc = Config.Language.ButcherAnimal_desc },
     }
 
     MenuData.Open('default', GetCurrentResourceName(), 'menuapi',
@@ -214,6 +227,13 @@ RegisterNetEvent('bcc-ranch:ManageOwnedGoatMenu', function(cow_cond, ranchcond)
                 else
                     VORPcore.NotifyRightTip(Config.Language.NoLocationSet, 4000)
                 end
+            elseif data.current.value == 'butchercows' then
+                if Goatcoords ~= nil then
+                    MenuData.CloseAll()
+                    ButcherAnimals('goats')
+                else
+                    VORPcore.NotifyRightTip(Config.Language.NoLocationSet, 4000)
+                end
             end
         end)
 end)
@@ -227,6 +247,7 @@ RegisterNetEvent('bcc-ranch:ManageOwnedPigMenu', function(cow_cond, ranchcond)
         { label = Config.Language.SetCoords, value = 'setpigscoords', desc = Config.Language.SetCoords_desc },
         { label = Config.Language.HerdAnimal, value = 'herdcows', desc = Config.Language.HerdAnimal_desc },
         { label = Config.Language.SellCows, value = 'sellpigs', desc = Config.Language.SellCows_desc },
+        { label = Config.Language.ButcherAnimal, value = 'butchercows', desc = Config.Language.ButcherAnimal_desc },
     }
 
     MenuData.Open('default', GetCurrentResourceName(), 'menuapi',
@@ -256,6 +277,13 @@ RegisterNetEvent('bcc-ranch:ManageOwnedPigMenu', function(cow_cond, ranchcond)
                 if Pigcoords then
                     MenuData.CloseAll()
                     SellAnimals('pigs', cow_cond)
+                else
+                    VORPcore.NotifyRightTip(Config.Language.NoLocationSet, 4000)
+                end
+            elseif data.current.value == 'butchercows' then
+                if Pigcoords ~= nil then
+                    MenuData.CloseAll()
+                    ButcherAnimals('pigs')
                 else
                     VORPcore.NotifyRightTip(Config.Language.NoLocationSet, 4000)
                 end

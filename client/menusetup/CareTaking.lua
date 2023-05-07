@@ -1,6 +1,5 @@
 ----- Variables -----
-Haycoords = nil
-WaterAnimalCoords = nil
+Haycoords, WaterAnimalCoords = nil, nil
 
 function CareTakingMenu()
     Inmenu = false
