@@ -9,6 +9,7 @@
 - VORP Inputs
 - bcc-utils
 - VORP Character
+- Menuapi
 
 # Features
 - Admin locked command to create ranches!
