@@ -230,6 +230,7 @@ function ButcherAnimals(animaltype)
             BccUtils.Misc.DrawText3D(cp.x, cp.y, cp.z, Config.Language.Skin)
             if IsControlJustReleased(0, 0x760A9C6F) then
                 BccUtils.Ped.ScenarioInPlace(PlayerPedId(), 'WORLD_HUMAN_CROUCH_INSPECT', 5000)
+                DeletePed(createdped)
                 TriggerServerEvent('bcc-ranch:ButcherAnimalHandler', animaltype, RanchId, tables) break
             end
         end
