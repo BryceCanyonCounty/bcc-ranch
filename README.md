@@ -1,6 +1,6 @@
 # bcc-ranch
 
-> This ranching script is a massive ranching project that allows players to own thier own ranches! With features like herding, owning animals, ranch chores, herding animals, selling animals, butchering and more this script ensures that you will love tending to your virtual ranch!
+> This ranching script is a massive ranching project that allows players to own thier own ranches! With features like herding, owning animals, ranch chores, selling animals, butchering and more this script ensures that you will love tending to your virtual ranch!
 
 # Requirements
 - VORP Core
