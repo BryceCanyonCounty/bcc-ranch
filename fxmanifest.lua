@@ -28,6 +28,7 @@ dependency {
     'bcc-utils',
     'vorp_character',
     'menuapi',
+    'vorp_inputs',
 }
 
 
