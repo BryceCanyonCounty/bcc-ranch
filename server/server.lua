@@ -258,3 +258,6 @@ RegisterServerEvent('bcc-ranch:DecranchCondIncrease', function(ranchid)
         end
     end)
 end)
+
+----- Version Check ----
+BccUtils.Versioner.checkRelease(GetCurrentResourceName(), 'https://github.com/BryceCanyonCounty/bcc-ranch')
