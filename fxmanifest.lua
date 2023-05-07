@@ -11,13 +11,11 @@ shared_scripts {
 
 server_scripts {
     'server/server.lua',
-    'server/dbarea.lua',
 }
 
 client_scripts {
     'client/functions.lua',
     'client/menusetup/*.lua',
-    'client/commands.lua',
     'client/MainRanch.lua',
     '/client/chores.lua',
     '/client/AnimalManager.lua',

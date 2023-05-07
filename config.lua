@@ -33,6 +33,8 @@ Config.ChoreConfig = {
 }
 
 Config.RanchSetup = {
+    RanchCondDecrease = 1800000, --This is how often the ranches condition will decrease over time
+    RanchCondDecreaseAmount = 10, --how much it will decrease
     MaxRanchCondition = 100, --This is the maximum ranch condition possible. This can only be set upto 999
     BlipHash = 'blip_mp_predator_hunt_mask', --ranch blip hash
     HerdingMinDistance = 70, --this is the minimum distance a player will have to be from there ranch to set thier herd location
@@ -46,6 +48,12 @@ Config.RanchSetup = {
             LowPay = 150, --This is the amount that will be payed if any animals die along the way
             CondIncreasePerHerd = 10, --this is the amount the animals condition will increase when successfully herded!
             CondIncreasePerHerdNotMaxRanchCond = 5, --this is the amount the animals condition will go up per herd if the ranchs condition is not max
+            ButcherItems = { --items you will get when you butcher this animal
+                {
+                    name = 'water', --item db name
+                    count = 1, --amount you will get
+                }, --you can add more by copy pasting this table
+            },
         },
         Pigs = {
             Cost = 200,
@@ -56,6 +64,12 @@ Config.RanchSetup = {
             LowPay = 150, --This is the amount that will be payed if any animals die along the way
             CondIncreasePerHerd = 10, --this is the amount the animals condition will increase when successfully herded!
             CondIncreasePerHerdNotMaxRanchCond = 5, --this is the amount the animals condition will go up per herd if the ranchs condition is not max
+            ButcherItems = { --items you will get when you butcher this animal
+                {
+                    name = '', --item db name
+                    count = 1, --amount you will get
+                }, --you can add more by copy pasting this table
+            },
         },
         Goats = {
             Cost = 100,
@@ -66,6 +80,12 @@ Config.RanchSetup = {
             LowPay = 150, --This is the amount that will be payed if any animals die along the way
             CondIncreasePerHerd = 10, --this is the amount the animals condition will increase when successfully herded!
             CondIncreasePerHerdNotMaxRanchCond = 5, --this is the amount the animals condition will go up per herd if the ranchs condition is not max
+            ButcherItems = { --items you will get when you butcher this animal
+                {
+                    name = '', --item db name
+                    count = 1, --amount you will get
+                }, --you can add more by copy pasting this table
+            },
         },
         Chickens = {
             Cost = 50,
@@ -76,13 +96,19 @@ Config.RanchSetup = {
             LowPay = 150, --This is the amount that will be payed if any animals die along the way
             CondIncreasePerHerd = 10, --this is the amount the animals condition will increase when successfully herded!
             CondIncreasePerHerdNotMaxRanchCond = 5, --this is the amount the animals condition will go up per herd if the ranchs condition is not max
+            ButcherItems = { --items you will get when you butcher this animal
+                {
+                    name = '', --item db name
+                    count = 1, --amount you will get
+                }, --you can add more by copy pasting this table
+            },
         },
     }
 }
 
+Config.SaleLocationBlipHash = 'blip_ambient_vip' --hash of the blip to show
 Config.SaleLocations = {
     --These are the locations players will be able to sell thier cattle/animals at
-    BlipHash = 'blip_ambient_vip', --hash of the blip to show
     {
         LocationName = 'Sale Area 1', --this will be the name of the blip
         Coords = {x = -281.72, y = 697.67, z = 113.49}, --the coords the player will have to go to
@@ -166,5 +192,9 @@ Config.Language = {
     HerdAnimal_desc = 'Herd Animal? Doing so will increase the animals condition, which will improve its sell price!',
     HerdToLocation = 'Herd Your Animals to the location!',
     ReturnAnimals = 'Herd Them Back to the ranch!',
-    HerdingSuccess = 'You herded the animals successfully! Thier condition has increased!'
+    HerdingSuccess = 'You herded the animals successfully! Thier condition has increased!',
+    ButcherAnimal = 'Butcher Animal',
+    ButcherAnimal_desc = 'Butcher Animal? Doing this while kill your animals, but will give you supplies.',
+    KillAnimal = 'Kill The Animal!',
+    AnimalKilled = 'You Butchered The Animal!'
 }
