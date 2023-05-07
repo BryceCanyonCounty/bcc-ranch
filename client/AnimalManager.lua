@@ -217,10 +217,24 @@ function ButcherAnimals(animaltype)
         Citizen.Wait(5)
         if PlayerDead then break end
         if IsEntityDead(createdped) then
-            TriggerServerEvent('bcc-ranch:ButcherAnimalHandler', animaltype, RanchId, tables)
-            VORPcore.NotifyRightTip(Config.Language.AnimalKilled, 4000) break
+            VORPcore.NotifyRightTip(Config.Language.GoSkin, 4000) break
         end
     end
+
+    while true do
+        Citizen.Wait(5)
+        local pl = GetEntityCoords(PlayerPedId())
+        local cp = GetEntityCoords(createdped)
+        if PlayerDead then break end
+        if GetDistanceBetweenCoords(pl.x, pl.y, pl.z, cp.x, cp.y, cp.z, true) < 5 then
+            BccUtils.Misc.DrawText3D(cp.x, cp.y, cp.z, Config.Language.Skin)
+            if IsControlJustReleased(0, 0x760A9C6F) then
+                BccUtils.Ped.ScenarioInPlace(PlayerPedId(), 'WORLD_HUMAN_CROUCH_INSPECT', 5000)
+                TriggerServerEvent('bcc-ranch:ButcherAnimalHandler', animaltype, RanchId, tables) break
+            end
+        end
+    end
+
     if PlayerDead then
         VORPcore.NotifyRightTip(Config.Language.PlayerDead, 4000)
     end
