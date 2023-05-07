@@ -35,3 +35,4 @@
 - This is a massive project there is most likely oversights if you have any suggestions or bugs report them asap!
 - Ranch names can not have spaces in them currently!
 - To delete ranches you will currently have to delete them manually from the database!
+- Make sure admins trying to create ranches thier user group is admin or whatever you set the group to in the config!
