@@ -196,5 +196,7 @@ Config.Language = {
     ButcherAnimal = 'Butcher Animal',
     ButcherAnimal_desc = 'Butcher Animal? Doing this while kill your animals, but will give you supplies.',
     KillAnimal = 'Kill The Animal!',
+    GoSkin = 'Animal Killed go butcher it to get rewards!',
+    Skin = 'Press "G" to butcher animal',
     AnimalKilled = 'You Butchered The Animal!'
 }
