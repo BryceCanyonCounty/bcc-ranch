@@ -29,7 +29,7 @@
 
 # How it works
 - Admins can make a ranch by entering the command, they will be greeted with a menu to name the ranch, insert the ranches radius, and the owners static id!
-- The owner will be able to walk upto where his ranch is press "G" to open a menu to manage his ranch!
+- The owner will be able to walk upto where his ranch is press "G" to open a menu to manage the ranch!
 
 # Side Notes
 - Max of one ranch per character!
