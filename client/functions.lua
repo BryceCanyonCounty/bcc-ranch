@@ -11,10 +11,7 @@ end)
 TriggerEvent("menuapi:getData", function(call)
   MenuData = call
 end)
-BccUtils = {}
-TriggerEvent('bcc:getUtils', function(bccutils)
-  BccUtils = bccutils
-end)
+BccUtils = exports['bcc-utils'].initiate()
 
 ------- Load Model -------
 function modelload(model)

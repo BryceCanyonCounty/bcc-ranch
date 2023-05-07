@@ -15,6 +15,7 @@ RegisterNetEvent('bcc-ranch:HasRanchHandler', function(ranch)
     RanchCoords = json.decode(ranch.ranchcoords)
     RanchRadius = ranch.ranch_radius_limit
     RanchId = ranch.ranchid
+    TriggerEvent('bcc-ranch:StartCondDec')
     local pl = PlayerPedId()
     local blip = VORPutils.Blips:SetBlip(ranch.ranchname, Config.RanchSetup.BlipHash, 0.2, RanchCoords.x, RanchCoords.y, RanchCoords.z)
     while true do
@@ -35,9 +36,18 @@ RegisterNetEvent('bcc-ranch:HasRanchHandler', function(ranch)
     end
 end)
 
----- This Event Will Create The Sale Locations Blips -----
-Citizen.CreateThread(function()
+---- This Event Will Create The Sale Locations Blips and decrease the ranches cond over time -----
+AddEventHandler('bcc-ranch:StartCondDec', function()
     for k, v in pairs(Config.SaleLocations) do
-        local  blip = VORPutils.Blips:SetBlip(v.LocationName, Config.SaleLocations.BlipHash, 0.2, v.Coords.x, v.Coords.y, v.Coords.z)
+        local  blip = VORPutils.Blips:SetBlip(v.LocationName, Config.SaleLocationBlipHash, 0.2, v.Coords.x, v.Coords.y, v.Coords.z)
     end
+    while true do
+        Citizen.Wait(Config.RanchSetup.RanchCondDecrease)
+        TriggerServerEvent('bcc-ranch:DecranchCondIncrease', RanchId)
+    end
+end)
+
+------ Command To Create Ranch ------
+RegisterCommand('createranch', function()
+    TriggerServerEvent('bcc-ranch:AdminCheck', 'bcc-ranch:CreateRanchmenu', false)
 end)

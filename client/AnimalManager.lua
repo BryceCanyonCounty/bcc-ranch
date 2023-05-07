@@ -3,8 +3,7 @@ function SellAnimals(animaltype, animal_cond)
     InMission = true
     TriggerEvent('bcc-ranch:ChoreDeadCheck')
     local tables, model
-    local spawncoords = nil
-    local pl = PlayerPedId()
+    local spawncoords, pl = nil, PlayerPedId()
     if animaltype == 'cows' then
         tables = Config.RanchSetup.RanchAnimalSetup.Cows
         model = joaat('a_c_cow')
@@ -27,8 +26,7 @@ function SellAnimals(animaltype, animal_cond)
     local salecoords = math.random(1, #Config.SaleLocations)
     local finalsalecoords = Config.SaleLocations[salecoords]
 
-    local catch = 0
-    local peds = {}
+    local catch, peds = 0, {}
     repeat
         local createdped = CreatePed(model, spawncoords.x + math.random(1, 5), spawncoords.y + math.random(1, 5), spawncoords.z, true, true, true, true)
         Citizen.InvokeNative(0x283978A15512B2FE, createdped, true)
@@ -108,9 +106,7 @@ function herdanimals(animaltype, ranchcond)
     end
     modelload(model)
 
-    local catch = 0
-    local peds = {}
-    local plc = GetEntityCoords(pl)
+    local catch, peds, plc = 0, {}, GetEntityCoords(pl)
     repeat
         local createdped = CreatePed(model, plc.x + math.random(1, 5), plc.y + math.random(1, 5), plc.z, true, true, true, true)
         SetBlockingOfNonTemporaryEvents(createdped, true)
@@ -182,6 +178,51 @@ function herdanimals(animaltype, ranchcond)
 
     for k, v in pairs(peds) do
         DeletePed(v)
+    end
+    InMission = false
+end
+
+function ButcherAnimals(animaltype)
+    InMission = true
+    local model, tables, spawncoords
+    TriggerEvent('bcc-ranch:ChoreDeadCheck')
+    InMission = true
+    TriggerEvent('bcc-ranch:ChoreDeadCheck')
+    if animaltype == 'cows' then
+        tables = Config.RanchSetup.RanchAnimalSetup.Cows
+        model = joaat('a_c_cow')
+        spawncoords = Cowcoords
+    elseif animaltype == 'chickens' then
+        tables = Config.RanchSetup.RanchAnimalSetup.Chickens
+        model = joaat('a_c_chicken_01')
+        spawncoords = Chickencoords
+    elseif animaltype == 'goats' then
+        tables = Config.RanchSetup.RanchAnimalSetup.Goats
+        model = joaat('a_c_goat_01')
+        spawncoords = Goatcoords
+    elseif animaltype == 'pigs' then
+        tables = Config.RanchSetup.RanchAnimalSetup.Pigs
+        model = joaat('a_c_pig_01')
+        spawncoords = Pigcoords
+    end
+    modelload(model)
+
+    local createdped = CreatePed(model, spawncoords.x, spawncoords.y, spawncoords.z, true, true, true, true)
+    SetBlockingOfNonTemporaryEvents(createdped, true)
+    Citizen.InvokeNative(0x283978A15512B2FE, createdped, true)
+    Citizen.InvokeNative(0x9587913B9E772D29, createdped, true)
+    FreezeEntityPosition(createdped, true)
+    VORPcore.NotifyRightTip(Config.Language.KillAnimal, 4000)
+    while true do
+        Citizen.Wait(5)
+        if PlayerDead then break end
+        if IsEntityDead(createdped) then
+            TriggerServerEvent('bcc-ranch:ButcherAnimalHandler', animaltype, RanchId, tables)
+            VORPcore.NotifyRightTip(Config.Language.AnimalKilled, 4000) break
+        end
+    end
+    if PlayerDead then
+        VORPcore.NotifyRightTip(Config.Language.PlayerDead, 4000)
     end
     InMission = false
 end
