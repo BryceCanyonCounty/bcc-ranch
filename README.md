@@ -14,7 +14,7 @@
 - Configurable chores to increase your ranches condition!
 - Own 4 types of animals!
 - Sell your animals with pay changing based on thier condition!
-- Herd your animals around to increase thier condition!
+- Herd your animals around to increase thier condition the amount it increase changes based on the ranches condition!
 - Custom ranch names!
 - Cofigurable ranch Blips!
 - Configurable Sale Locations!
