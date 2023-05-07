@@ -8,6 +8,7 @@
 - VORP Inventory
 - VORP Inputs
 - bcc-utils
+- VORP Character
 
 # Features
 - Admin locked command to create ranches!
