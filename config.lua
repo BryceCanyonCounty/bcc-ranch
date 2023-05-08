@@ -1,5 +1,7 @@
 Config = {}
 
+Config.Debug = true --false on live server
+
 --Webhok Setup
 Config.Webhooks = {
     RanchCreation = { --ranch creation webhook
@@ -13,6 +15,16 @@ Config.Webhooks = {
         ----- Dont Change just translate ----
         TitleText = 'Ranch Id ',
         DescText = 'Bought ',
+        Cows = 'Cows',
+        Pigs = 'Pigs',
+        Goats = 'Goats',
+        Chickens = 'Chickens',
+    },
+    AnimalSold = {
+        WebhookLink = '', --insert your webhook link (leave blank for no webhook)
+        ----- Dont Change Just Translate -----
+        TitleText = 'Ranch ID ',
+        Sold = 'Sold ',
         Cows = 'Cows',
         Pigs = 'Pigs',
         Goats = 'Goats',
@@ -34,6 +46,8 @@ Config.ChoreConfig = {
 
 Config.RanchSetup = {
     RanchCondDecrease = 1800000, --This is how often the ranches condition will decrease over time
+    InvLimit = 200, --Maximum inventory space the ranch will have
+    InvName = 'Ranch Inventory', --Name of the inventory
     RanchCondDecreaseAmount = 10, --how much it will decrease
     MaxRanchCondition = 100, --This is the maximum ranch condition possible. This can only be set upto 999
     BlipHash = 'blip_mp_predator_hunt_mask', --ranch blip hash
@@ -199,5 +213,7 @@ Config.Language = {
     KillAnimal = 'Kill The Animal!',
     GoSkin = 'Animal Killed go butcher it to get rewards!',
     Skin = 'Press "G" to butcher animal',
-    AnimalKilled = 'You Butchered The Animal!'
+    AnimalKilled = 'You Butchered The Animal!',
+    Inventory = 'Ranch Inventory',
+    Inventory_desc = 'Your ranchs inventory, anything you store here will be safe!'
 }
