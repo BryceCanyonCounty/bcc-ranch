@@ -10,12 +10,14 @@ BccUtils = exports['bcc-utils'].initiate()
 ------ Commands Admin Check --------
 RegisterServerEvent('bcc-ranch:AdminCheck', function(nextevent, servevent)
     local _source = source
-    local User = VORPcore.getUser(_source)
-    if User.getGroup == Config.AdminGroupName then
-        if servevent then
-            TriggerEvent(nextevent)
-        else
-            TriggerClientEvent(nextevent, _source)
+    local Character = VORPcore.getUser(_source).getUsedCharacter
+    for k, v in pairs(Config.AdminSteamIds) do
+        if Character.identifier == v.steamid then
+            if servevent then
+                TriggerEvent(nextevent)
+            else
+                TriggerClientEvent(nextevent, _source)
+            end
         end
     end
 end)
@@ -269,6 +271,48 @@ RegisterServerEvent('bcc-ranch:DecranchCondIncrease', function(ranchid)
             exports.oxmysql:execute('UPDATE ranch SET `ranchCondition`=ranchCondition-@levelinc WHERE ranchid=@ranchid', param)
         end
     end)
+end)
+
+------------ Export Area ------------------
+exports('CheckIfRanchIsOwned', function(charIdentifier) --credit to the whole bcc dev team for help with this
+    local param = { ['charidentifier'] = charIdentifier }
+    local result = MySQL.query.await("SELECT * FROM ranch WHERE charidentifier=@charidentifier", param)
+    if #result > 0 then
+        return true
+    else
+        return false
+    end
+end)
+
+------------- Get Players Function Credit to vorp admin for this ------------------
+--get players info list
+PlayersTable = {}
+RegisterServerEvent('bcc-ranch:GetPlayers')
+AddEventHandler('bcc-ranch:GetPlayers', function()
+    local _source = source
+    local data = {}
+
+    for _, player in ipairs(PlayersTable) do
+        local User = VORPcore.getUser(player)
+        if User then
+            local Character = VORPcore.getUser(_source).getUsedCharacter
+
+            local playername = Character.firstname .. ' ' .. Character.lastname --player char name
+
+            data[tostring(player)] = {
+                serverId = player,
+                PlayerName = playername,
+                staticid = Character.charIdentifier,
+            }
+        end
+    end
+    TriggerClientEvent("bcc-ranch:SendPlayers", _source, data)
+end)
+
+-- check if staff is available
+RegisterServerEvent("bcc-ranch:getPlayersInfo", function(source)
+    local _source = source
+    PlayersTable[#PlayersTable + 1] = _source -- add all players
 end)
 
 ----- Version Check ----
