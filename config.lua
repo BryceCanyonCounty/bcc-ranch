@@ -126,14 +126,22 @@ Config.SaleLocations = {
     {
         LocationName = 'Sale Area 1', --this will be the name of the blip
         Coords = {x = -281.72, y = 697.67, z = 113.49}, --the coords the player will have to go to
-    },
+    }, --to add more just copy this table paste and change what you want
     {
         LocationName = 'Sale Area 2',
         Coords = {x = -239.39, y = 710.95, z = 113.29},
     },
 }
 
-Config.AdminGroupName = 'admin' --Make this the name of the user group that will handle creaing ranches deleting ranches etc
+---------- Admin Configuration (Anyone listed here will be able to create and delete ranches!) -----------
+Config.AdminSteamIds = {
+    {
+        steamid = 'steam:11000013707db22', --insert players steam id
+    }, --to add more just copy this table paste and change id
+    {
+        steamid = 'id2'
+    }
+}
 Config.CreateRanchCommand = 'createranch' --name of the command used to create ranches!
 
 ------------- Translate Here ------------------------
@@ -146,8 +154,8 @@ Config.Language = {
     RanchRadiusLimit_desc = 'Will limit how far away the owner can set things like chore locations',
     CreateRanchTitle = 'Create a Ranch!',
     InvalidInput = 'Invalid Input',
-    StaticId = 'Owners Static Id',
-    StaticId_desc = 'The Owner of the ranchs static id',
+    StaticId = 'Set Owner',
+    StaticId_desc = 'Assign The Ranch Owner',
     OpenRanchMenu = 'Press "G" To Open Ranch Menu!',
     Caretaking = 'Caretaking',
     Caretaking_desc = 'Work To keep up the ranch!',
@@ -215,5 +223,10 @@ Config.Language = {
     Skin = 'Press "G" to butcher animal',
     AnimalKilled = 'You Butchered The Animal!',
     Inventory = 'Ranch Inventory',
-    Inventory_desc = 'Your ranchs inventory, anything you store here will be safe!'
+    Inventory_desc = 'Your ranchs inventory, anything you store here will be safe!',
+    SteamName = "Steam Name",
+    ServId = 'Server ID',
+    PGroup = 'Player Group',
+    OwnerSet = 'Owner Set'
+
 }

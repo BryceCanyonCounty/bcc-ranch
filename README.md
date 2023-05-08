@@ -27,6 +27,7 @@
 - Highly configurable, and easy to configure!
 - Easy to translate via a Config.Language!
 - Inventory system built into the ranch!
+- Export API for other scripts to interact with this one!
 
 # How it works
 - Admins can make a ranch by entering the command, they will be greeted with a menu to name the ranch, insert the ranches radius, and the owners static id!
@@ -38,4 +39,16 @@
 - This is a massive project there is most likely oversights if you have any suggestions or bugs report them asap!
 - Ranch names can not have spaces in them currently!
 - To delete ranches you will currently have to delete them manually from the database!
-- Make sure admins trying to create ranches thier user group is admin or whatever you set the group to in the config!
+- Make sure to set yourself admin in the config.lua by adding your steam id where it asks for it!
+
+## API
+
+### Check if player owns a ranch!
+- To check if a player owns a ranch you can use
+```
+local _source = source
+local Character = VORPcore.getUser(_source).getUsedCharacter
+local result = exports['bcc-ranch']:CheckIfRanchIsOwned(Character.charIdentifier)
+```
+- This Api Is Server Side Only result will be true if the player owns a ranch false if they do not
+- You will need to pass the character id so you will have to have vorp core
