@@ -6,8 +6,12 @@ AddEventHandler('vorp:SelectedCharacter', function()
     TriggerServerEvent('bcc-ranch:CheckIfRanchIsOwned')
 end)
 
-RegisterCommand('ranchstart', function()
-    TriggerServerEvent('bcc-ranch:CheckIfRanchIsOwned')
+CreateThread(function()
+    if Config.Debug then
+        RegisterCommand('ranchstart', function()
+            TriggerServerEvent('bcc-ranch:CheckIfRanchIsOwned')
+        end)
+    end
 end)
 
 ---- This will handle opening ranch menu -----
@@ -16,12 +20,12 @@ RegisterNetEvent('bcc-ranch:HasRanchHandler', function(ranch)
     RanchRadius = ranch.ranch_radius_limit
     RanchId = ranch.ranchid
     TriggerEvent('bcc-ranch:StartCondDec')
-    local pl = PlayerPedId()
     local blip = VORPutils.Blips:SetBlip(ranch.ranchname, Config.RanchSetup.BlipHash, 0.2, RanchCoords.x, RanchCoords.y, RanchCoords.z)
     while true do
-        Citizen.Wait(10)
-        local plc = GetEntityCoords(pl)
-        if GetDistanceBetweenCoords(plc.x, plc.y, plc.z, RanchCoords.x, RanchCoords.y, RanchCoords.z, true) < 5 then
+        Wait(5)
+        local plc = GetEntityCoords(PlayerPedId())
+        local dist = GetDistanceBetweenCoords(plc.x, plc.y, plc.z, RanchCoords.x, RanchCoords.y, RanchCoords.z, true)
+        if dist < 5 then
             BccUtils.Misc.DrawText3D(RanchCoords.x, RanchCoords.y, RanchCoords.z, Config.Language.OpenRanchMenu)
             if IsControlJustReleased(0, 0x760A9C6F) then
                 if not Inmenu then
@@ -32,6 +36,8 @@ RegisterNetEvent('bcc-ranch:HasRanchHandler', function(ranch)
                     end
                 end
             end
+        elseif dist > 200 then
+            Wait(2000)
         end
     end
 end)

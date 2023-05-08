@@ -44,7 +44,7 @@ function SellAnimals(animaltype, animal_cond)
 
     local animalsnear = false
     while true do
-        Citizen.Wait(50)
+        Wait(50)
         for k, v in pairs(peds) do
             local cp = GetEntityCoords(v)
             if GetDistanceBetweenCoords(cp.x, cp.y, cp.z, finalsalecoords.Coords.x, finalsalecoords.Coords.y, finalsalecoords.Coords.z, true) < 15 then
@@ -124,7 +124,7 @@ function herdanimals(animaltype, ranchcond)
 
     local animalsnear = false
     while true do
-        Citizen.Wait(50)
+        Wait(50)
         for k, v in pairs(peds) do
             local cp = GetEntityCoords(v)
             if GetDistanceBetweenCoords(cp.x, cp.y, cp.z, Herdlocation.x, Herdlocation.y, Herdlocation.z, true) < 15 then
@@ -148,7 +148,7 @@ function herdanimals(animaltype, ranchcond)
 
     VORPutils.Gps:SetGps(plc.x, plc.y, plc.z)
     while true do
-        Citizen.Wait(50)
+        Wait(50)
         for k, v in pairs(peds) do
             local cp = GetEntityCoords(v)
             if GetDistanceBetweenCoords(cp.x, cp.y, cp.z, plc.x, plc.y, plc.z, true) < 15 then
@@ -214,7 +214,7 @@ function ButcherAnimals(animaltype)
     FreezeEntityPosition(createdped, true)
     VORPcore.NotifyRightTip(Config.Language.KillAnimal, 4000)
     while true do
-        Citizen.Wait(5)
+        Wait(5)
         if PlayerDead then break end
         if IsEntityDead(createdped) then
             VORPcore.NotifyRightTip(Config.Language.GoSkin, 4000) break
@@ -222,7 +222,7 @@ function ButcherAnimals(animaltype)
     end
 
     while true do
-        Citizen.Wait(5)
+        Wait(5)
         local pl = GetEntityCoords(PlayerPedId())
         local cp = GetEntityCoords(createdped)
         if PlayerDead then break end

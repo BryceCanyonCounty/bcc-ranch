@@ -2,7 +2,7 @@
 Inmenu = false
 AddEventHandler('bcc-ranch:MenuClose', function()
     while true do
-        Citizen.Wait(10)
+        Wait(10)
         if IsControlJustReleased(0, 0x156F7119) then
             if Inmenu then
                 Inmenu = false

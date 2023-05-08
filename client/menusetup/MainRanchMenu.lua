@@ -8,6 +8,7 @@ function MainMenu()
         { label = Config.Language.Caretaking, value = 'caretaking', desc = Config.Language.Caretaking_desc },
         { label = Config.Language.BuyAnimals, value = 'buyanimals', desc = Config.Language.BuyAnimals_desc },
         { label = Config.Language.ManageAnimals, value = 'manageanimals', desc = Config.Language.ManageAnimals_desc },
+        { label = Config.Language.Inventory, value = 'openinv', desc = Config.Language.Inventory_desc },
     }
 
     MenuData.Open('default', GetCurrentResourceName(), 'menuapi',
@@ -28,7 +29,8 @@ function MainMenu()
                 BuyAnimalMenu()
             elseif data.current.value == 'manageanimals' then
                 ManageOwnedAnimalsMenu()
+            elseif data.current.value == 'openinv' then
+                TriggerServerEvent('bcc-ranch:OpenInv', RanchId)
             end
         end)
-
 end

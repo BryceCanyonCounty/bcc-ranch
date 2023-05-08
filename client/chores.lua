@@ -16,19 +16,21 @@ RegisterNetEvent('bcc-ranch:ShovelHay', function(chore)
 
     InMission = true
     VORPcore.NotifyRightTip(Config.Language.GoToChoreLocation, 4000)
-    local pl = PlayerPedId()
     TriggerEvent('bcc-ranch:ChoreDeadCheck')
     
     while true do
-        Citizen.Wait(10)
+        Wait(10)
         if PlayerDead then break end
-        local plc = GetEntityCoords(pl)
+        local plc = GetEntityCoords(PlayerPedId())
         local dist = GetDistanceBetweenCoords(plc.x, plc.y, plc.z, chorecoords.x, chorecoords.y, chorecoords.z, true)
         if dist < 15 then
             BccUtils.Misc.DrawText3D(chorecoords.x, chorecoords.y, chorecoords.z, Config.Language.StartChore)
         end
         if dist < 5 then
             if IsControlJustReleased(0, 0x760A9C6F) then break end
+        end
+        if dist > 200 then
+            Wait(2000)
         end
     end
 
@@ -37,9 +39,9 @@ RegisterNetEvent('bcc-ranch:ShovelHay', function(chore)
         VORPcore.NotifyRightTip(Config.Language.PlayerDead, 4000) return
     end
 
-    TaskStartScenarioInPlace(pl, choreanim, animtime, true, false, false, false)
+    TaskStartScenarioInPlace(PlayerPedId(), choreanim, animtime, true, false, false, false)
     Wait(animtime)
-    ClearPedTasksImmediately(pl)
+    ClearPedTasksImmediately(PlayerPedId())
     if PlayerDead then
         InMission = false
         VORPcore.NotifyRightTip(Config.Language.PlayerDead, 4000) return
@@ -54,7 +56,7 @@ end)
 AddEventHandler('bcc-ranch:ChoreDeadCheck', function()
     local pl = PlayerPedId()
     while InMission do
-        Citizen.Wait(1000)
+        Wait(1000)
         if IsEntityDead(pl) then
             PlayerDead = true break
         end

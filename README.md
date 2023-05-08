@@ -26,6 +26,7 @@
 - Ranch condition decreases over time when ranch owner is online!
 - Highly configurable, and easy to configure!
 - Easy to translate via a Config.Language!
+- Inventory system built into the ranch!
 
 # How it works
 - Admins can make a ranch by entering the command, they will be greeted with a menu to name the ranch, insert the ranches radius, and the owners static id!
