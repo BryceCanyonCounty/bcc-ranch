@@ -3,6 +3,8 @@ InMission = false
 RegisterNetEvent('vorp:SelectedCharacter')
 AddEventHandler('vorp:SelectedCharacter', function()
     Wait(7000)
+    local player = GetPlayerServerId(tonumber(PlayerId())) --credit vorp_admin
+    TriggerServerEvent("bcc-ranch:getPlayersInfo", player) --credit vorp_admin
     TriggerServerEvent('bcc-ranch:CheckIfRanchIsOwned')
 end)
 

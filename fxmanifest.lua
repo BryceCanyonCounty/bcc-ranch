@@ -11,6 +11,7 @@ shared_scripts {
 
 server_scripts {
     'server/server.lua',
+    '@oxmysql/lib/MySQL.lua',
 }
 
 client_scripts {
@@ -32,4 +33,4 @@ dependency {
 }
 
 
-version '1.0.1'
+version '1.0.2'

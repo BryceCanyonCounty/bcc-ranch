@@ -28,3 +28,15 @@ end
 function relationshipsetup(ped, relint) --ped and player relationship setter, rail int is 1-5 1 being friend 5 being hate
   SetRelationshipBetweenGroups(relint, GetPedRelationshipGroupHash(ped), joaat('PLAYER'))
 end
+
+function GetPlayers()
+  TriggerServerEvent("bcc-ranch:GetPlayers")
+  local playersData = {}
+  RegisterNetEvent("bcc-ranch:SendPlayers", function(result)
+    playersData = result
+  end)
+  while next(playersData) == nil do
+    Wait(10)
+  end
+  return playersData
+end
