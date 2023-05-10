@@ -325,7 +325,8 @@ AddEventHandler('bcc-ranch:GetPlayers', function()
     for _, player in ipairs(PlayersTable) do
         local User = VORPcore.getUser(player)
         if User then
-            local Character = VORPcore.getUser(_source).getUsedCharacter
+
+            local Character = User.getUsedCharacter --get player info
 
             local playername = Character.firstname .. ' ' .. Character.lastname --player char name
 

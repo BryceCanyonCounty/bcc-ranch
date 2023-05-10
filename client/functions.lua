@@ -29,6 +29,7 @@ function relationshipsetup(ped, relint) --ped and player relationship setter, ra
   SetRelationshipBetweenGroups(relint, GetPedRelationshipGroupHash(ped), joaat('PLAYER'))
 end
 
+-------- Get Players Function --------
 function GetPlayers()
   TriggerServerEvent("bcc-ranch:GetPlayers")
   local playersData = {}
