@@ -61,6 +61,36 @@ RegisterServerEvent('bcc-ranch:InsertCreatedRanchIntoDB', function(ranchname, ra
     BccUtils.Discord.sendMessage(Config.Webhooks.RanchCreation.WebhookLink, 'BCC Ranch', 'https://gamespot.com/a/uploads/original/1179/11799911/3383938-duck.jpg', Config.Webhooks.RanchCreation.TitleText .. tostring(Character.charIdentifier), Config.Webhooks.RanchCreation.Text .. tostring(ownerstaticid))
 end)
 
+----------------------- Ranch Admin Menu Handlers ------------------------------
+----- Delete Ranch From Db Hanlder -------------
+RegisterServerEvent('bcc-ranch:DeleteRanchFromDB', function(ranchid)
+    local param = { ['ranchid'] = ranchid }
+    exports.oxmysql:execute("DELETE FROM ranch WHERE ranchid=@ranchid", param)
+end)
+
+-------- Change ranch radius handler ------
+RegisterServerEvent('bcc-ranch:ChangeRanchRadius', function(ranchid, radius)
+    local param = { ['ranchid'] = ranchid, ['radius'] = radius }
+    exports.oxmysql:execute('UPDATE ranch SET `ranch_radius_limit`=@radius WHERE ranchid=@ranchid', param)
+end)
+
+------- Change ranch name handler ------
+RegisterServerEvent('bcc-ranch:ChangeRanchname', function(ranchid, name)
+    local param = { ['ranchid'] = ranchid, ['name'] = name }
+    exports.oxmysql:execute('UPDATE ranch SET `ranchname`=@name WHERE ranchid=@ranchid', param)
+end)
+
+------------ Event Too Get All Ranches For Admin Menu -------------
+RegisterServerEvent('bcc-ranch:GetAllRanches', function()
+    local _source = source
+    local result = MySQL.query.await("SELECT * FROM ranch")
+    if #result > 0 then
+        TriggerClientEvent('bcc-ranch:CatchAllRanches', _source, result)
+    else
+        VORPcore.NotifyRightTip(_source, Config.Language.NoRanches, 4000)
+    end
+end)
+
 ----- Checking If Character Owns a ranch -----
 RegisterServerEvent('bcc-ranch:CheckIfRanchIsOwned', function()
     local _source = source

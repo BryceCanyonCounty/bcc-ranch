@@ -11,6 +11,8 @@ end)
 CreateThread(function()
     if Config.Debug then
         RegisterCommand('ranchstart', function()
+            local player = GetPlayerServerId(tonumber(PlayerId())) --credit vorp_admin
+            TriggerServerEvent("bcc-ranch:getPlayersInfo", player) --credit vorp_admin
             TriggerServerEvent('bcc-ranch:CheckIfRanchIsOwned')
         end)
     end
@@ -58,4 +60,13 @@ end)
 ------ Command To Create Ranch ------
 RegisterCommand(Config.CreateRanchCommand, function()
     TriggerServerEvent('bcc-ranch:AdminCheck', 'bcc-ranch:CreateRanchmenu', false)
+end)
+
+------ Command To Manage Ranches ------
+RegisterCommand(Config.ManageRanchsCommand, function()
+    TriggerServerEvent('bcc-ranch:AdminCheck', 'bcc-ranch:Openranchmanagerment', false)
+end)
+
+RegisterNetEvent('bcc-ranch:Openranchmanagerment', function()
+    TriggerServerEvent('bcc-ranch:GetAllRanches')
 end)
