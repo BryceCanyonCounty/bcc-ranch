@@ -6,7 +6,7 @@ AddEventHandler('bcc-ranch:MenuClose', function()
         if IsControlJustReleased(0, 0x156F7119) then
             if Inmenu then
                 Inmenu = false
-                MenuData.CloseAll()
+                MenuData.CloseAll() break
             end
         end
     end

@@ -143,6 +143,7 @@ Config.AdminSteamIds = {
     }
 }
 Config.CreateRanchCommand = 'createranch' --name of the command used to create ranches!
+Config.ManageRanchsCommand = 'manageranches' --name of the command used to manage ranches!
 
 ------------- Translate Here ------------------------
 Config.Language = {
@@ -227,6 +228,22 @@ Config.Language = {
     SteamName = "Steam Name",
     ServId = 'Server ID',
     PGroup = 'Player Group',
-    OwnerSet = 'Owner Set'
+    OwnerSet = 'Owner Set',
+    ManageRanches = 'Manage Ranches',
+    ManageRanches_desc = 'Manage Player ranches',
+    Ranchid = 'Ranch ID ',
+    
+    ------- Admin ranch Managment -----
+    NoRanches = 'There Are no existing ranches in database',
+    DeleteRanch = 'Delete Ranch',
+    DeleteRanch_desc = 'Delete this ranch? This action can not be undone!',
+    RanchDeleted = 'Ranch Deleted!',
 
+    ChangeRanchRadius = "Change Ranch Radius",
+    ChangeRanchRadius_desc = 'Change the ranches radius?',
+    RadiusChanged = 'Radius Changed!',
+
+    ChangeRanchName = 'Change Ranch Name',
+    ChangeRanchName_desc = 'Change the ranches name?',
+    NameChanged = 'Name Changed!'
 }
