@@ -28,6 +28,7 @@
 - Easy to translate via a Config.Language!
 - Inventory system built into the ranch!
 - Export API for other scripts to interact with this one!
+- Ranch Managment menu for admins to delete ranch's, rename, and change thier radius!
 
 # How it works
 - Admins can make a ranch by entering the command, they will be greeted with a menu to name the ranch, insert the ranches radius, and the owners static id!
