@@ -68,6 +68,12 @@ RegisterServerEvent('bcc-ranch:DeleteRanchFromDB', function(ranchid)
     exports.oxmysql:execute("DELETE FROM ranch WHERE ranchid=@ranchid", param)
 end)
 
+------ Change Ranch Condition --------
+RegisterServerEvent('bcc-ranch:ChangeRanchCondAdminMenu', function(ranchid, cond)
+    local param = { ['ranchid'] = ranchid, ['ranchcond'] = cond }
+    exports.oxmysql:execute("UPDATE ranch SET `ranchCondition`=@ranchcond WHERE ranchid=@ranchid", param)
+end)
+
 -------- Change ranch radius handler ------
 RegisterServerEvent('bcc-ranch:ChangeRanchRadius', function(ranchid, radius)
     local param = { ['ranchid'] = ranchid, ['radius'] = radius }
@@ -304,6 +310,7 @@ RegisterServerEvent('bcc-ranch:DecranchCondIncrease', function(ranchid)
 end)
 
 ------------ Export Area ------------------
+-- Check If player owns ranch exports
 exports('CheckIfRanchIsOwned', function(charIdentifier) --credit to the whole bcc dev team for help with this
     local param = { ['charidentifier'] = charIdentifier }
     local result = MySQL.query.await("SELECT * FROM ranch WHERE charidentifier=@charidentifier", param)
@@ -312,6 +319,18 @@ exports('CheckIfRanchIsOwned', function(charIdentifier) --credit to the whole bc
     else
         return false
     end
+end)
+
+--Increase Ranch Condition Export
+exports('IncreaseRanchCondition', function(charIdentifier, amount)
+    local param = { ['charidentifier'] = charIdentifier, ['amount'] = amount }
+    exports.oxmysql:execute('UPDATE ranch SET `ranchCondition`=ranchCondition+@amount WHERE charidentifier=@charidentifier', param)
+end)
+
+--Decrease Ranch Condition Export
+exports('DecreaseRanchCondition', function(charIdentifier, amount)
+    local param = { ['charidentifier'] = charIdentifier, ['amount'] = amount }
+    exports.oxmysql:execute('UPDATE ranch SET `ranchCondition`=ranchCondition-@amount WHERE charidentifier=@charidentifier', param)
 end)
 
 ------------- Get Players Function Credit to vorp admin for this ------------------

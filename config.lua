@@ -42,6 +42,14 @@ Config.ChoreConfig = {
         AnimTime = 10000,
         ConditionIncrease = 5,
     },
+    RepairFeedTrough = {
+        AnimTime = 15000,
+        ConditionIncrease = 20,
+    },
+    ShovelPoop = {
+        AnimTime = 5000,
+        ConditionIncrease = 5,
+    },
 }
 
 Config.RanchSetup = {
@@ -54,6 +62,7 @@ Config.RanchSetup = {
     HerdingMinDistance = 70, --this is the minimum distance a player will have to be from there ranch to set thier herd location
     RanchAnimalSetup = { --ranch animal setup
         Cows = {
+            Health = 200, --How much health the cows will have while being herded or sold
             Cost = 500, --cost to buy animal
             MaxCondition = 200, --the maximum condition the animal can reach
             BasePay = 300, --This is the base pay(what will be paid when selling the animal if animal condition is not max)
@@ -70,6 +79,7 @@ Config.RanchSetup = {
             },
         },
         Pigs = {
+            Health = 200, --How much health the pigs will have while being herded or sold
             Cost = 200,
             MaxCondition = 100,
             BasePay = 200,
@@ -86,6 +96,7 @@ Config.RanchSetup = {
             },
         },
         Goats = {
+            Health = 200, --How much health the goats will have while being herded or sold
             Cost = 100,
             MaxCondition = 50,
             BasePay = 100,
@@ -102,6 +113,7 @@ Config.RanchSetup = {
             },
         },
         Chickens = {
+            Health = 200, --How much health the chickens will have while being herded or sold
             Cost = 50,
             MaxCondition = 20,
             BasePay = 50,
@@ -157,7 +169,8 @@ Config.Language = {
     InvalidInput = 'Invalid Input',
     StaticId = 'Set Owner',
     StaticId_desc = 'Assign The Ranch Owner',
-    OpenRanchMenu = 'Press "G" To Open Ranch Menu!',
+    OpenRanchMenu = 'Manage Your Ranch!',
+    OpenRanchMenu_desc = 'Your Ranch',
     Caretaking = 'Caretaking',
     Caretaking_desc = 'Work To keep up the ranch!',
     RanchMenuName = 'Your Ranch!',
@@ -221,7 +234,7 @@ Config.Language = {
     ButcherAnimal_desc = 'Butcher Animal? Doing this while kill your animals, but will give you supplies.',
     KillAnimal = 'Kill The Animal!',
     GoSkin = 'Animal Killed go butcher it to get rewards!',
-    Skin = 'Press "G" to butcher animal',
+    Skin = 'Butcher Animal',
     AnimalKilled = 'You Butchered The Animal!',
     Inventory = 'Ranch Inventory',
     Inventory_desc = 'Your ranchs inventory, anything you store here will be safe!',
@@ -232,6 +245,11 @@ Config.Language = {
     ManageRanches = 'Manage Ranches',
     ManageRanches_desc = 'Manage Player ranches',
     Ranchid = 'Ranch ID ',
+    Failed = 'Failed!',
+    RepairTroughChore = "Repair Feed Trough",
+    RepairFeedTrough_desc = 'Repair Feeding Trouhgs? This will increase your ranches condition.',
+    ScoopPoopChore = 'Shovel Poop',
+    ScoopPoopChore_desc = 'Shovel Poop? This will increase your ranches condition.',
     
     ------- Admin ranch Managment -----
     NoRanches = 'There Are no existing ranches in database',
@@ -245,5 +263,10 @@ Config.Language = {
 
     ChangeRanchName = 'Change Ranch Name',
     ChangeRanchName_desc = 'Change the ranches name?',
-    NameChanged = 'Name Changed!'
+    NameChanged = 'Name Changed!',
+
+    ChangeRanchCond = 'Change Ranch Condition',
+    ChangeRanchCond_desc = 'Change the ranches condition?',
+    CondChanged = 'Condition Changed!',
+    InsertRanchCond = 'Insert Condition'
 }

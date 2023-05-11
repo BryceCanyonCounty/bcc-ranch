@@ -12,6 +12,7 @@ TriggerEvent("menuapi:getData", function(call)
   MenuData = call
 end)
 BccUtils = exports['bcc-utils'].initiate()
+MiniGame = exports['bcc-minigames'].initiate()
 
 ------- Load Model -------
 function modelload(model)

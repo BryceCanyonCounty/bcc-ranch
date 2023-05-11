@@ -30,7 +30,8 @@ dependency {
     'vorp_character',
     'menuapi',
     'vorp_inputs',
+    'bcc-minigames',
 }
 
 
-version '1.0.3'
+version '1.0.4'
