@@ -32,6 +32,7 @@ function SellAnimals(animaltype, animal_cond)
         Citizen.InvokeNative(0x283978A15512B2FE, createdped, true)
         SetBlockingOfNonTemporaryEvents(createdped, true)
         Citizen.InvokeNative(0x9587913B9E772D29, createdped, true)
+        SetEntityHealth(createdped, tables.Health, 0)
         table.insert(peds, createdped)
         catch = catch + 1
     until catch == tables.AmountSpawned
@@ -113,6 +114,7 @@ function herdanimals(animaltype, ranchcond)
         Citizen.InvokeNative(0x283978A15512B2FE, createdped, true)
         Citizen.InvokeNative(0x9587913B9E772D29, createdped, true)
         table.insert(peds, createdped)
+        SetEntityHealth(createdped, tables.Health, 0)
         catch = catch + 1
     until catch == tables.AmountSpawned
     for k, v in pairs(peds) do
@@ -221,14 +223,16 @@ function ButcherAnimals(animaltype)
         end
     end
 
+    local  PromptGroup = VORPutils.Prompts:SetupPromptGroup()
+    local firstprompt = PromptGroup:RegisterPrompt(Config.Language.Skin, 0x760A9C6F, 1, 1, true, 'hold', {timedeventhash = "MEDIUM_TIMED_EVENT"})
     while true do
         Wait(5)
         local pl = GetEntityCoords(PlayerPedId())
         local cp = GetEntityCoords(createdped)
         if PlayerDead then break end
-        if GetDistanceBetweenCoords(pl.x, pl.y, pl.z, cp.x, cp.y, cp.z, true) < 5 then
-            BccUtils.Misc.DrawText3D(cp.x, cp.y, cp.z, Config.Language.Skin)
-            if IsControlJustReleased(0, 0x760A9C6F) then
+        if GetDistanceBetweenCoords(pl.x, pl.y, pl.z, cp.x, cp.y, cp.z, true) < 3 then
+            PromptGroup:ShowGroup('')
+            if firstprompt:HasCompleted() then
                 BccUtils.Ped.ScenarioInPlace(PlayerPedId(), 'WORLD_HUMAN_CROUCH_INSPECT', 5000)
                 DeletePed(createdped)
                 TriggerServerEvent('bcc-ranch:ButcherAnimalHandler', animaltype, RanchId, tables) break

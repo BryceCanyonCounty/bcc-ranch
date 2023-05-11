@@ -48,7 +48,7 @@ function CreateRanchMen()
             elseif data.current.value == 'nameranch' then
                 local myInput = {
                     type = "enableinput", -- don't touch
-                    inputType = "input", -- input type
+                    inputType = "textarea", -- input type
                     button = Config.Language.Confirm, -- button name
                     placeholder = Config.Language.NameRanch, -- placeholder name
                     style = "block", -- don't touch

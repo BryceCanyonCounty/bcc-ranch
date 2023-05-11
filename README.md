@@ -10,10 +10,11 @@
 - bcc-utils
 - VORP Character
 - Menuapi
+- bcc-minigames
 
 # Features
 - Admin locked command to create ranches!
-- Configurable chores to increase your ranches condition!
+- Configurable chores with minigames to increase your ranches condition!
 - Own 4 types of animals!
 - Sell your animals with pay changing based on thier condition!
 - Herd your animals around to increase thier condition the amount it increase changes based on the ranches condition!
@@ -53,3 +54,21 @@ local result = exports['bcc-ranch']:CheckIfRanchIsOwned(Character.charIdentifier
 ```
 - This Api Is Server Side Only result will be true if the player owns a ranch false if they do not
 - You will need to pass the character id so you will have to have vorp core
+
+### Increase ranch condition!
+- To increase a players ranch condition you can use
+```
+local _source = source
+local Character = VORPcore.getUser(_source).getUsedCharacter
+local result = exports['bcc-ranch']:IncreaseRanchCondition(Character.charIdentifier, amounttoincrease)
+```
+- Note amounttoincrease has to be a number value
+
+### Decrease ranch condition
+- To decrease a players ranch condition you can use
+```
+local _source = source
+local Character = VORPcore.getUser(_source).getUsedCharacter
+local result = exports['bcc-ranch']:DecreaseRanchCondition(Character.charIdentifier, amounttodecrease)
+```
+- Note amounttodecrease has to be a number value

@@ -27,13 +27,17 @@ RegisterNetEvent('bcc-ranch:HasRanchHandler', function(ranch)
     RanchId = ranch.ranchid
     TriggerEvent('bcc-ranch:StartCondDec')
     local blip = VORPutils.Blips:SetBlip(ranch.ranchname, Config.RanchSetup.BlipHash, 0.2, RanchCoords.x, RanchCoords.y, RanchCoords.z)
+    
+    local  PromptGroup = VORPutils.Prompts:SetupPromptGroup()
+    local firstprompt = PromptGroup:RegisterPrompt(Config.Language.OpenRanchMenu, 0x760A9C6F, 1, 1, true, 'hold', {timedeventhash = "MEDIUM_TIMED_EVENT"})
+
     while true do
         Wait(5)
         local plc = GetEntityCoords(PlayerPedId())
         local dist = GetDistanceBetweenCoords(plc.x, plc.y, plc.z, RanchCoords.x, RanchCoords.y, RanchCoords.z, true)
         if dist < 5 then
-            BccUtils.Misc.DrawText3D(RanchCoords.x, RanchCoords.y, RanchCoords.z, Config.Language.OpenRanchMenu)
-            if IsControlJustReleased(0, 0x760A9C6F) then
+            PromptGroup:ShowGroup(Config.Language.OpenRanchMenu_desc)
+            if firstprompt:HasCompleted() then
                 if not Inmenu then
                     if not InMission then
                         MainMenu()
