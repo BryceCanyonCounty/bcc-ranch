@@ -1,20 +1,20 @@
 ----- Variabless -----
-Cowcoords, Chickencoords, Goatcoords, Pigcoords, Herdlocation = nil, nil, nil, nil, nil
+Cowcoords, Chickencoords, Goatcoords, Pigcoords, Herdlocation, FeedWagonLocation = nil, nil, nil, nil, nil, nil
 
 ------ Buy Animals Menu --------
 function BuyAnimalMenu()
     Inmenu = false
     MenuData.CloseAll()
     local elements = {
-        { label = Config.Language.BuyCows .. ' ' .. tostring(Config.RanchSetup.RanchAnimalSetup.Cows.Cost), value = 'buycows', desc = Config.Language.BuyAnimals_desc },
-        { label = Config.Language.BuyPigs .. ' ' .. tostring(Config.RanchSetup.RanchAnimalSetup.Pigs.Cost), value = 'buypigs', desc = Config.Language.BuyPigs_desc },
-        { label = Config.Language.BuyChickens .. ' ' .. tostring(Config.RanchSetup.RanchAnimalSetup.Chickens.Cost), value = 'buychickens', desc = Config.Language.BuyChickens_desc },
-        { label = Config.Language.BuyGoats .. ' ' .. tostring(Config.RanchSetup.RanchAnimalSetup.Goats.Cost), value = 'buygoats', desc = Config.Language.BuyGoats_desc },
+        { label = _U("BuyCows") .. ' ' .. tostring(Config.RanchSetup.RanchAnimalSetup.Cows.Cost), value = 'buycows', desc = _U("BuyAnimals_desc") },
+        { label = _U("BuyPigs") .. ' ' .. tostring(Config.RanchSetup.RanchAnimalSetup.Pigs.Cost), value = 'buypigs', desc = _U("BuyPigs_desc") },
+        { label = _U("BuyChickens") .. ' ' .. tostring(Config.RanchSetup.RanchAnimalSetup.Chickens.Cost), value = 'buychickens', desc = _U("BuyChickens_desc") },
+        { label = _U("BuyGoats") .. ' ' .. tostring(Config.RanchSetup.RanchAnimalSetup.Goats.Cost), value = 'buygoats', desc = _U("BuyGoats_desc") },
     }
 
     MenuData.Open('default', GetCurrentResourceName(), 'menuapi',
         {
-            title = Config.Language.Caretaking,
+            title = _U("Caretaking"),
             align = 'top-left',
             elements = elements,
             lastmenu = 'MainMenu'
@@ -40,16 +40,17 @@ function ManageOwnedAnimalsMenu()
     Inmenu = false
     MenuData.CloseAll()
     local elements = {
-        { label = Config.Language.SetHerdLocation, value = 'setherdlocation', desc = Config.Language.SetHerdLocation_desc },
-        { label = Config.Language.ManageCows, value = 'managecows', desc = Config.Language.ManageCows_desc },
-        { label = Config.Language.ManageChickens, value = 'managechickens', desc = Config.Language.ManageChickens_desc },
-        { label = Config.Language.ManageGoats, value = 'managegoats', desc = Config.Language.ManageGoats_desc },
-        { label = Config.Language.ManagePigs, value = 'managepigs', desc = Config.Language.ManagePigs_desc },
+        { label = _U('SetHerdLocation'), value = 'setherdlocation', desc = _U("SetHerdLocation_desc") },
+        { label = _U('SetFeedWagonLocation'), value = 'setfeedwagonlocation', desc = _U("SetFeedWagonLocation_desc") },
+        { label = _U("ManageCows"), value = 'managecows', desc = _U("ManageCows_desc") },
+        { label = _U("ManageChickens"), value = 'managechickens', desc = _U("ManageChickens_desc") },
+        { label = _U("ManageGoats"), value = 'managegoats', desc = _U("ManageGoats_desc") },
+        { label = _U("ManagePigs"), value = 'managepigs', desc = _U("ManagePigs_desc") },
     }
 
     MenuData.Open('default', GetCurrentResourceName(), 'menuapi',
         {
-            title = Config.Language.ManageAnimals,
+            title = _U("ManageAnimals"),
             align = 'top-left',
             elements = elements,
             lastmenu = 'MainMenu'
@@ -58,15 +59,19 @@ function ManageOwnedAnimalsMenu()
             if data.current == 'backup' then
                 _G[data.trigger]()
             end
+            local pl = GetEntityCoords(PlayerPedId())
+            local dist = GetDistanceBetweenCoords(pl.x, pl.y, pl.z, RanchCoords.x, RanchCoords.y, RanchCoords.z, true)
             if data.current.value == 'setherdlocation' then
-                local pl = GetEntityCoords(PlayerPedId())
-                if GetDistanceBetweenCoords(pl.x, pl.y, pl.z, RanchCoords.x, RanchCoords.y, RanchCoords.z, true) > Config.RanchSetup.HerdingMinDistance then
+                if dist > Config.RanchSetup.HerdingMinDistance then
                     Herdlocation = pl
-                    VORPcore.NotifyRightTip(Config.Language.Coordsset, 4000)
+                    VORPcore.NotifyRightTip(_U('Coordsset'), 4000)
                     MenuData.CloseAll()
                 else
-                    VORPcore.NotifyRightTip(Config.Language.TooCloseToRanch, 4000)
+                    VORPcore.NotifyRightTip(_U("TooCloseToRanch"), 4000)
                 end
+            elseif data.current.value == 'setfeedwagonlocation' then
+                FeedWagonLocation = pl
+                VORPcore.NotifyRightTip(_U('Coordsset'), 4000)
             elseif data.current.value == 'managecows' then
                 TriggerServerEvent('bcc-ranch:CheckIfAnimalsAreOwned', RanchId, 'cows')
             elseif data.current.value == 'managechickens' then
@@ -85,47 +90,51 @@ RegisterNetEvent('bcc-ranch:OwnedAnimalManagerMenu', function(animal_cond, anima
     MenuData.CloseAll()
     if animaltype == 'pigs' then
         herdtype = 'pigs'
-        title = Config.Language.ManagePigs
+        title = _U("ManagePigs")
         maxcond = tostring(Config.RanchSetup.RanchAnimalSetup.Pigs.MaxCondition)
         elements = {
-            { label = Config.Language.CheckAnimalCond, value = 'checkanimal', desc = Config.Language.CheckAnimalCond_desc },
-            { label = Config.Language.SetCoords, value = 'setanimalcoords', desc = Config.Language.SetCoords_desc },
-            { label = Config.Language.HerdAnimal, value = 'herdanimal', desc = Config.Language.HerdAnimal_desc },
-            { label = Config.Language.SellCows, value = 'sellanimal', desc = Config.Language.SellCows_desc },
-            { label = Config.Language.ButcherAnimal, value = 'butcheranimal', desc = Config.Language.ButcherAnimal_desc },
+            { label = _U("CheckAnimalCond"), value = 'checkanimal', desc = _U("CheckAnimalCond_desc") },
+            { label = _U("SetCoords"), value = 'setanimalcoords', desc = _U("SetCoords_desc") },
+            { label = _U("HerdAnimal"), value = 'herdanimal', desc = _U("HerdAnimal_desc") },
+            { label = _U("SellCows"), value = 'sellanimal', desc = _U("SellCows_desc") },
+            { label = _U("ButcherAnimal"), value = 'butcheranimal', desc = _U("ButcherAnimal_desc") },
+            { label = _U("FeedAnimals"), value = 'feedanimal', desc = _U("FeedAnimals_desc") },
         }
     elseif animaltype == 'goats' then
         herdtype = 'goats'
-        title = Config.Language.ManageGoats
+        title = _U("ManageGoats")
         maxcond = tostring(Config.RanchSetup.RanchAnimalSetup.Goats.MaxCondition)
         elements = {
-            { label = Config.Language.CheckAnimalCond, value = 'checkanimal', desc = Config.Language.CheckAnimalCond_desc },
-            { label = Config.Language.SetCoords, value = 'setanimalcoords', desc = Config.Language.SetCoords_desc },
-            { label = Config.Language.HerdAnimal, value = 'herdanimal', desc = Config.Language.HerdAnimal_desc },
-            { label = Config.Language.SellCows, value = 'sellanimal', desc = Config.Language.SellCows_desc },
-            { label = Config.Language.ButcherAnimal, value = 'butcheranimal', desc = Config.Language.ButcherAnimal_desc },
+            { label = _U("CheckAnimalCond"), value = 'checkanimal', desc = _U("CheckAnimalCond_desc") },
+            { label = _U("SetCoords"), value = 'setanimalcoords', desc = _U("SetCoords_desc") },
+            { label = _U("HerdAnimal"), value = 'herdanimal', desc = _U("HerdAnimal_desc") },
+            { label = _U("SellCows"), value = 'sellanimal', desc = _U("SellCows_desc") },
+            { label = _U("ButcherAnimal"), value = 'butcheranimal', desc = _U("ButcherAnimal_desc") },
+            { label = _U("FeedAnimals"), value = 'feedanimal', desc = _U("FeedAnimals_desc") },
         }
     elseif animaltype == 'chickens' then
         herdtype = 'chickens'
-        title = Config.Language.ManageChickens
+        title = _U('ManageChickens')
         maxcond = tostring(Config.RanchSetup.RanchAnimalSetup.Chickens.MaxCondition)
         elements = {
-            { label = Config.Language.CheckAnimalCond, value = 'checkanimal', desc = Config.Language.CheckAnimalCond_desc },
-            { label = Config.Language.SetCoords, value = 'setanimalcoords', desc = Config.Language.SetCoords_desc },
-            { label = Config.Language.HerdAnimal, value = 'herdanimal', desc = Config.Language.HerdAnimal_desc },
-            { label = Config.Language.SellCows, value = 'sellanimal', desc = Config.Language.SellCows_desc },
-            { label = Config.Language.ButcherAnimal, value = 'butcheranimal', desc = Config.Language.ButcherAnimal_desc },
+            { label = _U("CheckAnimalCond"), value = 'checkanimal', desc = _U("CheckAnimalCond_desc") },
+            { label = _U("SetCoords"), value = 'setanimalcoords', desc = _U("SetCoords_desc") },
+            { label = _U("HerdAnimal"), value = 'herdanimal', desc = _U("HerdAnimal_desc") },
+            { label = _U("SellCows"), value = 'sellanimal', desc = _U("SellCows_desc") },
+            { label = _U("ButcherAnimal"), value = 'butcheranimal', desc = _U("ButcherAnimal_desc") },
+            { label = _U("FeedAnimals"), value = 'feedanimal', desc = _U("FeedAnimals_desc") },
         }
     elseif animaltype == 'cows' then
         herdtype = 'cows'
-        title = Config.Language.ManageCows
+        title = _U("ManageCows")
         maxcond = tostring(Config.RanchSetup.RanchAnimalSetup.Cows.MaxCondition)
         elements = {
-            { label = Config.Language.CheckAnimalCond, value = 'checkanimal', desc = Config.Language.CheckAnimalCond_desc },
-            { label = Config.Language.SetCoords, value = 'setanimalcoords', desc = Config.Language.SetCoords_desc },
-            { label = Config.Language.HerdAnimal, value = 'herdanimal', desc = Config.Language.HerdAnimal_desc },
-            { label = Config.Language.SellCows, value = 'sellanimal', desc = Config.Language.SellCows_desc },
-            { label = Config.Language.ButcherAnimal, value = 'butcheranimal', desc = Config.Language.ButcherAnimal_desc },
+            { label = _U("CheckAnimalCond"), value = 'checkanimal', desc = _U("CheckAnimalCond_desc") },
+            { label = _U("SetCoords"), value = 'setanimalcoords', desc = _U("SetCoords_desc") },
+            { label = _U("HerdAnimal"), value = 'herdanimal', desc = _U("HerdAnimal_desc") },
+            { label = _U("SellCows"), value = 'sellanimal', desc = _U("SellCows_desc") },
+            { label = _U("ButcherAnimal"), value = 'butcheranimal', desc = _U("ButcherAnimal_desc") },
+            { label = _U("FeedAnimals"), value = 'feedanimal', desc = _U("FeedAnimals_desc") },
         }
     end
 
@@ -153,13 +162,13 @@ RegisterNetEvent('bcc-ranch:OwnedAnimalManagerMenu', function(animal_cond, anima
                 elseif animaltype == 'cows' then
                     Cowcoords = pl
                 end
-                VORPcore.NotifyRightTip(Config.Language.Coordsset, 4000)
+                VORPcore.NotifyRightTip(_U("Coordsset"), 4000)
             elseif data.current.value == 'herdanimal' then
                 if Herdlocation ~= nil then
                     MenuData.CloseAll()
                     herdanimals(herdtype, ranchcond)
                 else
-                    VORPcore.NotifyRightTip(Config.Language.NoLocationSet, 4000)
+                    VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
                 end
             elseif data.current.value == 'sellanimal' then
                 if animaltype == 'pigs' then
@@ -167,28 +176,28 @@ RegisterNetEvent('bcc-ranch:OwnedAnimalManagerMenu', function(animal_cond, anima
                         MenuData.CloseAll()
                         SellAnimals('pigs', animal_cond)
                     else
-                        VORPcore.NotifyRightTip(Config.Language.NoLocationSet, 4000)
+                        VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
                     end
                 elseif animaltype == 'goats' then
                     if Goatcoords then
                         MenuData.CloseAll()
                         SellAnimals('goats', animal_cond)
                     else
-                        VORPcore.NotifyRightTip(Config.Language.NoLocationSet, 4000)
+                        VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
                     end
                 elseif animaltype == 'chickens' then
                     if Chickencoords then
                         MenuData.CloseAll()
                         SellAnimals('chickens', animal_cond)
                     else
-                        VORPcore.NotifyRightTip(Config.Language.NoLocationSet, 4000)
+                        VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
                     end
                 elseif animaltype == 'cows' then
                     if Cowcoords then
                         MenuData.CloseAll()
                         SellAnimals('cows', animal_cond)
                     else
-                        VORPcore.NotifyRightTip(Config.Language.NoLocationSet, 4000)
+                        VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
                     end
                 end
             elseif data.current.value == 'butcheranimal' then
@@ -197,29 +206,63 @@ RegisterNetEvent('bcc-ranch:OwnedAnimalManagerMenu', function(animal_cond, anima
                         MenuData.CloseAll()
                         ButcherAnimals('pigs')
                     else
-                        VORPcore.NotifyRightTip(Config.Language.NoLocationSet, 4000)
+                        VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
                     end
                 elseif animaltype == 'goats' then
                     if Goatcoords ~= nil then
                         MenuData.CloseAll()
                         ButcherAnimals('goats')
                     else
-                        VORPcore.NotifyRightTip(Config.Language.NoLocationSet, 4000)
+                        VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
                     end
                 elseif animaltype == 'chickens' then
                     if Chickencoords then
                         MenuData.CloseAll()
                         ButcherAnimals('chickens')
                     else
-                        VORPcore.NotifyRightTip(Config.Language.NoLocationSet, 4000)
+                        VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
                     end
                 elseif animaltype == 'cows' then
                     if Cowcoords then
                         MenuData.CloseAll()
                         ButcherAnimals('cows')
                     else
-                        VORPcore.NotifyRightTip(Config.Language.NoLocationSet, 4000)
+                        VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
                     end
+                end
+            elseif data.current.value == 'feedanimal' then
+                if FeedWagonLocation then
+                    if animaltype == 'pigs' then
+                        if Pigcoords ~= nil then
+                            MenuData.CloseAll()
+                            FeedAnimals('pigs')
+                        else
+                            VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
+                        end
+                    elseif animaltype == 'goats' then
+                        if Goatcoords ~= nil then
+                            MenuData.CloseAll()
+                            FeedAnimals('goats')
+                        else
+                            VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
+                        end
+                    elseif animaltype == 'chickens' then
+                        if Chickencoords then
+                            MenuData.CloseAll()
+                            FeedAnimals('chickens')
+                        else
+                            VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
+                        end
+                    elseif animaltype == 'cows' then
+                        if Cowcoords then
+                            MenuData.CloseAll()
+                            FeedAnimals('cows')
+                        else
+                            VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
+                        end
+                    end
+                else
+                    VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
                 end
             end
         end)

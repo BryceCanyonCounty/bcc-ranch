@@ -4,16 +4,16 @@ function MainMenu()
     TriggerEvent('bcc-ranch:MenuClose')
     MenuData.CloseAll()
     local elements = {
-        { label = Config.Language.CheckRanchCond, value = 'checkranchcond', desc = Config.Language.CheckRanchCond_desc },
-        { label = Config.Language.Caretaking, value = 'caretaking', desc = Config.Language.Caretaking_desc },
-        { label = Config.Language.BuyAnimals, value = 'buyanimals', desc = Config.Language.BuyAnimals_desc },
-        { label = Config.Language.ManageAnimals, value = 'manageanimals', desc = Config.Language.ManageAnimals_desc },
-        { label = Config.Language.Inventory, value = 'openinv', desc = Config.Language.Inventory_desc },
+        { label = _U("CheckRanchCond"), value = 'checkranchcond', desc = _U("CheckRanchCond_desc") },
+        { label = _U("Caretaking"), value = 'caretaking', desc = _U("Caretaking_desc") },
+        { label = _U("BuyAnimals"), value = 'buyanimals', desc = _U("BuyAnimals_desc") },
+        { label = _U("ManageAnimals"), value = 'manageanimals', desc = _U("ManageAnimals_desc") },
+        { label = _U("Inventory"), value = 'openinv', desc = _U("Inventory_desc") },
     }
 
     MenuData.Open('default', GetCurrentResourceName(), 'menuapi',
         {
-            title = Config.Language.RanchMenuName,
+            title = _U("RanchMenuName"),
             align = 'top-left',
             elements = elements,
         },

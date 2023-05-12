@@ -26,15 +26,15 @@ function CreateRanchMen()
     MenuData.CloseAll()
     
     local elements = {
-        { label = Config.Language.StaticId, value = 'staticid', desc = Config.Language.StaticId_desc },
-        { label = Config.Language.NameRanch, value = 'nameranch', desc = Config.Language.NameRanch_desc },
-        { label = Config.Language.RanchRadiusLimit, value = 'radiuslimit', desc = Config.Language.RanchRadiusLimit_desc },
-        { label = Config.Language.Confirm, value = 'confirm', desc = Config.Language.Confirm_desc }
+        { label = _U("StaticId"), value = 'staticid', desc = _U("StaticId_desc") },
+        { label = _U("NameRanch"), value = 'nameranch', desc = _U("NameRanch_desc") },
+        { label = _U("RanchRadiusLimit"), value = 'radiuslimit', desc = _U("RanchRadiusLimit_desc") },
+        { label = _U("Confirm"), value = 'confirm', desc = _U("Confirm_desc") }
     }
 
     MenuData.Open('default', GetCurrentResourceName(), 'menuapi',
         {
-            title = Config.Language.CreateRanchTitle,
+            title = _U("CreateRanchTitle"),
             align = 'top-left',
             elements = elements,
         },
@@ -49,14 +49,14 @@ function CreateRanchMen()
                 local myInput = {
                     type = "enableinput", -- don't touch
                     inputType = "textarea", -- input type
-                    button = Config.Language.Confirm, -- button name
-                    placeholder = Config.Language.NameRanch, -- placeholder name
+                    button = _U("Confirm"), -- button name
+                    placeholder = _U("NameRanch"), -- placeholder name
                     style = "block", -- don't touch
                     attributes = {
                         inputHeader = "", -- header
                         type = "text", -- inputype text, number,date,textarea ETC
                         pattern = "[A-Za-z]+", --  only numbers "[0-9]" | for letters only "[A-Za-z]+" 
-                        title = Config.Language.InvalidInput, -- if input doesnt match show this message
+                        title = _U("InvalidInput"), -- if input doesnt match show this message
                         style = "border-radius: 10px; background-color: ; border:none;"-- style 
                     }
                 }
@@ -64,7 +64,7 @@ function CreateRanchMen()
                     if result ~= '' and result then
                         ranchname = result
                     else
-                        VORPcore.NotifyRightTip(Config.Language.InvalidInput, 4000)
+                        VORPcore.NotifyRightTip(_U("InvalidInput"), 4000)
                     end
                 end)
 
@@ -72,14 +72,14 @@ function CreateRanchMen()
                 local myInput = {
                     type = "enableinput", -- don't touch
                     inputType = "input", -- input type
-                    button = Config.Language.Confirm, -- button name
-                    placeholder = Config.Language.RanchRadiusLimit, -- placeholder name
+                    button = _U("Confirm"), -- button name
+                    placeholder = _U("RanchRadiusLimit"), -- placeholder name
                     style = "block", -- don't touch
                     attributes = {
                         inputHeader = "", -- header
                         type = "number", -- inputype text, number,date,textarea ETC
                         pattern = "[0-9]", --  only numbers "[0-9]" | for letters only "[A-Za-z]+" 
-                        title = Config.Language.InvalidInput, -- if input doesnt match show this message
+                        title = _U("InvalidInput"), -- if input doesnt match show this message
                         style = "border-radius: 10px; background-color: ; border:none;"-- style 
                     }
                 }
@@ -87,7 +87,7 @@ function CreateRanchMen()
                     if tonumber(result) > 0 then
                         ranchradius = tonumber(result)
                     else
-                        VORPcore.NotifyRightTip(Config.Language.InvalidInput, 4000)
+                        VORPcore.NotifyRightTip(_U("InvalidInput"), 4000)
                     end
                 end)
 
@@ -111,17 +111,17 @@ function PlayerList()
 
     for k, playersInfo in pairs(players) do
         elements[#elements + 1] = {
-            label = playersInfo.PlayerName .. "<br> Character Static ID: " .. playersInfo.staticid,
+            label = playersInfo.PlayerName .. "<br> " .. _U("CharacterStaticId") .. ' ' .. playersInfo.staticid,
             value = "players" .. k,
-            desc = "Give Player the Ranch? " .. "<span style=color:MediumSeaGreen;> ",
+            desc = _U("StaticId") .. "<span style=color:MediumSeaGreen;> ",
             info = playersInfo
         }
     end
 
     MenuData.Open('default', GetCurrentResourceName(), 'menuapi',
         {
-            title      = Config.Language.StaticId,
-            subtext    = Config.Language.StaticId_desc,
+            title      = _U("StaticId"),
+            subtext    = _U("StaticId_desc"),
             align      = 'top-left',
             elements   = elements,
             lastmenu   = 'CreateRanchMen',
@@ -133,7 +133,7 @@ function PlayerList()
             end
             if data.current.value then
                 charid = data.current.info.staticid
-                VORPcore.NotifyRightTip(Config.Language.OwnerSet, 4000)
+                VORPcore.NotifyRightTip(_U("OwnerSet"), 4000)
                 CreateRanchMen()
             end
         end)
