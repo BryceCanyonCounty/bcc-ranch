@@ -1,16 +1,3 @@
--------- Minigame Config -----------
-local cfg = {
-    focus = true, -- Should minigame take nui focus (required)
-    cursor = false, -- Should minigame have cursor
-    maxattempts = 3, -- How many fail attempts are allowed before game over
-    type = 'bar', -- What should the bar look like. (bar, trailing)
-    userandomkey = true, -- Should the minigame generate a random key to press?
-    keytopress = 'B', -- userandomkey must be false for this to work. Static key to press
-    keycode = 66, -- The JS keycode for the keytopress
-    speed = 20, -- How fast the orbiter grows
-    strict = false -- if true, letting the timer run out counts as a failed attempt
-}
-
 ---- Chore Setup ----
 RegisterNetEvent('bcc-ranch:ShovelHay', function(chore)
     local chorecoords,choreanim,incamount,animtime
@@ -38,7 +25,7 @@ RegisterNetEvent('bcc-ranch:ShovelHay', function(chore)
     end
 
     InMission = true
-    VORPcore.NotifyRightTip(Config.Language.GoToChoreLocation, 4000)
+    VORPcore.NotifyRightTip(_U("GoToChoreLocation"), 4000)
     TriggerEvent('bcc-ranch:ChoreDeadCheck')
     
     VORPutils.Gps:SetGps(chorecoords.x, chorecoords.y, chorecoords.z)
@@ -48,28 +35,41 @@ RegisterNetEvent('bcc-ranch:ShovelHay', function(chore)
         local plc = GetEntityCoords(PlayerPedId())
         local dist = GetDistanceBetweenCoords(plc.x, plc.y, plc.z, chorecoords.x, chorecoords.y, chorecoords.z, true)
         if dist < 15 then
-            BccUtils.Misc.DrawText3D(chorecoords.x, chorecoords.y, chorecoords.z, Config.Language.StartChore)
+            BccUtils.Misc.DrawText3D(chorecoords.x, chorecoords.y, chorecoords.z, _U("StartChore"))
         end
         if dist < 5 then
             if IsControlJustReleased(0, 0x760A9C6F) then
                 ClearGpsMultiRoute()
-                MiniGame.Start('skillcheck', cfg, function(result)
-                    if result.passed then
-                        TaskStartScenarioInPlace(PlayerPedId(), choreanim, animtime, true, false, false, false)
-                        Wait(animtime)
-                        ClearPedTasksImmediately(PlayerPedId())
-                        if PlayerDead then
+                if Config.ChoreMinigames then
+                    MiniGame.Start('skillcheck', Config.ChoreMinigameConfig, function(result)
+                        if result.passed then
+                            TaskStartScenarioInPlace(PlayerPedId(), choreanim, animtime, true, false, false, false)
+                            Wait(animtime)
+                            ClearPedTasksImmediately(PlayerPedId())
+                            if PlayerDead then
+                                InMission = false
+                                VORPcore.NotifyRightTip(_U("PlayerDead"), 4000) return
+                            end
+                            VORPcore.NotifyRightTip(_U("ChoreComplete"), 4000)
+                            TriggerServerEvent('bcc-ranch:RanchConditionIncrease', incamount, RanchId)
                             InMission = false
-                            VORPcore.NotifyRightTip(Config.Language.PlayerDead, 4000) return
+                        else
+                            InMission = false
+                            VORPcore.NotifyRightTip(_U("Failed"), 4000) return
                         end
-                        VORPcore.NotifyRightTip(Config.Language.ChoreComplete, 4000)
-                        TriggerServerEvent('bcc-ranch:RanchConditionIncrease', incamount, RanchId)
+                    end) break
+                else
+                    TaskStartScenarioInPlace(PlayerPedId(), choreanim, animtime, true, false, false, false)
+                    Wait(animtime)
+                    ClearPedTasksImmediately(PlayerPedId())
+                    if PlayerDead then
                         InMission = false
-                    else
-                        InMission = false
-                        VORPcore.NotifyRightTip(Config.Language.Failed, 4000) return
+                        VORPcore.NotifyRightTip(_U("PlayerDead"), 4000) break
                     end
-                end) break
+                    VORPcore.NotifyRightTip(_U("ChoreComplete"), 4000)
+                    TriggerServerEvent('bcc-ranch:RanchConditionIncrease', incamount, RanchId)
+                    InMission = false break
+                end
             end
         end
         if dist > 200 then
@@ -79,7 +79,7 @@ RegisterNetEvent('bcc-ranch:ShovelHay', function(chore)
 
     if PlayerDead then
         InMission = false
-        VORPcore.NotifyRightTip(Config.Language.PlayerDead, 4000) return
+        VORPcore.NotifyRightTip(_U("PlayerDead"), 4000) return
     end
     InMission = false
 end)

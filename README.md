@@ -26,7 +26,7 @@
 - Butcher your animals to get items from them!
 - Ranch condition decreases over time when ranch owner is online!
 - Highly configurable, and easy to configure!
-- Easy to translate via a Config.Language!
+- Easy to translate!
 - Inventory system built into the ranch!
 - Export API for other scripts to interact with this one!
 - Ranch Managment menu for admins to delete ranch's, rename, and change thier radius!
@@ -60,7 +60,7 @@ local result = exports['bcc-ranch']:CheckIfRanchIsOwned(Character.charIdentifier
 ```
 local _source = source
 local Character = VORPcore.getUser(_source).getUsedCharacter
-local result = exports['bcc-ranch']:IncreaseRanchCondition(Character.charIdentifier, amounttoincrease)
+exports['bcc-ranch']:IncreaseRanchCondition(Character.charIdentifier, amounttoincrease)
 ```
 - Note amounttoincrease has to be a number value
 
@@ -69,6 +69,6 @@ local result = exports['bcc-ranch']:IncreaseRanchCondition(Character.charIdentif
 ```
 local _source = source
 local Character = VORPcore.getUser(_source).getUsedCharacter
-local result = exports['bcc-ranch']:DecreaseRanchCondition(Character.charIdentifier, amounttodecrease)
+exports['bcc-ranch']:DecreaseRanchCondition(Character.charIdentifier, amounttodecrease)
 ```
 - Note amounttodecrease has to be a number value

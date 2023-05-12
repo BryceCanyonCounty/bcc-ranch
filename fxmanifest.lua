@@ -7,6 +7,8 @@ author 'Jake2k4'
 
 shared_scripts {
     'config.lua',
+    'locale.lua',
+    'languages/*.lua',
 }
 
 server_scripts {
@@ -34,4 +36,4 @@ dependency {
 }
 
 
-version '1.0.4'
+version '1.0.5'

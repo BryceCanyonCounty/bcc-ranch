@@ -2,7 +2,7 @@ InMission = false
 ----- This will run to check if the player owns a ranch when they select char -----
 RegisterNetEvent('vorp:SelectedCharacter')
 AddEventHandler('vorp:SelectedCharacter', function()
-    Wait(7000)
+    Wait(300)
     local player = GetPlayerServerId(tonumber(PlayerId())) --credit vorp_admin
     Wait(200)
     TriggerServerEvent("bcc-ranch:getPlayersInfo", player) --credit vorp_admin
@@ -27,22 +27,21 @@ RegisterNetEvent('bcc-ranch:HasRanchHandler', function(ranch)
     RanchId = ranch.ranchid
     TriggerEvent('bcc-ranch:StartCondDec')
     local blip = VORPutils.Blips:SetBlip(ranch.ranchname, Config.RanchSetup.BlipHash, 0.2, RanchCoords.x, RanchCoords.y, RanchCoords.z)
-    
     local  PromptGroup = VORPutils.Prompts:SetupPromptGroup()
-    local firstprompt = PromptGroup:RegisterPrompt(Config.Language.OpenRanchMenu, 0x760A9C6F, 1, 1, true, 'hold', {timedeventhash = "MEDIUM_TIMED_EVENT"})
+    local firstprompt = PromptGroup:RegisterPrompt(_U("OpenRanchMenu"), 0x760A9C6F, 1, 1, true, 'hold', {timedeventhash = "MEDIUM_TIMED_EVENT"})
 
     while true do
         Wait(5)
         local plc = GetEntityCoords(PlayerPedId())
         local dist = GetDistanceBetweenCoords(plc.x, plc.y, plc.z, RanchCoords.x, RanchCoords.y, RanchCoords.z, true)
         if dist < 5 then
-            PromptGroup:ShowGroup(Config.Language.OpenRanchMenu_desc)
+            PromptGroup:ShowGroup(_U("OpenRanchMenu_desc"))
             if firstprompt:HasCompleted() then
                 if not Inmenu then
                     if not InMission then
                         MainMenu()
                     else
-                        VORPcore.NotifyRightTip(Config.Language.inmission, 4000)
+                        VORPcore.NotifyRightTip(_U("inmission"), 4000)
                     end
                 end
             end

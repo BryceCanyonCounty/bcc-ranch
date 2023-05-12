@@ -57,7 +57,7 @@ RegisterServerEvent('bcc-ranch:InsertCreatedRanchIntoDB', function(ranchname, ra
     exports.oxmysql:execute("INSERT INTO ranch ( `charidentifier`,`ranchcoords`,`ranchname`,`ranch_radius_limit` ) VALUES ( @charidentifier,@ranchcoords,@ranchname,@ranch_radius_limit )", param)
     local _source = source
     local Character = VORPcore.getUser(_source).getUsedCharacter
-    VORPcore.NotifyRightTip(_source, Config.Language.RanchMade, 4000)
+    VORPcore.NotifyRightTip(_source, _U("RanchMade"), 4000)
     BccUtils.Discord.sendMessage(Config.Webhooks.RanchCreation.WebhookLink, 'BCC Ranch', 'https://gamespot.com/a/uploads/original/1179/11799911/3383938-duck.jpg', Config.Webhooks.RanchCreation.TitleText .. tostring(Character.charIdentifier), Config.Webhooks.RanchCreation.Text .. tostring(ownerstaticid))
 end)
 
@@ -93,7 +93,7 @@ RegisterServerEvent('bcc-ranch:GetAllRanches', function()
     if #result > 0 then
         TriggerClientEvent('bcc-ranch:CatchAllRanches', _source, result)
     else
-        VORPcore.NotifyRightTip(_source, Config.Language.NoRanches, 4000)
+        VORPcore.NotifyRightTip(_source, _U("NoRanches"), 4000)
     end
 end)
 
@@ -116,7 +116,7 @@ RegisterServerEvent('bcc-ranch:ChoreCheckRanchCondition', function(ranchid, chor
     local param = { ['ranchid'] = ranchid }
     exports.oxmysql:execute("SELECT ranchCondition FROM ranch WHERE ranchid=@ranchid", param, function(result)
         if result[1].ranchCondition >= 100 then
-            VORPcore.NotifyRightTip(_source, Config.Language.ConditionMax, 4000)
+            VORPcore.NotifyRightTip(_source, _U("ConditionMax"), 4000)
         else
             TriggerClientEvent('bcc-ranch:ShovelHay', _source, chore)
         end
@@ -150,14 +150,14 @@ RegisterServerEvent('bcc-ranch:BuyAnimals', function(ranchid, animaltype)
                 if result[1].cows == 'false' then
                     exports.oxmysql:execute('UPDATE ranch SET `cows`="true" WHERE ranchid=@ranchid', param)
                     Character.removeCurrency(0, Config.RanchSetup.RanchAnimalSetup.Cows.Cost)
-                    VORPcore.NotifyRightTip(_source, Config.Language.AnimalBought, 4000)
+                    VORPcore.NotifyRightTip(_source, _U("AnimalBought"), 4000)
                     discord:sendMessage(Config.Webhooks.AnimalBought.TitleText .. tostring(ranchid), Config.Webhooks.AnimalBought.DescText .. Config.Webhooks.AnimalBought.Cows)
                 else
-                    VORPcore.NotifyRightTip(_source, Config.Language.AlreadyOwnAnimal, 4000)
+                    VORPcore.NotifyRightTip(_source, _U("AlreadyOwnAnimal"), 4000)
                 end
             end)
         else
-            VORPcore.NotifyRightTip(_source, Config.Language.Notenoughmoney, 4000)
+            VORPcore.NotifyRightTip(_source, _U("Notenoughmoney"), 4000)
         end
     elseif animaltype == 'pigs' then
         if Character.money >= Config.RanchSetup.RanchAnimalSetup.Pigs.Cost then
@@ -165,14 +165,14 @@ RegisterServerEvent('bcc-ranch:BuyAnimals', function(ranchid, animaltype)
                 if result[1].pigs == 'false' then
                     exports.oxmysql:execute('UPDATE ranch SET `pigs`="true" WHERE ranchid=@ranchid', param)
                     Character.removeCurrency(0, Config.RanchSetup.RanchAnimalSetup.Pigs.Cost)
-                    VORPcore.NotifyRightTip(_source, Config.Language.AnimalBought, 4000)
+                    VORPcore.NotifyRightTip(_source, _U("AnimalBought"), 4000)
                     discord:sendMessage(Config.Webhooks.AnimalBought.TitleText .. tostring(ranchid), Config.Webhooks.AnimalBought.DescText .. Config.Webhooks.AnimalBought.Pigs)
                 else
-                    VORPcore.NotifyRightTip(_source, Config.Language.AlreadyOwnAnimal, 4000)
+                    VORPcore.NotifyRightTip(_source, _U("AlreadyOwnAnimal"), 4000)
                 end
             end)
         else
-            VORPcore.NotifyRightTip(_source, Config.Language.Notenoughmoney, 4000)
+            VORPcore.NotifyRightTip(_source, _U("Notenoughmoney"), 4000)
         end
     elseif animaltype == 'goats' then
         if Character.money >= Config.RanchSetup.RanchAnimalSetup.Goats.Cost then
@@ -180,14 +180,14 @@ RegisterServerEvent('bcc-ranch:BuyAnimals', function(ranchid, animaltype)
                 if result[1].goats == 'false' then
                     exports.oxmysql:execute('UPDATE ranch SET `goats`="true" WHERE ranchid=@ranchid', param)
                     Character.removeCurrency(0, Config.RanchSetup.RanchAnimalSetup.Goats.Cost)
-                    VORPcore.NotifyRightTip(_source, Config.Language.AnimalBought, 4000)
+                    VORPcore.NotifyRightTip(_source, _U("AnimalBought"), 4000)
                     discord:sendMessage(Config.Webhooks.AnimalBought.TitleText .. tostring(ranchid), Config.Webhooks.AnimalBought.DescText .. Config.Webhooks.AnimalBought.Goats)
                 else
-                    VORPcore.NotifyRightTip(_source, Config.Language.AlreadyOwnAnimal, 4000)
+                    VORPcore.NotifyRightTip(_source, _U("AlreadyOwnAnimal"), 4000)
                 end
             end)
         else
-            VORPcore.NotifyRightTip(_source, Config.Language.Notenoughmoney, 4000)
+            VORPcore.NotifyRightTip(_source, _U("Notenoughmoney"), 4000)
         end
     elseif animaltype == 'chickens' then
         if Character.money >= Config.RanchSetup.RanchAnimalSetup.Chickens.Cost then
@@ -195,14 +195,14 @@ RegisterServerEvent('bcc-ranch:BuyAnimals', function(ranchid, animaltype)
                 if result[1].chickens == 'false' then
                     exports.oxmysql:execute('UPDATE ranch SET `chickens`="true" WHERE ranchid=@ranchid', param)
                     Character.removeCurrency(0, Config.RanchSetup.RanchAnimalSetup.Chickens.Cost)
-                    VORPcore.NotifyRightTip(_source, Config.Language.AnimalBought, 4000)
+                    VORPcore.NotifyRightTip(_source, _U("AnimalBought"), 4000)
                     discord:sendMessage(Config.Webhooks.AnimalBought.TitleText .. tostring(ranchid), Config.Webhooks.AnimalBought.DescText .. Config.Webhooks.AnimalBought.Chickens)
                 else
-                    VORPcore.NotifyRightTip(_source, Config.Language.AlreadyOwnAnimal, 4000)
+                    VORPcore.NotifyRightTip(_source, _U("AlreadyOwnAnimal"), 4000)
                 end
             end)
         else
-            VORPcore.NotifyRightTip(_source, Config.Language.Notenoughmoney, 4000)
+            VORPcore.NotifyRightTip(_source, _U("Notenoughmoney"), 4000)
         end
     end
 end)
@@ -228,7 +228,7 @@ RegisterServerEvent('bcc-ranch:CheckIfAnimalsAreOwned', function(ranchid, animal
             eventtriggger = true
             animal_condition = result[1].goats_cond
         else
-            VORPcore.NotifyRightTip(_source, Config.Language.AnimalNotOwned, 4000)
+            VORPcore.NotifyRightTip(_source, _U("AnimalNotOwned"), 4000)
         end
 
         if eventtriggger then
@@ -363,6 +363,25 @@ end)
 RegisterServerEvent("bcc-ranch:getPlayersInfo", function(source)
     local _source = source
     PlayersTable[#PlayersTable + 1] = _source -- add all players
+end)
+
+------- Removing Animal From DB -----------
+RegisterServerEvent('bcc-ranch:RemoveAnimalFromDB', function(ranchid, animaltype)
+    local param = { ['ranchid'] = ranchid }
+
+    if animaltype == 'cows' then
+        exports.oxmysql:execute('UPDATE ranch SET `cows`="false" WHERE ranchid=@ranchid', param)
+        exports.oxmysql:execute('UPDATE ranch SET `cows_cond`=0 WHERE ranchid=@ranchid', param)
+    elseif animaltype == 'chickens' then
+        exports.oxmysql:execute('UPDATE ranch SET `chickens`="false" WHERE ranchid=@ranchid', param)
+        exports.oxmysql:execute('UPDATE ranch SET `chickens_cond`=0 WHERE ranchid=@ranchid', param)
+    elseif animaltype == 'pigs' then
+        exports.oxmysql:execute('UPDATE ranch SET `pigs`="false" WHERE ranchid=@ranchid', param)
+        exports.oxmysql:execute('UPDATE ranch SET `pigs_cond`=0 WHERE ranchid=@ranchid', param)
+    elseif animaltype == 'goats' then
+        exports.oxmysql:execute('UPDATE ranch SET `goats`="false" WHERE ranchid=@ranchid', param)
+        exports.oxmysql:execute('UPDATE ranch SET `goats_cond`=0 WHERE ranchid=@ranchid', param)
+    end
 end)
 
 ----- Version Check ----

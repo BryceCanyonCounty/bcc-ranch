@@ -2,6 +2,9 @@ Config = {}
 
 Config.Debug = true --false on live server
 
+-- Set Language (Current Languages: "en_lang")
+Config.defaultlang = "en_lang"
+
 --Webhok Setup
 Config.Webhooks = {
     RanchCreation = { --ranch creation webhook
@@ -33,6 +36,20 @@ Config.Webhooks = {
 }
 
 ---- Thise is the chore config
+Config.ChoreMinigames = true --if true a minigame will have to be completed to finish the chore!
+--Minigame setup ONLY CHANGE DO NOT REMOVE ANYTHING!
+Config.ChoreMinigameConfig = {
+    focus = true, -- Should minigame take nui focus (required)
+    cursor = false, -- Should minigame have cursor
+    maxattempts = 3, -- How many fail attempts are allowed before game over
+    type = 'bar', -- What should the bar look like. (bar, trailing)
+    userandomkey = true, -- Should the minigame generate a random key to press?
+    keytopress = 'B', -- userandomkey must be false for this to work. Static key to press
+    keycode = 66, -- The JS keycode for the keytopress
+    speed = 20, -- How fast the orbiter grows
+    strict = false -- if true, letting the timer run out counts as a failed attempt
+}
+--Main Chore Setup
 Config.ChoreConfig = {
     HayChore = {
         AnimTime = 15000, --time the animation will play for
@@ -52,6 +69,7 @@ Config.ChoreConfig = {
     },
 }
 
+--Main Ranch Setup
 Config.RanchSetup = {
     RanchCondDecrease = 1800000, --This is how often the ranches condition will decrease over time
     InvLimit = 200, --Maximum inventory space the ranch will have
@@ -69,6 +87,7 @@ Config.RanchSetup = {
             MaxConditionPay = 1000, --amount to pay when selling the animal if the animals condition is maxed
             AmountSpawned = 4, --Amount of animals that will spawn when herding or selling them
             LowPay = 150, --This is the amount that will be payed if any animals die along the way
+            FeedAnimalCondIncrease = 50, --how much the animal condition will go up after feeding them!
             CondIncreasePerHerd = 10, --this is the amount the animals condition will increase when successfully herded!
             CondIncreasePerHerdNotMaxRanchCond = 5, --this is the amount the animals condition will go up per herd if the ranchs condition is not max
             ButcherItems = { --items you will get when you butcher this animal
@@ -86,6 +105,7 @@ Config.RanchSetup = {
             MaxConditionPay = 500,
             AmountSpawned = 4, --Amount of animals that will spawn when herding or selling them
             LowPay = 150, --This is the amount that will be payed if any animals die along the way
+            FeedAnimalCondIncrease = 50, --how much the animal condition will go up after feeding them!
             CondIncreasePerHerd = 10, --this is the amount the animals condition will increase when successfully herded!
             CondIncreasePerHerdNotMaxRanchCond = 5, --this is the amount the animals condition will go up per herd if the ranchs condition is not max
             ButcherItems = { --items you will get when you butcher this animal
@@ -103,6 +123,7 @@ Config.RanchSetup = {
             MaxConditionPay = 200,
             AmountSpawned = 4, --Amount of animals that will spawn when herding or selling them
             LowPay = 150, --This is the amount that will be payed if any animals die along the way
+            FeedAnimalCondIncrease = 50, --how much the animal condition will go up after feeding them!
             CondIncreasePerHerd = 10, --this is the amount the animals condition will increase when successfully herded!
             CondIncreasePerHerdNotMaxRanchCond = 5, --this is the amount the animals condition will go up per herd if the ranchs condition is not max
             ButcherItems = { --items you will get when you butcher this animal
@@ -120,6 +141,7 @@ Config.RanchSetup = {
             MaxConditionPay = 100,
             AmountSpawned = 4, --Amount of animals that will spawn when herding or selling them
             LowPay = 150, --This is the amount that will be payed if any animals die along the way
+            FeedAnimalCondIncrease = 50, --how much the animal condition will go up after feeding them!
             CondIncreasePerHerd = 10, --this is the amount the animals condition will increase when successfully herded!
             CondIncreasePerHerdNotMaxRanchCond = 5, --this is the amount the animals condition will go up per herd if the ranchs condition is not max
             ButcherItems = { --items you will get when you butcher this animal
@@ -156,117 +178,3 @@ Config.AdminSteamIds = {
 }
 Config.CreateRanchCommand = 'createranch' --name of the command used to create ranches!
 Config.ManageRanchsCommand = 'manageranches' --name of the command used to manage ranches!
-
-------------- Translate Here ------------------------
-Config.Language = {
-    NameRanch = 'Name Ranch',
-    NameRanch_desc = 'Name The Ranch',
-    Confirm = 'Confirm',
-    Confirm_desc = 'This will create a ranch at your coordinates, with the entered data. Are you sure?',
-    RanchRadiusLimit = 'Set the ranches radius limit',
-    RanchRadiusLimit_desc = 'Will limit how far away the owner can set things like chore locations',
-    CreateRanchTitle = 'Create a Ranch!',
-    InvalidInput = 'Invalid Input',
-    StaticId = 'Set Owner',
-    StaticId_desc = 'Assign The Ranch Owner',
-    OpenRanchMenu = 'Manage Your Ranch!',
-    OpenRanchMenu_desc = 'Your Ranch',
-    Caretaking = 'Caretaking',
-    Caretaking_desc = 'Work To keep up the ranch!',
-    RanchMenuName = 'Your Ranch!',
-    ShovelHay = 'Gather Hay',
-    ShovelHay_desc = 'Gather Hay for the Animals',
-    SetCoords = 'Set Location',
-    SetCoords_desc = 'Go to the location you want this to be at, then select this option!',
-    Coordsset = 'Location Set!',
-    TooFarFromRanch = 'You Are Too Far Away From Your Ranch!',
-    ConditionMax = 'Your Ranch is already in perfect condition!',
-    NoLocationSet = 'You Have not set a location yet',
-    GoToChoreLocation = 'Go To The Chore Location!',
-    StartChore = 'Press "G" to start chore!',
-    inmission = 'You Are In a mission, and must finish it',
-    ChoreComplete = 'Chore Completed! Ranch Condition increased!',
-    PlayerDead = 'Mission failed',
-    CheckRanchCond = 'Check Ranch Condition',
-    CheckRanchCond_desc = 'Check Your Ranches Condition, You Want This High So Your Animals Are Higher Quality! The Max is 100!',
-    WaterAnimalChore = 'Water Animals',
-    WaterAnimalChore_desc = 'Watering your animals will increase your ranch condition and make your animals healthier',
-    BuyAnimals = 'Buy Animals',
-    BuyAnimals_desc = 'Buy Animals for your ranch',
-    BuyCows = 'Buy Cows for',
-    BuyCows_desc = 'Buy cows for your ranch',
-    Notenoughmoney = 'You do not have enough money',
-    AlreadyOwnAnimal = 'You Already Own Some Of These animals',
-    BuyPigs = 'Buy Pigs for',
-    BuyPigs_desc = 'Buy Pigs for your ranch',
-    BuyGoats = 'Buy goats for',
-    BuyGoats_desc = 'Buy Goats for your ranch',
-    BuyChickens = 'Buy Chickens for',
-    BuyChickens_desc = 'Buy Chickens for your ranch',
-    AnimalBought = 'Purchase Complete!',
-    RanchMade = 'Ranch Created Succesfully',
-    ManageAnimals = 'Manage Owned Animals',
-    ManageAnimals_desc = 'Manage the animals your ranch owns',
-    ManageCows = 'Manage Owned Cows',
-    ManageGoats = 'Manage Owned Goats',
-    ManageChickens = 'Manage Owned Chickens',
-    ManagePigs = 'Manage Owned Pigs',
-    ManageCows_desc = 'Manage your owned cows!',
-    ManageGoats_desc = 'Manage your owned goats',
-    ManageChickens_desc = 'Manage your owned chickens',
-    ManagePigs_desc = 'Mange your owned pigs',
-    SellCows = 'Sell Animals',
-    SellCows_desc = 'Sell Your Animals? The higher thier condition the more profit you make!',
-    AnimalNotOwned = 'You do not own any of these animals',
-    CheckAnimalCond = 'Check Animals Condition',
-    CheckAnimalCond_desc = 'Check your animals condition, the higher this is the more profit you can make when you sell them!',
-    LeadAnimalsToSale = 'Lead Your Animals to the sale area safely!',
-    AnimalsSold = 'You Sold The Animals!',
-    SetHerdLocation = 'Set Herd Location',
-    SetHerdLocation_desc = 'Set the location you will herd your animals to!',
-    TooCloseToRanch = 'Too close to ranch!',
-    HerdAnimal = 'Herd Animal',
-    HerdAnimal_desc = 'Herd Animal? Doing so will increase the animals condition, which will improve its sell price!',
-    HerdToLocation = 'Herd Your Animals to the location!',
-    ReturnAnimals = 'Herd Them Back to the ranch!',
-    HerdingSuccess = 'You herded the animals successfully! Thier condition has increased!',
-    ButcherAnimal = 'Butcher Animal',
-    ButcherAnimal_desc = 'Butcher Animal? Doing this while kill your animals, but will give you supplies.',
-    KillAnimal = 'Kill The Animal!',
-    GoSkin = 'Animal Killed go butcher it to get rewards!',
-    Skin = 'Butcher Animal',
-    AnimalKilled = 'You Butchered The Animal!',
-    Inventory = 'Ranch Inventory',
-    Inventory_desc = 'Your ranchs inventory, anything you store here will be safe!',
-    SteamName = "Steam Name",
-    ServId = 'Server ID',
-    PGroup = 'Player Group',
-    OwnerSet = 'Owner Set',
-    ManageRanches = 'Manage Ranches',
-    ManageRanches_desc = 'Manage Player ranches',
-    Ranchid = 'Ranch ID ',
-    Failed = 'Failed!',
-    RepairTroughChore = "Repair Feed Trough",
-    RepairFeedTrough_desc = 'Repair Feeding Trouhgs? This will increase your ranches condition.',
-    ScoopPoopChore = 'Shovel Poop',
-    ScoopPoopChore_desc = 'Shovel Poop? This will increase your ranches condition.',
-    
-    ------- Admin ranch Managment -----
-    NoRanches = 'There Are no existing ranches in database',
-    DeleteRanch = 'Delete Ranch',
-    DeleteRanch_desc = 'Delete this ranch? This action can not be undone!',
-    RanchDeleted = 'Ranch Deleted!',
-
-    ChangeRanchRadius = "Change Ranch Radius",
-    ChangeRanchRadius_desc = 'Change the ranches radius?',
-    RadiusChanged = 'Radius Changed!',
-
-    ChangeRanchName = 'Change Ranch Name',
-    ChangeRanchName_desc = 'Change the ranches name?',
-    NameChanged = 'Name Changed!',
-
-    ChangeRanchCond = 'Change Ranch Condition',
-    ChangeRanchCond_desc = 'Change the ranches condition?',
-    CondChanged = 'Condition Changed!',
-    InsertRanchCond = 'Insert Condition'
-}
