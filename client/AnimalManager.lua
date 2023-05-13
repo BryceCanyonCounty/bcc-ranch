@@ -38,7 +38,7 @@ function SellAnimals(animaltype, animal_cond)
     until catch == tables.AmountSpawned
     for k, v in pairs(peds) do
         relationshipsetup(v, 1)
-        TaskFollowToOffsetOfEntity(v, pl, 5, 5, 0, 1, -1, 5, true, true, true, true, true, true)
+        TaskFollowToOffsetOfEntity(v, pl, 5, 5, 0, 1, -1, 5, true, true, true, true, true, true) --3rd is walk locking
     end
     VORPcore.NotifyRightTip(_U("LeadAnimalsToSale"), 4000)
     VORPutils.Gps:SetGps(finalsalecoords.Coords.x, finalsalecoords.Coords.y, finalsalecoords.Coords.z)
@@ -293,6 +293,9 @@ function FeedAnimals(animaltype)
     TriggerEvent('bcc-ranch:ChoreDeadCheck')
     local car = joaat('cart06')
     RequestModel(car)
+    while not HasModelLoaded(car) do
+        Wait(100)
+    end
     local vehicle = Citizen.InvokeNative(0x214651FB1DFEBA89, car, FeedWagonLocation.x, FeedWagonLocation.y, FeedWagonLocation.z, 100.0, false, false, 0, 1)
     while not DoesEntityExist(vehicle) do
         Wait(5)
