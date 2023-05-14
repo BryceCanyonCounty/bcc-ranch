@@ -31,3 +31,16 @@ function GetPlayers()
   end
   return playersData
 end
+
+function DelPedsForTable(table) --will delete all peds in the table
+  for k, v in pairs(table) do
+    DeletePed(v)
+  end
+end
+
+function SetRelAndFollowPlayer(table) --will set the peds relation with player and then have ped follow player
+  for k, v in pairs(table) do
+    relationshipsetup(v, 1)
+    TaskFollowToOffsetOfEntity(v, PlayerPedId(), 5, 5, 0, 1, -1, 5, true, true, Config.RanchSetup.AnimalsWalkOnly, true, true, true)
+  end
+end

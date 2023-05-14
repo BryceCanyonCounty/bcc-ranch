@@ -2,7 +2,7 @@ InMission = false
 ----- This will run to check if the player owns a ranch when they select char -----
 RegisterNetEvent('vorp:SelectedCharacter')
 AddEventHandler('vorp:SelectedCharacter', function()
-    Wait(300)
+    Wait(50)
     local player = GetPlayerServerId(tonumber(PlayerId())) --credit vorp_admin
     Wait(200)
     TriggerServerEvent("bcc-ranch:getPlayersInfo", player) --credit vorp_admin
@@ -57,7 +57,7 @@ AddEventHandler('bcc-ranch:StartCondDec', function()
         local  blip = VORPutils.Blips:SetBlip(v.LocationName, Config.SaleLocationBlipHash, 0.2, v.Coords.x, v.Coords.y, v.Coords.z)
     end
     while true do
-        Citizen.Wait(Config.RanchSetup.RanchCondDecrease)
+        Wait(Config.RanchSetup.RanchCondDecrease)
         TriggerServerEvent('bcc-ranch:DecranchCondIncrease', RanchId)
     end
 end)

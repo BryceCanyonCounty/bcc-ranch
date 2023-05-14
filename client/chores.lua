@@ -60,14 +60,7 @@ RegisterNetEvent('bcc-ranch:ShovelHay', function(chore)
                     MiniGame.Start(minigame, minigamecfg, function(result)
                         if minigame == 'hammertime' then
                             if result.result then
-                                BccUtils.Ped.ScenarioInPlace(PlayerPedId(), choreanim, animtime)
-                                if PlayerDead then
-                                    InMission = false
-                                    VORPcore.NotifyRightTip(_U("PlayerDead"), 4000) return
-                                end
-                                VORPcore.NotifyRightTip(_U("ChoreComplete"), 4000)
-                                TriggerServerEvent('bcc-ranch:RanchConditionIncrease', incamount, RanchId)
-                                InMission = false
+                                ChoreComplete(choreanim, animtime, incamount)
                             else
                                 InMission = false
                                 VORPcore.NotifyRightTip(_U("Failed"), 4000) return
@@ -77,14 +70,7 @@ RegisterNetEvent('bcc-ranch:ShovelHay', function(chore)
                                 if chore == 'scooppoop' then
                                     TriggerServerEvent('bcc-ranch:AddItem', Config.ChoreConfig.ShovelPoop.RecievedItem, Config.ChoreConfig.ShovelPoop.RecievedAmount)
                                 end
-                                BccUtils.Ped.ScenarioInPlace(PlayerPedId(), choreanim, animtime)
-                                if PlayerDead then
-                                    InMission = false
-                                    VORPcore.NotifyRightTip(_U("PlayerDead"), 4000) return
-                                end
-                                VORPcore.NotifyRightTip(_U("ChoreComplete"), 4000)
-                                TriggerServerEvent('bcc-ranch:RanchConditionIncrease', incamount, RanchId)
-                                InMission = false
+                                ChoreComplete(choreanim, animtime, incamount)
                             else
                                 InMission = false
                                 VORPcore.NotifyRightTip(_U("Failed"), 4000) return
@@ -130,3 +116,14 @@ end)
     8========================D
     Sacred Comment Penis
 ]]
+
+function ChoreComplete(choreanim, animtime, incamount) --what to do if chore is success
+    BccUtils.Ped.ScenarioInPlace(PlayerPedId(), choreanim, animtime)
+    if PlayerDead then
+        InMission = false
+        VORPcore.NotifyRightTip(_U("PlayerDead"), 4000) return
+    end
+    VORPcore.NotifyRightTip(_U("ChoreComplete"), 4000)
+    TriggerServerEvent('bcc-ranch:RanchConditionIncrease', incamount, RanchId)
+    InMission = false
+end
