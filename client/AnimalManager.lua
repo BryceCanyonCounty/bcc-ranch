@@ -6,30 +6,39 @@ function SellAnimals(animaltype, animal_cond)
     local spawncoords, pl = nil, PlayerPedId()
     if animaltype == 'cows' then
         tables = Config.RanchSetup.RanchAnimalSetup.Cows
-        model = joaat('a_c_cow')
+        model = 'a_c_cow'
         spawncoords = Cowcoords
     elseif animaltype == 'chickens' then
         tables = Config.RanchSetup.RanchAnimalSetup.Chickens
-        model = joaat('a_c_chicken_01')
+        model = 'a_c_chicken_01'
         spawncoords = Chickencoords
     elseif animaltype == 'goats' then
         tables = Config.RanchSetup.RanchAnimalSetup.Goats
-        model = joaat('a_c_goat_01')
+        model = 'a_c_goat_01'
         spawncoords = Goatcoords
     elseif animaltype == 'pigs' then
         tables = Config.RanchSetup.RanchAnimalSetup.Pigs
-        model = joaat('a_c_pig_01')
+        model = 'a_c_pig_01'
         spawncoords = Pigcoords
     end
-    modelload(model)
 
-    local salecoords = math.random(1, #Config.SaleLocations)
-    local finalsalecoords = Config.SaleLocations[salecoords]
+    --Detecting Closest Sale Barn Setup Credit to vorp_core for this bit of code, and jannings for pointing this out to me
+    local finalsalecoords
+    local pl2 = GetEntityCoords(PlayerPedId())
+    local closestDistance = math.huge
+    for k, v in pairs(Config.SaleLocations) do
+        local currentDistance = GetDistanceBetweenCoords(pl2.x, pl2.y, pl2.z, v.Coords.x, v.Coords.y, v.Coords.z, true)
+
+        if currentDistance < closestDistance then
+            closestDistance = currentDistance
+            finalsalecoords = v.Coords
+        end
+    end
+
 
     local catch, peds = 0, {}
     repeat
-        local createdped = CreatePed(model, spawncoords.x + math.random(1, 5), spawncoords.y + math.random(1, 5), spawncoords.z, true, true, true, true)
-        Citizen.InvokeNative(0x283978A15512B2FE, createdped, true)
+        local createdped = BccUtils.Ped.CreatePed(model, spawncoords.x + math.random(1, 5), spawncoords.y + math.random(1, 5), spawncoords.z, true, true, false)
         SetBlockingOfNonTemporaryEvents(createdped, true)
         Citizen.InvokeNative(0x9587913B9E772D29, createdped, true)
         SetEntityHealth(createdped, tables.Health, 0)
@@ -38,17 +47,18 @@ function SellAnimals(animaltype, animal_cond)
     until catch == tables.AmountSpawned
     for k, v in pairs(peds) do
         relationshipsetup(v, 1)
-        TaskFollowToOffsetOfEntity(v, pl, 5, 5, 0, 1, -1, 5, true, true, true, true, true, true) --3rd is walk locking
+        TaskFollowToOffsetOfEntity(v, pl, 5, 5, 0, 1, -1, 5, true, true, Config.RanchSetup.AnimalsWalkOnly, true, true, true) --3rd is walk locking
     end
     VORPcore.NotifyRightTip(_U("LeadAnimalsToSale"), 4000)
-    VORPutils.Gps:SetGps(finalsalecoords.Coords.x, finalsalecoords.Coords.y, finalsalecoords.Coords.z)
+    BccUtils.Misc.SetGps(finalsalecoords.x, finalsalecoords.y, finalsalecoords.z)
 
-    local animalsnear = false
+    local animalsnear, doonce = false, false
+    local createdped, createdped2
     while true do
         Wait(50)
         for k, v in pairs(peds) do
             local cp = GetEntityCoords(v)
-            if GetDistanceBetweenCoords(cp.x, cp.y, cp.z, finalsalecoords.Coords.x, finalsalecoords.Coords.y, finalsalecoords.Coords.z, true) < 15 then
+            if GetDistanceBetweenCoords(cp.x, cp.y, cp.z, finalsalecoords.x, finalsalecoords.y, finalsalecoords.z, true) < 15 then
                 animalsnear = true
             else
                 animalsnear = false
@@ -60,7 +70,8 @@ function SellAnimals(animaltype, animal_cond)
         if catch == 0 or PlayerDead == true then break end
 
         local plc = GetEntityCoords(pl)
-        if GetDistanceBetweenCoords(plc.x, plc.y, plc.z, finalsalecoords.Coords.x, finalsalecoords.Coords.y, finalsalecoords.Coords.z, true) < 5 and animalsnear == true then
+        local dist = GetDistanceBetweenCoords(plc.x, plc.y, plc.z, finalsalecoords.x, finalsalecoords.y, finalsalecoords.z, true)
+        if dist < 5 and animalsnear == true then
             local pay
             if animal_cond == tables.MaxCondition and catch == tables.AmountSpawned then
                 pay = tables.MaxConditionPay
@@ -73,10 +84,26 @@ function SellAnimals(animaltype, animal_cond)
             end
             TriggerServerEvent('bcc-ranch:AnimalsSoldHandler', pay, animaltype, RanchId)
             VORPcore.NotifyRightTip(_U("AnimalsSold"), 4000) break
+        elseif dist < 400 and doonce == false then
+            doonce = true
+            if Config.RanchSetup.WolfAttacks then
+                if math.random(1, 4) == 1 or 2 then
+                    createdped = BccUtils.Ped.CreatePed('A_C_Wolf', plc.x + math.random(1, 10), plc.y + math.random(1, 10), plc.z, true, true, false)
+                    createdped2 = BccUtils.Ped.CreatePed('A_C_Wolf', plc.x + math.random(1, 10), plc.y + math.random(1, 10), plc.z, true, true, false)
+                    Citizen.InvokeNative(0x23f74c2fda6e7c61, 953018525, createdped)
+                    Citizen.InvokeNative(0x23f74c2fda6e7c61, 953018525, createdped2)
+                    TaskCombatPed(createdped, PlayerPedId())
+                    TaskCombatPed(createdped2, PlayerPedId())
+                end
+            end
         end
     end
     ClearGpsMultiRoute()
     if PlayerDead == true or catch == 0 then
+        if doonce then
+            DeletePed(createdped)
+            DeletePed(createdped2)
+        end
         VORPcore.NotifyRightTip(_U("PlayerDead"), 4000)
     end
 
@@ -94,24 +121,22 @@ function herdanimals(animaltype, ranchcond)
     TriggerEvent('bcc-ranch:ChoreDeadCheck')
     if animaltype == 'cows' then
         tables = Config.RanchSetup.RanchAnimalSetup.Cows
-        model = joaat('a_c_cow')
+        model = 'a_c_cow'
     elseif animaltype == 'chickens' then
         tables = Config.RanchSetup.RanchAnimalSetup.Chickens
-        model = joaat('a_c_chicken_01')
+        model = 'a_c_chicken_01'
     elseif animaltype == 'goats' then
         tables = Config.RanchSetup.RanchAnimalSetup.Goats
-        model = joaat('a_c_goat_01')
+        model = 'a_c_goat_01'
     elseif animaltype == 'pigs' then
         tables = Config.RanchSetup.RanchAnimalSetup.Pigs
-        model = joaat('a_c_pig_01')
+        model = 'a_c_pig_01'
     end
-    modelload(model)
 
     local catch, peds, plc = 0, {}, GetEntityCoords(pl)
     repeat
-        local createdped = CreatePed(model, plc.x + math.random(1, 5), plc.y + math.random(1, 5), plc.z, true, true, true, true)
+        local createdped = BccUtils.Ped.CreatePed(model, plc.x + math.random(1, 5), plc.y + math.random(1, 5), plc.z, true, true, false)
         SetBlockingOfNonTemporaryEvents(createdped, true)
-        Citizen.InvokeNative(0x283978A15512B2FE, createdped, true)
         Citizen.InvokeNative(0x9587913B9E772D29, createdped, true)
         table.insert(peds, createdped)
         SetEntityHealth(createdped, tables.Health, 0)
@@ -119,9 +144,9 @@ function herdanimals(animaltype, ranchcond)
     until catch == tables.AmountSpawned
     for k, v in pairs(peds) do
         relationshipsetup(v, 1)
-        TaskFollowToOffsetOfEntity(v, pl, 5, 5, 0, 1, -1, 5, true, true, true, true, true, true)
+        TaskFollowToOffsetOfEntity(v, pl, 5, 5, 0, 1, -1, 5, true, true, Config.RanchSetup.AnimalsWalkOnly, true, true, true)
     end
-    VORPutils.Gps:SetGps(Herdlocation.x, Herdlocation.y, Herdlocation.z)
+    BccUtils.Misc.SetGps(Herdlocation.x, Herdlocation.y, Herdlocation.z)
     VORPcore.NotifyRightTip(_U("HerdToLocation"), 4000)
 
     local animalsnear = false
@@ -148,7 +173,7 @@ function herdanimals(animaltype, ranchcond)
         end
     end
 
-    VORPutils.Gps:SetGps(plc.x, plc.y, plc.z)
+    BccUtils.Misc.SetGps(plc.x, plc.y, plc.z)
     while true do
         Wait(50)
         for k, v in pairs(peds) do
@@ -190,26 +215,24 @@ function ButcherAnimals(animaltype)
     TriggerEvent('bcc-ranch:ChoreDeadCheck')
     if animaltype == 'cows' then
         tables = Config.RanchSetup.RanchAnimalSetup.Cows
-        model = joaat('a_c_cow')
+        model = 'a_c_cow'
         spawncoords = Cowcoords
     elseif animaltype == 'chickens' then
         tables = Config.RanchSetup.RanchAnimalSetup.Chickens
-        model = joaat('a_c_chicken_01')
+        model = 'a_c_chicken_01'
         spawncoords = Chickencoords
     elseif animaltype == 'goats' then
         tables = Config.RanchSetup.RanchAnimalSetup.Goats
-        model = joaat('a_c_goat_01')
+        model = 'a_c_goat_01'
         spawncoords = Goatcoords
     elseif animaltype == 'pigs' then
         tables = Config.RanchSetup.RanchAnimalSetup.Pigs
-        model = joaat('a_c_pig_01')
+        model = 'a_c_pig_01'
         spawncoords = Pigcoords
     end
-    modelload(model)
 
-    local createdped = CreatePed(model, spawncoords.x, spawncoords.y, spawncoords.z, true, true, true, true)
+    local createdped = BccUtils.Ped.CreatePed(model, spawncoords.x, spawncoords.y, spawncoords.z, true, true, false)
     SetBlockingOfNonTemporaryEvents(createdped, true)
-    Citizen.InvokeNative(0x283978A15512B2FE, createdped, true)
     Citizen.InvokeNative(0x9587913B9E772D29, createdped, true)
     FreezeEntityPosition(createdped, true)
     VORPcore.NotifyRightTip(_U("KillAnimal"), 4000)
@@ -252,33 +275,31 @@ function FeedAnimals(animaltype)
     local tables, model, spawncoords, eatanim
     if animaltype == 'cows' then
         tables = Config.RanchSetup.RanchAnimalSetup.Cows
-        model = joaat('a_c_cow')
+        model = 'a_c_cow'
         eatanim = joaat("WORLD_ANIMAL_COW_EATING_GROUND")
         spawncoords = Cowcoords
     elseif animaltype == 'chickens' then
         tables = Config.RanchSetup.RanchAnimalSetup.Chickens
-        model = joaat('a_c_chicken_01')
+        model = 'a_c_chicken_01'
         eatanim = joaat("WORLD_ANIMAL_CHICKEN_EATING")
         spawncoords = Chickencoords
     elseif animaltype == 'goats' then
         tables = Config.RanchSetup.RanchAnimalSetup.Goats
-        model = joaat('a_c_goat_01')
+        model = 'a_c_goat_01'
         spawncoords = Goatcoords
         eatanim = joaat("PROP_ANIMAL_GOAT_EAT_TROUGH")
     elseif animaltype == 'pigs' then
         tables = Config.RanchSetup.RanchAnimalSetup.Pigs
-        model = joaat('a_c_pig_01')
+        model = 'a_c_pig_01'
         spawncoords = Pigcoords
         eatanim = joaat("WORLD_ANIMAL_PIG_EAT_CARCASS")
     end
     amount = tables.AmountSpawned
-    modelload(model)
 
     local catch = 0
     repeat
-        local createdped = CreatePed(model, spawncoords.x + math.random(1, 5), spawncoords.y + math.random(1, 5), spawncoords.z, true, true, true, true)
+        local createdped = BccUtils.Ped.CreatePed(model, spawncoords.x + math.random(1, 5), spawncoords.y + math.random(1, 5), spawncoords.z, true, true, false)
         SetBlockingOfNonTemporaryEvents(createdped, true)
-        Citizen.InvokeNative(0x283978A15512B2FE, createdped, true)
         Citizen.InvokeNative(0x9587913B9E772D29, createdped, true)
         table.insert(feedpeds, createdped)
         SetEntityHealth(createdped, tables.Health, 0)
@@ -286,7 +307,7 @@ function FeedAnimals(animaltype)
     until catch == tables.AmountSpawned
     for k, v in pairs(feedpeds) do
         relationshipsetup(v, 1)
-        TaskFollowToOffsetOfEntity(v, PlayerPedId(), 5, 5, 0, 1, -1, 5, true, true, true, true, true, true)
+        TaskFollowToOffsetOfEntity(v, PlayerPedId(), 5, 5, 0, 1, -1, 5, true, true, Config.RanchSetup.AnimalsWalkOnly, true, true, true)
     end
 
 
@@ -422,7 +443,7 @@ function FeedAnimals(animaltype)
 
     VORPcore.NotifyRightTip(_U("NowReturn"), 4000)
     FreezeEntityPosition(vehicle, false)
-    VORPutils.Gps:SetGps(FeedWagonLocation.x, FeedWagonLocation.y, FeedWagonLocation.z)
+    BccUtils.Misc.SetGps(FeedWagonLocation.x, FeedWagonLocation.y, FeedWagonLocation.z)
 
     while true do
         Wait(200)
