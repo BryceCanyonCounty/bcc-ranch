@@ -13,6 +13,8 @@ shared_scripts {
 
 server_scripts {
     'server/server.lua',
+    'server/exports.lua',
+    'server/AdminMenu.lua',
     '@oxmysql/lib/MySQL.lua',
 }
 
@@ -20,8 +22,8 @@ client_scripts {
     'client/functions.lua',
     'client/menusetup/*.lua',
     'client/MainRanch.lua',
-    '/client/chores.lua',
-    '/client/AnimalManager.lua',
+    'client/chores.lua',
+    'client/AnimalManager/*.lua',
 }
 
 dependency {
