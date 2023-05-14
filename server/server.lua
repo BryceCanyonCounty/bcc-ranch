@@ -28,6 +28,12 @@ RegisterServerEvent('bcc-ranch:OpenInv', function(ranchid)
     VORPInv.OpenInv(_source, 'Player_' .. ranchid .. '_bcc-ranchinv')
 end)
 
+-------- Adding Items ----------
+RegisterServerEvent('bcc-ranch:AddItem', function(item, amount)
+    local _source = source
+    VORPInv.addItem(_source, item, amount)
+end)
+
 ---------------------- DB AREA ----------------------------------
 -------- Creates DB ----------
 CreateThread(function()

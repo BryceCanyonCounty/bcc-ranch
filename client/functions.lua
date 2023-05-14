@@ -14,17 +14,6 @@ end)
 BccUtils = exports['bcc-utils'].initiate()
 MiniGame = exports['bcc-minigames'].initiate()
 
-------- Load Model -------
-function modelload(model)
-  RequestModel(model)
-  if not HasModelLoaded(model) then
-    RequestModel(model)
-  end
-  while not HasModelLoaded(model) do
-    Wait(100)
-  end
-end
-
 ----- Setting RelationShip ----
 function relationshipsetup(ped, relint) --ped and player relationship setter, rail int is 1-5 1 being friend 5 being hate
   SetRelationshipBetweenGroups(relint, GetPedRelationshipGroupHash(ped), joaat('PLAYER'))

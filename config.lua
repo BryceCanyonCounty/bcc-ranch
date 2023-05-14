@@ -1,6 +1,6 @@
 Config = {}
 
-Config.Debug = true --false on live server
+Config.Debug = false --false on live server
 
 -- Set Language (Current Languages: "en_lang")
 Config.defaultlang = "en_lang"
@@ -64,6 +64,8 @@ Config.ChoreConfig = {
         ConditionIncrease = 20,
     },
     ShovelPoop = {
+        RecievedItem = 'poop', --You will recieve this item upon completion of this chore(database name of the item)
+        RecievedAmount = 2, --this is the amount of the item you will recieve (set 0 if you do not want this feature)
         AnimTime = 5000,
         ConditionIncrease = 5,
     },
@@ -71,6 +73,8 @@ Config.ChoreConfig = {
 
 --Main Ranch Setup
 Config.RanchSetup = {
+    WolfAttacks = true, --if true there is a chance 2 wolves will spawn while herding or selling animals and attack you!(50 50 chance)
+    AnimalsWalkOnly = true, --If true animals that you herd or sell will only be able to walk, if false they can run. (Cows will not run no matter what)
     RanchCondDecrease = 1800000, --This is how often the ranches condition will decrease over time
     InvLimit = 200, --Maximum inventory space the ranch will have
     InvName = 'Ranch Inventory', --Name of the inventory
@@ -163,7 +167,7 @@ Config.SaleLocations = {
     }, --to add more just copy this table paste and change what you want
     {
         LocationName = 'Sale Area 2',
-        Coords = {x = -239.39, y = 710.95, z = 113.29},
+        Coords = {x = -767.63, y = -1389.87, z = 43.27},
     },
 }
 
