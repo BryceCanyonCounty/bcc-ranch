@@ -1,6 +1,6 @@
 Config = {}
 
-Config.Debug = false --false on live server
+Config.Debug = true --false on live server
 
 -- Set Language (Current Languages: "en_lang")
 Config.defaultlang = "en_lang"
@@ -73,6 +73,7 @@ Config.ChoreConfig = {
 
 --Main Ranch Setup
 Config.RanchSetup = {
+    AnimalsRoamRanch = true, --if you want your animals to roam your ranch set this true
     WolfAttacks = true, --if true there is a chance 2 wolves will spawn while herding or selling animals and attack you!(50 50 chance)
     AnimalsWalkOnly = true, --If true animals that you herd or sell will only be able to walk, if false they can run. (Cows will not run no matter what)
     RanchCondDecrease = 1800000, --This is how often the ranches condition will decrease over time
@@ -86,6 +87,7 @@ Config.RanchSetup = {
         Cows = {
             Health = 200, --How much health the cows will have while being herded or sold
             Cost = 500, --cost to buy animal
+            RoamingRadius = 4, --this is the radius the cows will be able to roam around the ranch in(it seems any less than 4 and they dont move but can test this on your own to see if its just me)
             MaxCondition = 200, --the maximum condition the animal can reach
             BasePay = 300, --This is the base pay(what will be paid when selling the animal if animal condition is not max)
             MaxConditionPay = 1000, --amount to pay when selling the animal if the animals condition is maxed
@@ -104,6 +106,7 @@ Config.RanchSetup = {
         Pigs = {
             Health = 200, --How much health the pigs will have while being herded or sold
             Cost = 200,
+            RoamingRadius = 4,
             MaxCondition = 100,
             BasePay = 200,
             MaxConditionPay = 500,
@@ -122,6 +125,7 @@ Config.RanchSetup = {
         Goats = {
             Health = 200, --How much health the goats will have while being herded or sold
             Cost = 100,
+            RoamingRadius = 3,
             MaxCondition = 50,
             BasePay = 100,
             MaxConditionPay = 200,
@@ -140,6 +144,7 @@ Config.RanchSetup = {
         Chickens = {
             Health = 200, --How much health the chickens will have while being herded or sold
             Cost = 50,
+            RoamingRadius = 4,
             MaxCondition = 20,
             BasePay = 50,
             MaxConditionPay = 100,

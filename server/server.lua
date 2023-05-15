@@ -321,5 +321,25 @@ RegisterServerEvent('bcc-ranch:RemoveAnimalFromDB', function(ranchid, animaltype
     end
 end)
 
+------- Animal Wandering Setup Area -----------
+RegisterServerEvent('bcc-ranch:WanderingSetup', function(ranchid)
+    local param = { ['ranchid'] =  ranchid }
+    local _source = source
+    exports.oxmysql:execute("SELECT * FROM ranch WHERE ranchid=@ranchid", param, function (result)
+        if result[1].cows == 'true' then
+            TriggerClientEvent('bcc-ranch:CowsWander', _source)
+        end
+        if result[1].chickens == 'true' then
+            TriggerClientEvent('bcc-ranch:ChickensWander', _source)
+        end
+        if result[1].goats == 'true' then
+            TriggerClientEvent("bcc-ranch:GoatsWander", _source)
+        end
+        if result[1].pigs == 'true' then
+            TriggerClientEvent("bcc-ranch:PigsWander", _source)
+        end
+    end)
+end)
+
 ----- Version Check ----
 BccUtils.Versioner.checkRelease(GetCurrentResourceName(), 'https://github.com/BryceCanyonCounty/bcc-ranch')
