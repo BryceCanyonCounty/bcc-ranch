@@ -111,6 +111,7 @@ function spawnpedsroam(model, roamdist)
     Citizen.InvokeNative(0x283978A15512B2FE, createdped, true)
     Citizen.InvokeNative(0x9587913B9E772D29, createdped, true)
     Citizen.InvokeNative(0xE054346CA3A0F315, createdped, spawncoords.x, spawncoords.y, spawncoords.z, roamdist, tonumber(1077936128), tonumber(1086324736), 1)
-    relationshipsetup(createdped, 3)
+    relationshipsetup(createdped, 1)
+    SetBlockingOfNonTemporaryEvents(createdped, true)
     return createdped
 end
