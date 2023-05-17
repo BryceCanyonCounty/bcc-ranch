@@ -60,7 +60,7 @@ function FeedAnimals(animaltype)
     while not HasModelLoaded(car) do
         Wait(100)
     end
-    local vehicle = Citizen.InvokeNative(0x214651FB1DFEBA89, car, FeedWagonLocation.x, FeedWagonLocation.y, FeedWagonLocation.z, 100.0, false, false, 0, 1)
+    local vehicle = Citizen.InvokeNative(0x214651FB1DFEBA89, car, FeedWagonLocation.x, FeedWagonLocation.y, FeedWagonLocation.z, 100.0, true, false, 0, 1)
     while not DoesEntityExist(vehicle) do
         Wait(5)
     end
