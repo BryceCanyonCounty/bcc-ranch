@@ -1,24 +1,36 @@
 function ButcherAnimals(animaltype)
-    InMission = true
     local model, tables, spawncoords
     TriggerEvent('bcc-ranch:ChoreDeadCheck')
     if animaltype == 'cows' then
+        if Cowsage < Config.RanchSetup.AnimalGrownAge then
+            VORPcore.NotifyRightTip(_U("TooYoung"), 4000) return
+        end
         tables = Config.RanchSetup.RanchAnimalSetup.Cows
         model = 'a_c_cow'
         spawncoords = Cowcoords
     elseif animaltype == 'chickens' then
+        if Chickensage < Config.RanchSetup.AnimalGrownAge then
+            VORPcore.NotifyRightTip(_U("TooYoung"), 4000) return
+        end
         tables = Config.RanchSetup.RanchAnimalSetup.Chickens
         model = 'a_c_chicken_01'
         spawncoords = Chickencoords
     elseif animaltype == 'goats' then
+        if Goatsage < Config.RanchSetup.AnimalGrownAge then
+            VORPcore.NotifyRightTip(_U("TooYoung"), 4000) return
+        end
         tables = Config.RanchSetup.RanchAnimalSetup.Goats
         model = 'a_c_goat_01'
         spawncoords = Goatcoords
     elseif animaltype == 'pigs' then
+        if Pigsage < Config.RanchSetup.AnimalGrownAge then
+            VORPcore.NotifyRightTip(_U("TooYoung"), 4000) return
+        end
         tables = Config.RanchSetup.RanchAnimalSetup.Pigs
         model = 'a_c_pig_01'
         spawncoords = Pigcoords
     end
+    InMission = true
 
     local createdped = BccUtils.Ped.CreatePed(model, spawncoords.x, spawncoords.y, spawncoords.z, true, true, false)
     SetBlockingOfNonTemporaryEvents(createdped, true)

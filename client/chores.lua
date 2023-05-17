@@ -103,10 +103,9 @@ end)
 
 ---- Dead Check Event -----
 AddEventHandler('bcc-ranch:ChoreDeadCheck', function()
-    local pl = PlayerPedId()
     while InMission do
         Wait(1000)
-        if IsEntityDead(pl) then
+        if IsEntityDead(PlayerPedId()) then
             PlayerDead = true break
         end
     end

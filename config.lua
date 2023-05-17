@@ -73,9 +73,10 @@ Config.ChoreConfig = {
 
 --Main Ranch Setup
 Config.RanchSetup = {
+    AnimalGrownAge = 100, -- the age the animals will have to be reach before they are grown(animals below this age will be considered babies, and you can not sell or butcher them the age increase while the player is online)
     AnimalsRoamRanch = true, --if you want your animals to roam your ranch set this true
     WolfAttacks = true, --if true there is a chance 2 wolves will spawn while herding or selling animals and attack you!(50 50 chance)
-    AnimalsWalkOnly = true, --If true animals that you herd or sell will only be able to walk, if false they can run. (Cows will not run no matter what)
+    AnimalsWalkOnly = false, --If true animals that you herd or sell will only be able to walk, if false they can run. (Cows will not run no matter what)
     RanchCondDecrease = 1800000, --This is how often the ranches condition will decrease over time
     InvLimit = 200, --Maximum inventory space the ranch will have
     InvName = 'Ranch Inventory', --Name of the inventory
@@ -86,6 +87,8 @@ Config.RanchSetup = {
     RanchAnimalSetup = { --ranch animal setup
         Cows = {
             Health = 200, --How much health the cows will have while being herded or sold
+            AgeIncreaseTime = 30000, --The time that has to pass before the animals age increases
+            AgeIncreaseAmount = 5, --the amount the age will increase
             Cost = 500, --cost to buy animal
             RoamingRadius = 6.0, --this is the radius the cows will be able to roam around the ranch in(Make sure this is a decimal number ie 0.2, 5.0, 3.9 not a whole number ie 1, 2, 3 will break them wandering if its a whole number)
             MaxCondition = 200, --the maximum condition the animal can reach
@@ -105,6 +108,8 @@ Config.RanchSetup = {
         },
         Pigs = {
             Health = 200, --How much health the pigs will have while being herded or sold
+            AgeIncreaseTime = 30000, --The time that has to pass before the animals age increases
+            AgeIncreaseAmount = 5, --the amount the age will increase
             Cost = 200,
             RoamingRadius = 6.0,
             MaxCondition = 100,
@@ -124,6 +129,8 @@ Config.RanchSetup = {
         },
         Goats = {
             Health = 200, --How much health the goats will have while being herded or sold
+            AgeIncreaseTime = 30000, --The time that has to pass before the animals age increases
+            AgeIncreaseAmount = 5, --the amount the age will increase
             Cost = 100,
             RoamingRadius = 6.0,
             MaxCondition = 50,
@@ -143,6 +150,8 @@ Config.RanchSetup = {
         },
         Chickens = {
             Health = 200, --How much health the chickens will have while being herded or sold
+            AgeIncreaseTime = 30000, --The time that has to pass before the animals age increases
+            AgeIncreaseAmount = 5, --the amount the age will increase
             Cost = 50,
             RoamingRadius = 6.0,
             MaxCondition = 20,

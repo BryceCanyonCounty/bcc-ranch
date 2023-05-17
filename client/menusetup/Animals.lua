@@ -1,5 +1,5 @@
 ----- Variabless -----
-Cowcoords, Chickencoords, Goatcoords, Pigcoords, Herdlocation, FeedWagonLocation = nil, nil, nil, nil, nil, nil
+Cowcoords, Chickencoords, Goatcoords, Pigcoords, Herdlocation, FeedWagonLocation, BoughtCows, BoughtChickens, BoughtGoats, BoughtPigs = nil, nil, nil, nil, nil, nil, true, true, true, true
 
 ------ Buy Animals Menu --------
 function BuyAnimalMenu()
@@ -24,12 +24,28 @@ function BuyAnimalMenu()
                 _G[data.trigger]()
             end
             if data.current.value == 'buycows' then
+                BoughtCows = false
+                Cowsage = 0
+                Wait(200)
+                BoughtCows = true
                 TriggerServerEvent('bcc-ranch:BuyAnimals', RanchId, 'cows')
             elseif data.current.value == 'buypigs' then
+                BoughtPigs = false
+                Pigsage = 0
+                Wait(200)
+                BoughtPigs = true
                 TriggerServerEvent('bcc-ranch:BuyAnimals', RanchId, 'pigs')
             elseif data.current.value == 'buychickens' then
+                BoughtChickens = false
+                Chickensage = 0
+                Wait(200)
+                BoughtChickens = true
                 TriggerServerEvent('bcc-ranch:BuyAnimals', RanchId, 'chickens')
             elseif data.current.value == 'buygoats' then
+                BoughtGoats = false
+                Goatsage = 0
+                Wait(200)
+                BoughtGoats = true
                 TriggerServerEvent('bcc-ranch:BuyAnimals', RanchId, 'goats')
             end
         end)
