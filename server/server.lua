@@ -46,12 +46,16 @@ CreateThread(function()
         `ranchCondition` int(10) NOT NULL DEFAULT 0,
         `cows` varchar(50) NOT NULL DEFAULT 'false',
         `cows_cond` int(10) NOT NULL DEFAULT 0,
+        `cows_age` int(10) NOT NULL DEFAULT 0,
         `pigs` varchar(50) NOT NULL DEFAULT 'false',
         `pigs_cond` int(10) NOT NULL DEFAULT 0,
+        `pigs_age` int(10) NOT NULL DEFAULT 0,
         `chickens` varchar(50) NOT NULL DEFAULT 'false',
         `chickens_cond` int(10) NOT NULL DEFAULT 0,
+        `chickens_age` int(10) NOT NULL DEFAULT 0,
         `goats` varchar(50) NOT NULL DEFAULT 'false',
         `goats_cond` int(10) NOT NULL DEFAULT 0,
+        `goats_age` int(10) NOT NULL DEFAULT 0,
         PRIMARY KEY `ranchid` (`ranchid`),
         UNIQUE KEY `charidentifier` (`charidentifier`))
     ]])
@@ -118,6 +122,7 @@ RegisterServerEvent('bcc-ranch:BuyAnimals', function(ranchid, animaltype)
         if Character.money >= Config.RanchSetup.RanchAnimalSetup.Cows.Cost then
             exports.oxmysql:execute("SELECT cows FROM ranch WHERE ranchid=@ranchid", param, function(result)
                 if result[1].cows == 'false' then
+                    TriggerEvent('bcc-ranch:IndAnimalAgeStart', 'cows', _source)
                     exports.oxmysql:execute('UPDATE ranch SET `cows`="true" WHERE ranchid=@ranchid', param)
                     AnimalBoughtHandle(Config.RanchSetup.RanchAnimalSetup.Cows.Cost, Config.Webhooks.AnimalBought.TitleText, Config.Webhooks.AnimalBought.DescText, Config.Webhooks.AnimalBought.Cows, _source, ranchid, discord, Character)
                 else
@@ -131,6 +136,7 @@ RegisterServerEvent('bcc-ranch:BuyAnimals', function(ranchid, animaltype)
         if Character.money >= Config.RanchSetup.RanchAnimalSetup.Pigs.Cost then
             exports.oxmysql:execute("SELECT pigs FROM ranch WHERE ranchid=@ranchid", param, function(result)
                 if result[1].pigs == 'false' then
+                    TriggerEvent('bcc-ranch:IndAnimalAgeStart', 'pigs', _source)
                     exports.oxmysql:execute('UPDATE ranch SET `pigs`="true" WHERE ranchid=@ranchid', param)
                     AnimalBoughtHandle(Config.RanchSetup.RanchAnimalSetup.Pigs.Cost, Config.Webhooks.AnimalBought.TitleText, Config.Webhooks.AnimalBought.DescText, Config.Webhooks.AnimalBought.Pigs, _source, ranchid, discord, Character)
                 else
@@ -144,6 +150,7 @@ RegisterServerEvent('bcc-ranch:BuyAnimals', function(ranchid, animaltype)
         if Character.money >= Config.RanchSetup.RanchAnimalSetup.Goats.Cost then
             exports.oxmysql:execute("SELECT goats FROM ranch WHERE ranchid=@ranchid", param, function(result)
                 if result[1].goats == 'false' then
+                    TriggerEvent('bcc-ranch:IndAnimalAgeStart', 'goats', _source)
                     exports.oxmysql:execute('UPDATE ranch SET `goats`="true" WHERE ranchid=@ranchid', param)
                     AnimalBoughtHandle(Config.RanchSetup.RanchAnimalSetup.Goats.Cost, Config.Webhooks.AnimalBought.TitleText, Config.Webhooks.AnimalBought.DescText, Config.Webhooks.AnimalBought.Goats, _source, ranchid, discord, Character)
                 else
@@ -157,6 +164,7 @@ RegisterServerEvent('bcc-ranch:BuyAnimals', function(ranchid, animaltype)
         if Character.money >= Config.RanchSetup.RanchAnimalSetup.Chickens.Cost then
             exports.oxmysql:execute("SELECT chickens FROM ranch WHERE ranchid=@ranchid", param, function(result)
                 if result[1].chickens == 'false' then
+                    TriggerEvent('bcc-ranch:IndAnimalAgeStart', 'chickens', _source)
                     exports.oxmysql:execute('UPDATE ranch SET `chickens`="true" WHERE ranchid=@ranchid', param)
                     AnimalBoughtHandle(Config.RanchSetup.RanchAnimalSetup.Chickens.Cost, Config.Webhooks.AnimalBought.TitleText, Config.Webhooks.AnimalBought.DescText, Config.Webhooks.AnimalBought.Chickens, _source, ranchid, discord, Character)
                 else
@@ -216,16 +224,16 @@ RegisterServerEvent('bcc-ranch:AnimalsSoldHandler', function(payamount, animalty
 
     if animaltype == 'cows' then
         discord:sendMessage(Config.Webhooks.AnimalSold.TitleText .. tostring(ranchid), Config.Webhooks.AnimalSold.Sold .. Config.Webhooks.AnimalSold.Cows)
-        exports.oxmysql:execute('UPDATE ranch SET `cows`="false", `cows_cond`=0 WHERE ranchid=@ranchid', param)
+        exports.oxmysql:execute('UPDATE ranch SET `cows`="false", `cows_cond`=0, `cows_age`=0 WHERE ranchid=@ranchid', param)
     elseif animaltype == 'chickens' then
         discord:sendMessage(Config.Webhooks.AnimalSold.TitleText .. tostring(ranchid), Config.Webhooks.AnimalSold.Sold .. Config.Webhooks.AnimalSold.Chickens)
-        exports.oxmysql:execute('UPDATE ranch SET `chickens`="false", `chickens_cond`=0 WHERE ranchid=@ranchid', param)
+        exports.oxmysql:execute('UPDATE ranch SET `chickens`="false", `chickens_cond`=0, `chickens_age`=0 WHERE ranchid=@ranchid', param)
     elseif animaltype == 'pigs' then
         discord:sendMessage(Config.Webhooks.AnimalSold.TitleText .. tostring(ranchid), Config.Webhooks.AnimalSold.Sold .. Config.Webhooks.AnimalSold.Pigs)
-        exports.oxmysql:execute('UPDATE ranch SET `pigs`="false", `pigs_cond`=0 WHERE ranchid=@ranchid', param)
+        exports.oxmysql:execute('UPDATE ranch SET `pigs`="false", `pigs_cond`=0, `pigs_age`=0 WHERE ranchid=@ranchid', param)
     elseif animaltype == 'goats' then
         discord:sendMessage(Config.Webhooks.AnimalSold.TitleText .. tostring(ranchid), Config.Webhooks.AnimalSold.Sold .. Config.Webhooks.AnimalSold.Goats)
-        exports.oxmysql:execute('UPDATE ranch SET `goats`="false", `goats_cond`=0 WHERE ranchid=@ranchid', param)
+        exports.oxmysql:execute('UPDATE ranch SET `goats`="false", `goats_cond`=0, `goats_age`=0 WHERE ranchid=@ranchid', param)
     end
 end)
 
@@ -250,13 +258,13 @@ RegisterServerEvent('bcc-ranch:ButcherAnimalHandler', function(animaltype, ranch
     local _source = source
 
     if animaltype == 'cows' then
-        exports.oxmysql:execute('UPDATE ranch SET `cows`="false", `cows_cond`=0 WHERE ranchid=@ranchid', param)
+        exports.oxmysql:execute('UPDATE ranch SET `cows`="false", `cows_cond`=0, `cows_age`=0 WHERE ranchid=@ranchid', param)
     elseif animaltype == 'chickens' then
-        exports.oxmysql:execute('UPDATE ranch SET `chickens`="false", `chickens_cond`=0 WHERE ranchid=@ranchid', param)
+        exports.oxmysql:execute('UPDATE ranch SET `chickens`="false", `chickens_cond`=0, `chickens_age`=0 WHERE ranchid=@ranchid', param)
     elseif animaltype == 'pigs' then
-        exports.oxmysql:execute('UPDATE ranch SET `pigs`="false", `pigs_cond`=0 WHERE ranchid=@ranchid', param)
+        exports.oxmysql:execute('UPDATE ranch SET `pigs`="false", `pigs_cond`=0, `pigs_age`=0 WHERE ranchid=@ranchid', param)
     elseif animaltype == 'goats' then
-        exports.oxmysql:execute('UPDATE ranch SET `goats`="false", `goats_cond`=0 WHERE ranchid=@ranchid', param)
+        exports.oxmysql:execute('UPDATE ranch SET `goats`="false", `goats_cond`=0, `goats_age`=0 WHERE ranchid=@ranchid', param)
     end
 
     for k, v in pairs(table.ButcherItems) do
@@ -311,13 +319,84 @@ RegisterServerEvent('bcc-ranch:RemoveAnimalFromDB', function(ranchid, animaltype
     local param = { ['ranchid'] = ranchid }
 
     if animaltype == 'cows' then
-        exports.oxmysql:execute('UPDATE ranch SET `cows`="false", `cows_cond`=0 WHERE ranchid=@ranchid', param)
+        exports.oxmysql:execute('UPDATE ranch SET `cows`="false", `cows_cond`=0, `cows_age`=0 WHERE ranchid=@ranchid', param)
     elseif animaltype == 'chickens' then
-        exports.oxmysql:execute('UPDATE ranch SET `chickens`="false", `chickens_cond`=0 WHERE ranchid=@ranchid', param)
+        exports.oxmysql:execute('UPDATE ranch SET `chickens`="false", `chickens_cond`=0, `chickens_age`=0 WHERE ranchid=@ranchid', param)
     elseif animaltype == 'pigs' then
-        exports.oxmysql:execute('UPDATE ranch SET `pigs`="false", `pigs_cond`=0 WHERE ranchid=@ranchid', param)
+        exports.oxmysql:execute('UPDATE ranch SET `pigs`="false", `pigs_cond`=0, `pigs_age`=0 WHERE ranchid=@ranchid', param)
     elseif animaltype == 'goats' then
-        exports.oxmysql:execute('UPDATE ranch SET `goats`="false", `goats_cond`=0 WHERE ranchid=@ranchid', param)
+        exports.oxmysql:execute('UPDATE ranch SET `goats`="false", `goats_cond`=0, `goats_age`=0 WHERE ranchid=@ranchid', param)
+    end
+end)
+
+------- Animal Wandering Setup Area -----------
+RegisterServerEvent('bcc-ranch:WanderingSetup', function(ranchid)
+    local param = { ['ranchid'] =  ranchid }
+    local _source = source
+    exports.oxmysql:execute("SELECT * FROM ranch WHERE ranchid=@ranchid", param, function (result)
+        if result[1].cows == 'true' then
+            TriggerClientEvent('bcc-ranch:CowsWander', _source)
+        end
+        if result[1].chickens == 'true' then
+            TriggerClientEvent('bcc-ranch:ChickensWander', _source)
+        end
+        if result[1].goats == 'true' then
+            TriggerClientEvent("bcc-ranch:GoatsWander", _source)
+        end
+        if result[1].pigs == 'true' then
+            TriggerClientEvent("bcc-ranch:PigsWander", _source)
+        end
+    end)
+end)
+
+---------- Ageing Setup -----------------------
+RegisterServerEvent('bcc-ranch:AgeCheck', function(ranchid)
+    local _source = source
+    local param = { ['ranchid'] = ranchid }
+    exports.oxmysql:execute("SELECT * FROM ranch WHERE ranchid=@ranchid", param, function(result)
+        if result[1].cows == 'true' then
+            TriggerClientEvent('bcc-ranch:CowsAgeing', _source, result[1].cows_age)
+        end
+        if result[1].chickens == 'true' then
+            TriggerClientEvent('bcc-ranch:ChickensAgeing', _source, result[1].chickens_age)
+        end
+        if result[1].goats == 'true' then
+            TriggerClientEvent('bcc-ranch:GoatsAgeing', _source, result[1].goats_age)
+        end
+        if result[1].pigs == 'true' then
+            TriggerClientEvent('bcc-ranch:PigsAgeing', _source, result[1].pigs_age)
+        end
+    end)
+end)
+
+AddEventHandler('bcc-ranch:IndAnimalAgeStart', function(animaltype, _source)
+    if animaltype == 'cows' then
+        TriggerClientEvent('bcc-ranch:CowsAgeing', _source, 0)
+    end
+    if animaltype == 'chickens' then
+        TriggerClientEvent('bcc-ranch:ChickensAgeing', _source, 0)
+    end
+    if animaltype == 'goats' then
+        TriggerClientEvent('bcc-ranch:GoatsAgeing', _source, 0)
+    end
+    if animaltype == 'pigs' then
+        TriggerClientEvent('bcc-ranch:PigsAgeing', _source, 0)
+    end
+end)
+
+RegisterServerEvent('bcc-ranch:AgeIncrease', function(animaltype, ranchid)
+    if animaltype == 'cows' then
+        local param = { ['ranchid'] = ranchid, ['increaseamount'] = Config.RanchSetup.RanchAnimalSetup.Cows.AgeIncreaseAmount }
+        exports.oxmysql:execute("UPDATE ranch SET `cows_age`=cows_age+@increaseamount WHERE ranchid=@ranchid", param)
+    elseif animaltype == 'chickens' then
+        local param = { ['ranchid'] = ranchid, ['increaseamount'] = Config.RanchSetup.RanchAnimalSetup.Chickens.AgeIncreaseAmount }
+        exports.oxmysql:execute("UPDATE ranch SET `chickens_age`=chickens_age+@increaseamount WHERE ranchid=@ranchid", param)
+    elseif animaltype == 'goats' then
+        local param = { ['ranchid'] = ranchid, ['increaseamount'] = Config.RanchSetup.RanchAnimalSetup.Goats.AgeIncreaseAmount }
+        exports.oxmysql:execute("UPDATE ranch SET `goats_age`=goats_age+@increaseamount WHERE ranchid=@ranchid", param)
+    elseif animaltype == 'pigs' then
+        local param = { ['ranchid'] = ranchid, ['increaseamount'] = Config.RanchSetup.RanchAnimalSetup.Pigs.AgeIncreaseAmount }
+        exports.oxmysql:execute("UPDATE ranch SET `pigs_age`=pigs_age+@increaseamount WHERE ranchid=@ranchid", param)
     end
 end)
 

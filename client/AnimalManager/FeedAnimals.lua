@@ -4,32 +4,48 @@ local amount
 function FeedAnimals(animaltype)
     InMission = true
     local tables, model, spawncoords, eatanim
+    local scale = nil
     if animaltype == 'cows' then
         tables = Config.RanchSetup.RanchAnimalSetup.Cows
         model = 'a_c_cow'
         eatanim = joaat("WORLD_ANIMAL_COW_EATING_GROUND")
         spawncoords = Cowcoords
+        if Cowsage < Config.RanchSetup.AnimalGrownAge then
+            scale = 0.5
+        end
     elseif animaltype == 'chickens' then
         tables = Config.RanchSetup.RanchAnimalSetup.Chickens
         model = 'a_c_chicken_01'
         eatanim = joaat("WORLD_ANIMAL_CHICKEN_EATING")
         spawncoords = Chickencoords
+        if Chickensage < Config.RanchSetup.AnimalGrownAge then
+            scale = 0.5
+        end
     elseif animaltype == 'goats' then
         tables = Config.RanchSetup.RanchAnimalSetup.Goats
         model = 'a_c_goat_01'
         spawncoords = Goatcoords
         eatanim = joaat("PROP_ANIMAL_GOAT_EAT_TROUGH")
+        if Goatsage < Config.RanchSetup.AnimalGrownAge then
+            scale = 0.5
+        end
     elseif animaltype == 'pigs' then
         tables = Config.RanchSetup.RanchAnimalSetup.Pigs
         model = 'a_c_pig_01'
         spawncoords = Pigcoords
         eatanim = joaat("WORLD_ANIMAL_PIG_EAT_CARCASS")
+        if Pigsage < Config.RanchSetup.AnimalGrownAge then
+            scale = 0.5
+        end
     end
     amount = tables.AmountSpawned
 
     local catch = 0
     repeat
         local createdped = BccUtils.Ped.CreatePed(model, spawncoords.x + math.random(1, 5), spawncoords.y + math.random(1, 5), spawncoords.z, true, true, false)
+        if scale ~= nil then
+            SetPedScale(createdped, scale)
+        end
         SetBlockingOfNonTemporaryEvents(createdped, true)
         Citizen.InvokeNative(0x9587913B9E772D29, createdped, true)
         table.insert(feedpeds, createdped)
@@ -44,7 +60,7 @@ function FeedAnimals(animaltype)
     while not HasModelLoaded(car) do
         Wait(100)
     end
-    local vehicle = Citizen.InvokeNative(0x214651FB1DFEBA89, car, FeedWagonLocation.x, FeedWagonLocation.y, FeedWagonLocation.z, 100.0, false, false, 0, 1)
+    local vehicle = Citizen.InvokeNative(0x214651FB1DFEBA89, car, FeedWagonLocation.x, FeedWagonLocation.y, FeedWagonLocation.z, 100.0, true, false, 0, 1)
     while not DoesEntityExist(vehicle) do
         Wait(5)
     end

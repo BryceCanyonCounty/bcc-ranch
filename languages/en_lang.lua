@@ -129,5 +129,6 @@ Locales["en_lang"] = {
     PickUpHay = 'Pick Up Hay?',
     DropHay = 'Drop Hay?',
     WaitUntilDoneEating = 'Now wait until the cows are finished eating!',
-    AnimalsFed = 'Animals Fed! Animals Condition Has Been Increased!'
+    AnimalsFed = 'Animals Fed! Animals Condition Has Been Increased!',
+    TooYoung = 'Animals Are too young to do this!'
 }

@@ -2,20 +2,33 @@
 function herdanimals(animaltype, ranchcond)
     local pl = PlayerPedId()
     local model, tables
+    local scale = nil
     InMission = true
     TriggerEvent('bcc-ranch:ChoreDeadCheck')
     if animaltype == 'cows' then
         tables = Config.RanchSetup.RanchAnimalSetup.Cows
         model = 'a_c_cow'
+        if Cowsage < Config.RanchSetup.AnimalGrownAge then
+            scale = 0.5
+        end
     elseif animaltype == 'chickens' then
         tables = Config.RanchSetup.RanchAnimalSetup.Chickens
         model = 'a_c_chicken_01'
+        if Chickensage < Config.RanchSetup.AnimalGrownAge then
+            scale = 0.5
+        end
     elseif animaltype == 'goats' then
         tables = Config.RanchSetup.RanchAnimalSetup.Goats
         model = 'a_c_goat_01'
+        if Goatsage < Config.RanchSetup.AnimalGrownAge then
+            scale = 0.5
+        end
     elseif animaltype == 'pigs' then
         tables = Config.RanchSetup.RanchAnimalSetup.Pigs
         model = 'a_c_pig_01'
+        if Pigsage < Config.RanchSetup.AnimalGrownAge then
+            scale = 0.5
+        end
     end
 
     local catch, peds, plc = 0, {}, GetEntityCoords(pl)
@@ -23,6 +36,9 @@ function herdanimals(animaltype, ranchcond)
         local createdped = BccUtils.Ped.CreatePed(model, plc.x + math.random(1, 5), plc.y + math.random(1, 5), plc.z, true, true, false)
         SetBlockingOfNonTemporaryEvents(createdped, true)
         Citizen.InvokeNative(0x9587913B9E772D29, createdped, true)
+        if scale ~= nil then
+            SetPedScale(createdped, scale)
+        end
         table.insert(peds, createdped)
         SetEntityHealth(createdped, tables.Health, 0)
         catch = catch + 1

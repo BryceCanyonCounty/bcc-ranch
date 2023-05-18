@@ -1,26 +1,38 @@
 -------- Function to sell animals -----------
 function SellAnimals(animaltype, animal_cond)
-    InMission = true
     TriggerEvent('bcc-ranch:ChoreDeadCheck')
     local tables, model
-    local spawncoords, pl = nil, PlayerPedId()
+    local spawncoords = nil
     if animaltype == 'cows' then
+        if Cowsage < Config.RanchSetup.AnimalGrownAge then
+            VORPcore.NotifyRightTip(_U("TooYoung"), 4000) return
+        end
         tables = Config.RanchSetup.RanchAnimalSetup.Cows
         model = 'a_c_cow'
         spawncoords = Cowcoords
     elseif animaltype == 'chickens' then
+        if Chickensage < Config.RanchSetup.AnimalGrownAge then
+            VORPcore.NotifyRightTip(_U("TooYoung"), 4000) return
+        end
         tables = Config.RanchSetup.RanchAnimalSetup.Chickens
         model = 'a_c_chicken_01'
         spawncoords = Chickencoords
     elseif animaltype == 'goats' then
+        if Goatsage < Config.RanchSetup.AnimalGrownAge then
+            VORPcore.NotifyRightTip(_U("TooYoung"), 4000) return
+        end
         tables = Config.RanchSetup.RanchAnimalSetup.Goats
         model = 'a_c_goat_01'
         spawncoords = Goatcoords
     elseif animaltype == 'pigs' then
+        if Pigsage < Config.RanchSetup.AnimalGrownAge then
+            VORPcore.NotifyRightTip(_U("TooYoung"), 4000) return
+        end
         tables = Config.RanchSetup.RanchAnimalSetup.Pigs
         model = 'a_c_pig_01'
         spawncoords = Pigcoords
     end
+    InMission = true
 
     --Detecting Closest Sale Barn Setup Credit to vorp_core for this bit of code, and jannings for pointing this out to me
     local finalsalecoords
@@ -66,7 +78,7 @@ function SellAnimals(animaltype, animal_cond)
         end
         if catch == 0 or PlayerDead == true then break end
 
-        local plc = GetEntityCoords(pl)
+        local plc = GetEntityCoords(PlayerPedId())
         local dist = GetDistanceBetweenCoords(plc.x, plc.y, plc.z, finalsalecoords.x, finalsalecoords.y, finalsalecoords.z, true)
         if dist < 5 and animalsnear == true then
             local pay
