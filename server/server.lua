@@ -354,6 +354,7 @@ RegisterServerEvent('bcc-ranch:AgeCheck', function(ranchid)
     local _source = source
     local param = { ['ranchid'] = ranchid }
     exports.oxmysql:execute("SELECT * FROM ranch WHERE ranchid=@ranchid", param, function(result)
+        Wait(500)
         if result[1].cows == 'true' then
             TriggerClientEvent('bcc-ranch:CowsAgeing', _source, result[1].cows_age)
         end
