@@ -178,6 +178,7 @@ function FeedAnimals(animaltype)
         InMission = false
         VORPcore.NotifyRightTip(_U("PlayerDead"), 4000) return
     end
+    FreezeEntityPosition(vehicle, false)
     for k, v in pairs(feedpeds) do
         local cw = GetEntityCoords(crate)
         ClearPedTasksImmediately(v)
@@ -187,7 +188,6 @@ function FeedAnimals(animaltype)
     end
 
     VORPcore.NotifyRightTip(_U("NowReturn"), 4000)
-    FreezeEntityPosition(vehicle, false)
     BccUtils.Misc.SetGps(FeedWagonLocation.x, FeedWagonLocation.y, FeedWagonLocation.z)
 
     while true do
