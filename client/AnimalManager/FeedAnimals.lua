@@ -118,6 +118,7 @@ function FeedAnimals(animaltype)
         if animalsdead then
             TriggerServerEvent('bcc-ranch:RemoveAnimalFromDB', RanchId, animaltype)
         end
+        InMission = false
         VORPcore.NotifyRightTip(_U("PlayerDead"), 4000) return
     end
     FreezeEntityPosition(vehicle, true)
@@ -174,6 +175,7 @@ function FeedAnimals(animaltype)
         if animalsdead then
             TriggerServerEvent('bcc-ranch:RemoveAnimalFromDB', RanchId, animaltype)
         end
+        InMission = false
         VORPcore.NotifyRightTip(_U("PlayerDead"), 4000) return
     end
     for k, v in pairs(feedpeds) do
@@ -196,6 +198,7 @@ function FeedAnimals(animaltype)
         if GetDistanceBetweenCoords(cw.x, cw.y, cw.z, FeedWagonLocation.x, FeedWagonLocation.y, FeedWagonLocation.z, true) < 15 then break end
     end
     if PlayerDead == true or GetEntityHealth(vehicle) == 0 then
+        InMission = false
         VORPcore.NotifyRightTip(_U("PlayerDead"), 4000) return
     end
     ClearGpsMultiRoute()
