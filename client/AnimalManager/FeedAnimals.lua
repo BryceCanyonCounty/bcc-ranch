@@ -5,6 +5,7 @@ function FeedAnimals(animaltype)
     InMission = true
     local tables, model, spawncoords, eatanim
     local scale = nil
+    feedpeds = {} --Feedpeds is set to nil when the mission is over or player dies to empty the table, this sets it from nil to table allowing this to work again (if it is not set nil when the mission is over or failed it will fail the mission the next time you do one)
     if animaltype == 'cows' then
         tables = Config.RanchSetup.RanchAnimalSetup.Cows
         model = 'a_c_cow'
@@ -97,24 +98,19 @@ function FeedAnimals(animaltype)
                 end
                 if IsEntityDead(v) then
                     catch = catch - 1
+                    if catch == 0 then
+                        animalsdead = true break
+                    end
                 end
             end
             if animalsnear then break end
         end
 
-        if dist < 30 then Wait(200) end
-        
-        for k, v in pairs(feedpeds) do
-            if IsEntityDead(v) then
-                catch = catch - 1
-                if catch == 0 then
-                    animalsdead = true break
-                end
-            end
-        end
         if PlayerDead then break end
     end
-    if PlayerDead == true or animalsdead == true then
+    if PlayerDead or animalsdead then
+        feedpeds = nil
+        DelPedsForTable(feedpeds)
         if animalsdead then
             TriggerServerEvent('bcc-ranch:RemoveAnimalFromDB', RanchId, animaltype)
         end
@@ -172,6 +168,8 @@ function FeedAnimals(animaltype)
         end
     until repamount == 3
     if PlayerDead or animalsdead then
+        DelPedsForTable(feedpeds)
+        feedpeds = nil
         if animalsdead then
             TriggerServerEvent('bcc-ranch:RemoveAnimalFromDB', RanchId, animaltype)
         end
@@ -198,6 +196,8 @@ function FeedAnimals(animaltype)
         if GetDistanceBetweenCoords(cw.x, cw.y, cw.z, FeedWagonLocation.x, FeedWagonLocation.y, FeedWagonLocation.z, true) < 15 then break end
     end
     if PlayerDead == true or GetEntityHealth(vehicle) == 0 then
+        DelPedsForTable(feedpeds)
+        feedpeds = nil
         InMission = false
         VORPcore.NotifyRightTip(_U("PlayerDead"), 4000) return
     end
@@ -213,6 +213,7 @@ function FeedAnimals(animaltype)
     DeleteEntity(crate)
     DeleteEntity(crate2)
     DeleteEntity(crate3)
+    feedpeds = nil
     InMission = false
 end
 
