@@ -22,6 +22,8 @@ client_scripts {
     'client/functions.lua',
     'client/menusetup/*.lua',
     'client/MainRanch.lua',
+    'client/Employees.lua',
+    'client/Ledger.lua',
     'client/chores.lua',
     'client/AnimalManager/*.lua',
 }
