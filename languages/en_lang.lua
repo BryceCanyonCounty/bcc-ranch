@@ -1,6 +1,5 @@
 ---------------------------------- ENGLISH -------------------------------------------
 Locales["en_lang"] = {
-
     NameRanch = 'Name Ranch',
     NameRanch_desc = 'Name The Ranch',
     Confirm = 'Confirm',
@@ -31,7 +30,8 @@ Locales["en_lang"] = {
     ChoreComplete = 'Chore Completed! Ranch Condition increased!',
     PlayerDead = 'Mission failed',
     CheckRanchCond = 'Check Ranch Condition',
-    CheckRanchCond_desc = 'Check Your Ranches Condition, You Want This High So Your Animals Are Higher Quality! The Max is 100!',
+    CheckRanchCond_desc =
+    'Check Your Ranches Condition, You Want This High So Your Animals Are Higher Quality! The Max is 100!',
     WaterAnimalChore = 'Water Animals',
     WaterAnimalChore_desc = 'Watering your animals will increase your ranch condition and make your animals healthier',
     BuyAnimals = 'Buy Animals',
@@ -40,6 +40,7 @@ Locales["en_lang"] = {
     BuyCows_desc = 'Buy cows for your ranch',
     Notenoughmoney = 'You do not have enough money',
     AlreadyOwnAnimal = 'You Already Own Some Of These animals',
+    AlreadyOwnRanch = 'A ranch is already owned by said person',
     BuyPigs = 'Buy Pigs for',
     BuyPigs_desc = 'Buy Pigs for your ranch',
     BuyGoats = 'Buy goats for',
@@ -49,6 +50,8 @@ Locales["en_lang"] = {
     AnimalBought = 'Purchase Complete!',
     RanchMade = 'Ranch Created Succesfully',
     ManageAnimals = 'Manage Owned Animals',
+    ManageEmployee = 'Manage Employees',
+    ManageEmployee_desc = 'Manage the employees on your ranch',
     ManageAnimals_desc = 'Manage the animals your ranch owns',
     ManageCows = 'Manage Owned Cows',
     ManageGoats = 'Manage Owned Goats',
@@ -62,7 +65,8 @@ Locales["en_lang"] = {
     SellCows_desc = 'Sell Your Animals? The higher thier condition the more profit you make!',
     AnimalNotOwned = 'You do not own any of these animals',
     CheckAnimalCond = 'Check Animals Condition',
-    CheckAnimalCond_desc = 'Check your animals condition, the higher this is the more profit you can make when you sell them!',
+    CheckAnimalCond_desc =
+    'Check your animals condition, the higher this is the more profit you can make when you sell them!',
     LeadAnimalsToSale = 'Lead Your Animals to the sale area safely!',
     AnimalsSold = 'You Sold The Animals!',
     SetHerdLocation = 'Set Herd Location',
@@ -93,7 +97,7 @@ Locales["en_lang"] = {
     RepairFeedTrough_desc = 'Repair Feeding Trouhgs? This will increase your ranches condition.',
     ScoopPoopChore = 'Shovel Poop',
     ScoopPoopChore_desc = 'Shovel Poop? This will increase your ranches condition.',
-    
+
     ------- Admin ranch Managment -----
     NoRanches = 'There Are no existing ranches in database',
     DeleteRanch = 'Delete Ranch',
@@ -130,5 +134,24 @@ Locales["en_lang"] = {
     DropHay = 'Drop Hay?',
     WaitUntilDoneEating = 'Now wait until the cows are finished eating!',
     AnimalsFed = 'Animals Fed! Animals Condition Has Been Increased!',
-    TooYoung = 'Animals Are too young to do this!'
+    TooYoung = 'Animals Are too young to do this!',
+
+    -- Employee Manage
+    EmployeeMenu = "Employee Menu",
+    FireMembers = "View/Fire Employees",
+    FireMembers_desc = "View and Fire Employees of the Ranch",
+    FireMembers_desc2 = "Select an Employee to fire them from the Ranch",
+    Hire = "Hire",
+    Hire_desc = "Hire Employees",
+    Hired = "You've hired the employee on to the ranch",
+
+    Ledger = 'Ledger ',
+    LedgerAmount = 'Ledger Amount: ',
+    Deposit = 'Deposit',
+    Withdraw = 'Withdraw',
+    PutLedger = "You put ",
+    TookLedger = 'You took ',
+    IntheLedger = ' in the ledger',
+    FromtheLedger = ' from the ledger'
+
 }
