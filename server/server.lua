@@ -91,9 +91,13 @@ RegisterServerEvent('bcc-ranch:AffectLedger', function(ranchid, type, amount)
     exports.oxmysql:execute("SELECT ledger FROM ranch WHERE ranchid=@ranchid", param, function(result)
         ledger = result[1].ledger
         if type == 'withdraw' then
+         if tonumber(amount) <= tonumber(ledger) then
             exports.oxmysql:execute("UPDATE ranch SET ledger= ledger-@amount WHERE ranchid=@ranchid", param)
             Character.addCurrency(0, amount)
             VORPcore.NotifyRightTip(_source, _U("TookLedger") .. amount .. _U("FromtheLedger"), 4000)
+          else
+              VORPcore.NotifyRightTip(_source, _U("Notenough"), 4000)
+            end
         else
             exports.oxmysql:execute("UPDATE ranch SET ledger= ledger+@amount WHERE ranchid=@ranchid", param)
             Character.removeCurrency(0, amount)
@@ -110,6 +114,8 @@ RegisterServerEvent('bcc-ranch:CheckIfRanchIsOwned', function()
     local param = { ['charidentifier'] = Character.charIdentifier }
     exports.oxmysql:execute("SELECT * FROM ranch WHERE charidentifier=@charidentifier", param, function(result)
         if result[1] then
+           VORPInv.removeInventory('Player_' .. result[1].ranchid .. '_bcc-ranchinv')
+            Wait(50)
             VORPInv.registerInventory('Player_' .. result[1].ranchid .. '_bcc-ranchinv', Config.RanchSetup.InvName,
                 Config.RanchSetup.InvLimit)
             TriggerClientEvent('bcc-ranch:HasRanchHandler', _source, result[1])
