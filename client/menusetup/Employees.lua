@@ -1,5 +1,6 @@
 Employees = {}
 
+----- Employee Menu Setup -----
 function EmployeeMenu()
     Inmenu = true
     TriggerEvent('bcc-ranch:MenuClose')
@@ -22,7 +23,6 @@ function EmployeeMenu()
             end
             if data.current.value == 'firemembers' then
                 TriggerServerEvent('bcc-ranch:GetEmployeeList', RanchId)
-                Wait(100)
             elseif data.current.value == 'hire' then
                 HireEmployees()
             end

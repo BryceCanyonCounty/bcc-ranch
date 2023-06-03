@@ -82,7 +82,7 @@ function SellAnimals(animaltype, animal_cond)
         local dist = GetDistanceBetweenCoords(plc.x, plc.y, plc.z, finalsalecoords.x, finalsalecoords.y, finalsalecoords.z, true)
         if dist < 5 and animalsnear == true then
             local pay
-            if animal_cond == tables.MaxCondition and catch == tables.AmountSpawned then
+            if animal_cond >= tables.MaxCondition and catch == tables.AmountSpawned then
                 pay = tables.MaxConditionPay
             end
             if animal_cond ~= tables.MaxCondition then

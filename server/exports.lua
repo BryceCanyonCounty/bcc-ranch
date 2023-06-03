@@ -21,3 +21,14 @@ exports('DecreaseRanchCondition', function(charIdentifier, amount)
     local param = { ['charidentifier'] = charIdentifier, ['amount'] = amount }
     exports.oxmysql:execute('UPDATE ranch SET `ranchCondition`=ranchCondition-@amount WHERE charidentifier=@charidentifier', param)
 end)
+
+--Check if player works at a ranch
+exports('DoesPlayerWorkAtRanch', function(charidentifier)
+    local param = { ['charid'] = charidentifier }
+    local result = MySQL.query.await("SELECT ranchid FROM characters WHERE charidentifier=@charid", param)
+    if #result > 0 then
+        return true
+    else
+        return false
+    end
+end)
