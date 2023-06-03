@@ -30,6 +30,7 @@
 - Inventory system built into the ranch!
 - Export API for other scripts to interact with this one!
 - Ranch Managment menu for admins to delete ranch's, rename, and change thier radius!
+- Hire employees to work at your ranch!
 
 # How it works
 - Admins can make a ranch by entering the command, they will be greeted with a menu to name the ranch, insert the ranches radius, and the owners static id!
@@ -72,3 +73,11 @@ local Character = VORPcore.getUser(_source).getUsedCharacter
 exports['bcc-ranch']:DecreaseRanchCondition(Character.charIdentifier, amounttodecrease)
 ```
 - Note amounttodecrease has to be a number value
+
+### Check if player works at a ranch
+```
+local _source = source
+local Character = VORPcore.getUser(_source).getUsedCharacter
+local result = exports['bcc-ranch']:DoesPlayerWorkAtRanch(Character.charIdentifier)
+```
+- Returns true if they do false if they do not

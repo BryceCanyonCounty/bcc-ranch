@@ -53,7 +53,7 @@ RegisterNetEvent('bcc-ranch:LedgerMenu', function(ledger)
                         TriggerServerEvent('bcc-ranch:AffectLedger', RanchId, deposit, result)
                         MainMenu()
                     else
-                        print("it's empty?") --notify
+                        print("it's empty?")
                     end
                 end)
             end
