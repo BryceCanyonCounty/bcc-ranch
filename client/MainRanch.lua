@@ -32,11 +32,9 @@ RegisterNetEvent('bcc-ranch:HasRanchHandler', function(ranch)
     RanchId = ranch.ranchid
     TriggerEvent('bcc-ranch:StartCondDec')
     TriggerServerEvent('bcc-ranch:AgeCheck', RanchId)
-    local blip = VORPutils.Blips:SetBlip(ranch.ranchname, Config.RanchSetup.BlipHash, 0.2, RanchCoords.x, RanchCoords.y,
-        RanchCoords.z)
+    local blip = VORPutils.Blips:SetBlip(ranch.ranchname, Config.RanchSetup.BlipHash, 0.2, RanchCoords.x, RanchCoords.y, RanchCoords.z)
     local PromptGroup = VORPutils.Prompts:SetupPromptGroup()
-    local firstprompt = PromptGroup:RegisterPrompt(_U("OpenRanchMenu"), 0x760A9C6F, 1, 1, true, 'hold',
-        { timedeventhash = "MEDIUM_TIMED_EVENT" })
+    local firstprompt = PromptGroup:RegisterPrompt(_U("OpenRanchMenu"), 0x760A9C6F, 1, 1, true, 'hold', { timedeventhash = "MEDIUM_TIMED_EVENT" })
     if Config.RanchSetup.AnimalsRoamRanch then
         TriggerServerEvent('bcc-ranch:WanderingSetup', RanchId)
     end

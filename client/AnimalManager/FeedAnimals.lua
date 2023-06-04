@@ -1,40 +1,40 @@
 --Feed animals function
-local animalsdead, feedpeds = false, {}
+local animalsDead, feedPeds = false, {}
 local amount
-function FeedAnimals(animaltype)
+function FeedAnimals(animalType)
     InMission = true
-    local tables, model, spawncoords, eatanim
+    local tables, model, spawnCoords, eatAnim
     local scale = nil
-    feedpeds = {} --Feedpeds is set to nil when the mission is over or player dies to empty the table, this sets it from nil to table allowing this to work again (if it is not set nil when the mission is over or failed it will fail the mission the next time you do one)
-    if animaltype == 'cows' then
+    feedPeds = {} --Feedpeds is set to nil when the mission is over or player dies to empty the table, this sets it from nil to table allowing this to work again (if it is not set nil when the mission is over or failed it will fail the mission the next time you do one)
+    if animalType == 'cows' then
         tables = Config.RanchSetup.RanchAnimalSetup.Cows
         model = 'a_c_cow'
-        eatanim = joaat("WORLD_ANIMAL_COW_EATING_GROUND")
-        spawncoords = Cowcoords
+        eatAnim = joaat("WORLD_ANIMAL_COW_EATING_GROUND")
+        spawnCoords = Cowcoords
         if Cowsage < Config.RanchSetup.AnimalGrownAge then
             scale = 0.5
         end
-    elseif animaltype == 'chickens' then
+    elseif animalType == 'chickens' then
         tables = Config.RanchSetup.RanchAnimalSetup.Chickens
         model = 'a_c_chicken_01'
-        eatanim = joaat("WORLD_ANIMAL_CHICKEN_EATING")
-        spawncoords = Chickencoords
+        eatAnim = joaat("WORLD_ANIMAL_CHICKEN_EATING")
+        spawnCoords = Chickencoords
         if Chickensage < Config.RanchSetup.AnimalGrownAge then
             scale = 0.5
         end
-    elseif animaltype == 'goats' then
+    elseif animalType == 'goats' then
         tables = Config.RanchSetup.RanchAnimalSetup.Goats
         model = 'a_c_goat_01'
-        spawncoords = Goatcoords
-        eatanim = joaat("PROP_ANIMAL_GOAT_EAT_TROUGH")
+        spawnCoords = Goatcoords
+        eatAnim = joaat("PROP_ANIMAL_GOAT_EAT_TROUGH")
         if Goatsage < Config.RanchSetup.AnimalGrownAge then
             scale = 0.5
         end
-    elseif animaltype == 'pigs' then
+    elseif animalType == 'pigs' then
         tables = Config.RanchSetup.RanchAnimalSetup.Pigs
         model = 'a_c_pig_01'
-        spawncoords = Pigcoords
-        eatanim = joaat("WORLD_ANIMAL_PIG_EAT_CARCASS")
+        spawnCoords = Pigcoords
+        eatAnim = joaat("WORLD_ANIMAL_PIG_EAT_CARCASS")
         if Pigsage < Config.RanchSetup.AnimalGrownAge then
             scale = 0.5
         end
@@ -43,17 +43,17 @@ function FeedAnimals(animaltype)
 
     local catch = 0
     repeat
-        local createdped = BccUtils.Ped.CreatePed(model, spawncoords.x + math.random(1, 5), spawncoords.y + math.random(1, 5), spawncoords.z, true, true, false)
+        local createdPed = BccUtils.Ped.CreatePed(model, spawnCoords.x + math.random(1, 5), spawnCoords.y + math.random(1, 5), spawnCoords.z, true, true, false)
         if scale ~= nil then
-            SetPedScale(createdped, scale)
+            SetPedScale(createdPed, scale)
         end
-        SetBlockingOfNonTemporaryEvents(createdped, true)
-        Citizen.InvokeNative(0x9587913B9E772D29, createdped, true)
-        table.insert(feedpeds, createdped)
-        SetEntityHealth(createdped, tables.Health, 0)
+        SetBlockingOfNonTemporaryEvents(createdPed, true)
+        Citizen.InvokeNative(0x9587913B9E772D29, createdPed, true)
+        table.insert(feedPeds, createdPed)
+        SetEntityHealth(createdPed, tables.Health, 0)
         catch = catch + 1
+        SetRelAndFollowPlayer(createdPed)
     until catch == tables.AmountSpawned
-    SetRelAndFollowPlayer(feedpeds)
 
     TriggerEvent('bcc-ranch:ChoreDeadCheck')
     local car = joaat('cart06')
@@ -82,37 +82,37 @@ function FeedAnimals(animaltype)
 
     VORPcore.NotifyRightTip(_U("FeedAnimalLocation"), 4000)
 
-    local animalsnear
+    local animalsNear
     while true do
         Wait(200)
         local pl = GetEntityCoords(vehicle)
         local dist = GetDistanceBetweenCoords(pl.x, pl.y, pl.z, RanchCoords.x, RanchCoords.y, RanchCoords.z, true)
         if dist > 50 then
 
-            for k, v in pairs(feedpeds) do
+            for k, v in pairs(feedPeds) do
                 local cp = GetEntityCoords(v)
                 if GetDistanceBetweenCoords(cp.x, cp.y, cp.z, pl.x, pl.y, pl.z, true) < 35 then
-                    animalsnear = true
+                    animalsNear = true
                 else
-                    animalsnear = false
+                    animalsNear = false
                 end
                 if IsEntityDead(v) then
                     catch = catch - 1
                     if catch == 0 then
-                        animalsdead = true break
+                        animalsDead = true break
                     end
                 end
             end
-            if animalsnear then break end
+            if animalsNear then break end
         end
 
         if PlayerDead then break end
     end
-    if PlayerDead or animalsdead then
-        feedpeds = nil
-        DelPedsForTable(feedpeds)
-        if animalsdead then
-            TriggerServerEvent('bcc-ranch:RemoveAnimalFromDB', RanchId, animaltype)
+    if PlayerDead or animalsDead then
+        feedPeds = nil
+        DelPedsForTable(feedPeds)
+        if animalsDead then
+            TriggerServerEvent('bcc-ranch:RemoveAnimalFromDB', RanchId, animalType)
         end
         InMission = false
         VORPcore.NotifyRightTip(_U("PlayerDead"), 4000) return
@@ -123,7 +123,7 @@ function FeedAnimals(animaltype)
 
     VORPcore.NotifyRightTip(_U("FeedAnimalsAfterLocation"), 4000)
 
-    local repamount = 0
+    local repAmount = 0
     local PromptGroup2 = VORPutils.Prompts:SetupPromptGroup()
     local firstprompt2 = PromptGroup2:RegisterPrompt(_U("PickUpHay"), 0x760A9C6F, 1, 1, true, 'hold', {timedeventhash = "MEDIUM_TIMED_EVENT"})
     repeat
@@ -132,11 +132,11 @@ function FeedAnimals(animaltype)
             local pl = GetEntityCoords(PlayerPedId())
             local cw = GetEntityCoords(vehicle)
             local dist = GetDistanceBetweenCoords(pl.x, pl.y, pl.z, cw.x, cw.y, cw.z, true)
-            for k, v in pairs(feedpeds) do
+            for k, v in pairs(feedPeds) do
                 if IsEntityDead(v) then
                     catch = catch - 1
                     if catch == 0 then
-                        animalsdead = true break
+                        animalsDead = true break
                     end
                 end
             end
@@ -144,20 +144,20 @@ function FeedAnimals(animaltype)
             if dist < 3 then
                 PromptGroup2:ShowGroup('')
                 if firstprompt2:HasCompleted() then
-                    if repamount == 0 then
-                        repamount = repamount + 1
+                    if repAmount == 0 then
+                        repAmount = repAmount + 1
                         VORPcore.NotifyRightTip(_U("WalkAwayAndPlacehay"), 4000)
                         PlayerCarryBox(crate)
                         PickUpAndDropHay(crate, vehicle)
                         VORPcore.NotifyRightTip(_U("FeedAnimalsAfterLocation"), 4000) break
-                    elseif repamount == 1 then
-                        repamount = repamount + 1
+                    elseif repAmount == 1 then
+                        repAmount = repAmount + 1
                         VORPcore.NotifyRightTip(_U("WalkAwayAndPlacehay"), 4000)
                         PlayerCarryBox(crate2)
                         PickUpAndDropHay(crate2, vehicle)
                         VORPcore.NotifyRightTip(_U("FeedAnimalsAfterLocation"), 4000) break
-                    elseif repamount == 2 then
-                        repamount = repamount + 1
+                    elseif repAmount == 2 then
+                        repAmount = repAmount + 1
                         VORPcore.NotifyRightTip(_U("WalkAwayAndPlacehay"), 4000)
                         PlayerCarryBox(crate3)
                         PickUpAndDropHay(crate3, vehicle)
@@ -166,23 +166,23 @@ function FeedAnimals(animaltype)
                 end
             end
         end
-    until repamount == 3
-    if PlayerDead or animalsdead then
-        DelPedsForTable(feedpeds)
-        feedpeds = nil
+    until repAmount == 3
+    if PlayerDead or animalsDead then
+        DelPedsForTable(feedPeds)
+        feedPeds = nil
         if animalsdead then
-            TriggerServerEvent('bcc-ranch:RemoveAnimalFromDB', RanchId, animaltype)
+            TriggerServerEvent('bcc-ranch:RemoveAnimalFromDB', RanchId, animalType)
         end
         InMission = false
         VORPcore.NotifyRightTip(_U("PlayerDead"), 4000) return
     end
     FreezeEntityPosition(vehicle, false)
-    for k, v in pairs(feedpeds) do
+    for k, v in pairs(feedPeds) do
         local cw = GetEntityCoords(crate)
         ClearPedTasksImmediately(v)
         TaskPedSlideToCoord(v, cw.x + math.random(1, 5), cw.y + math.random(1, 5), cw.z, 50, true)
         Wait(1500)
-        TaskStartScenarioInPlace(v, eatanim, -1)
+        TaskStartScenarioInPlace(v, eatAnim, -1)
     end
 
     VORPcore.NotifyRightTip(_U("NowReturn"), 4000)
@@ -196,8 +196,8 @@ function FeedAnimals(animaltype)
         if GetDistanceBetweenCoords(cw.x, cw.y, cw.z, FeedWagonLocation.x, FeedWagonLocation.y, FeedWagonLocation.z, true) < 15 then break end
     end
     if PlayerDead == true or GetEntityHealth(vehicle) == 0 then
-        DelPedsForTable(feedpeds)
-        feedpeds = nil
+        DelPedsForTable(feedPeds)
+        feedPeds = nil
         InMission = false
         VORPcore.NotifyRightTip(_U("PlayerDead"), 4000) return
     end
@@ -207,13 +207,13 @@ function FeedAnimals(animaltype)
     Wait(3000)
 
     VORPcore.NotifyRightTip(_U("AnimalsFed"), 4000)
-    DelPedsForTable(feedpeds)
-    TriggerServerEvent('bcc-ranch:AnimalCondIncrease', animaltype, tables.FeedAnimalCondIncrease, RanchId)
+    DelPedsForTable(feedPeds)
+    TriggerServerEvent('bcc-ranch:AnimalCondIncrease', animalType, tables.FeedAnimalCondIncrease, RanchId)
     DeleteEntity(vehicle)
     DeleteEntity(crate)
     DeleteEntity(crate2)
     DeleteEntity(crate3)
-    feedpeds = nil
+    feedPeds = nil
     InMission = false
 end
 
@@ -237,11 +237,11 @@ function PickUpAndDropHay(crate, vehicle)
         local pl2 = GetEntityCoords(PlayerPedId())
         local cw2 = GetEntityCoords(vehicle)
         if PlayerDead then break end
-        for k, v in pairs(feedpeds) do
+        for k, v in pairs(feedPeds) do
             if IsEntityDead(v) then
                 amount = amount - 1
                 if amount == 0 then
-                    animalsdead = true break
+                    animalsDead = true break
                 end
             end
         end

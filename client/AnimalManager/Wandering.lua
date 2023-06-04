@@ -68,50 +68,50 @@ RegisterNetEvent('bcc-ranch:PigsWander', function()
     end
 end)
 
-function spawnWanderingAnimals(animaltype)
-    local repamount = 0
-    if animaltype == 'cows' then
+function spawnWanderingAnimals(animalType)
+    local repAmount = 0
+    if animalType == 'cows' then
         local model = joaat('a_c_cow')
         repeat
-            repamount = repamount + 1
-            local createdped = spawnpedsroam(model, Config.RanchSetup.RanchAnimalSetup.Cows.RoamingRadius)
-            table.insert(cows, createdped)
-        until repamount == 5
-    elseif animaltype == 'chickens' then
+            repAmount = repAmount + 1
+            local createdPed = spawnpedsroam(model, Config.RanchSetup.RanchAnimalSetup.Cows.RoamingRadius)
+            table.insert(cows, createdPed)
+        until repAmount == 5
+    elseif animalType == 'chickens' then
         local model = joaat('a_c_chicken_01')
         repeat
-            repamount = repamount + 1
-            local createdped = spawnpedsroam(model, Config.RanchSetup.RanchAnimalSetup.Chickens.RoamingRadius)
-            table.insert(chickens, createdped)
-        until repamount == 5
-    elseif animaltype == 'goats' then
+            repAmount = repAmount + 1
+            local createdPed = spawnpedsroam(model, Config.RanchSetup.RanchAnimalSetup.Chickens.RoamingRadius)
+            table.insert(chickens, createdPed)
+        until repAmount == 5
+    elseif animalType == 'goats' then
         local model = joaat('a_c_goat_01')
         repeat
-            repamount = repamount + 1
-            local createdped = spawnpedsroam(model, Config.RanchSetup.RanchAnimalSetup.Goats.RoamingRadius)
-            table.insert(goats, createdped)
-        until repamount == 5
-    elseif animaltype == 'pigs' then
+            repAmount = repAmount + 1
+            local createdPed = spawnpedsroam(model, Config.RanchSetup.RanchAnimalSetup.Goats.RoamingRadius)
+            table.insert(goats, createdPed)
+        until repAmount == 5
+    elseif animalType == 'pigs' then
         local model = joaat('a_c_pig_01')
         repeat
-            repamount = repamount + 1
-            local createdped = spawnpedsroam(model, Config.RanchSetup.RanchAnimalSetup.Pigs.RoamingRadius)
-            table.insert(pigs, createdped)
-        until repamount == 5
+            repAmount = repAmount + 1
+            local createdPed = spawnpedsroam(model, Config.RanchSetup.RanchAnimalSetup.Pigs.RoamingRadius)
+            table.insert(pigs, createdPed)
+        until repAmount == 5
     end
 end
 
-function spawnpedsroam(model, roamdist)
+function spawnpedsroam(model, roamDist)
     RequestModel(model)
     while not HasModelLoaded(model) do
         Wait(100)
     end
-    local spawncoords = { x = RanchCoords.x + math.random(10, 20), y = RanchCoords.y + math.random(10, 30), z = RanchCoords.z }
-    local createdped = CreatePed(model, spawncoords.x, spawncoords.y, spawncoords.z, 50, true, false)
-    Citizen.InvokeNative(0x283978A15512B2FE, createdped, true)
-    Citizen.InvokeNative(0x9587913B9E772D29, createdped, true)
-    Citizen.InvokeNative(0xE054346CA3A0F315, createdped, spawncoords.x, spawncoords.y, spawncoords.z, roamdist, tonumber(1077936128), tonumber(1086324736), 1)
-    relationshipsetup(createdped, 1)
-    SetBlockingOfNonTemporaryEvents(createdped, true)
-    return createdped
+    local spawnCoords = { x = RanchCoords.x + math.random(10, 20), y = RanchCoords.y + math.random(10, 30), z = RanchCoords.z }
+    local createdPed = CreatePed(model, spawnCoords.x, spawnCoords.y, spawnCoords.z, 50, true, false)
+    Citizen.InvokeNative(0x283978A15512B2FE, createdPed, true)
+    Citizen.InvokeNative(0x9587913B9E772D29, createdPed, true)
+    Citizen.InvokeNative(0xE054346CA3A0F315, createdPed, spawnCoords.x, spawnCoords.y, spawnCoords.z, roamDist, tonumber(1077936128), tonumber(1086324736), 1)
+    relationshipsetup(createdPed, 1)
+    SetBlockingOfNonTemporaryEvents(createdPed, true)
+    return createdPed
 end

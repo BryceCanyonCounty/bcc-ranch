@@ -33,16 +33,16 @@ RegisterNetEvent('bcc-ranch:ViewEmployeeMenu', function(result)
     Inmenu = true
     TriggerEvent('bcc-ranch:MenuClose')
     MenuData.CloseAll()
-    local elements, elementindex = {}, 1
+    local elements, elementIndex = {}, 1
     for k, v in pairs(result) do
-        elements[elementindex] = {
+        elements[elementIndex] = {
             label = v.firstname,
             value = "players",
             desc = _U('FireMembers_desc2'),
             info = v
 
         }
-        elementindex = elementindex + 1
+        elementIndex = elementIndex + 1
     end
 
     MenuData.Open('default', GetCurrentResourceName(), 'menuapi',
@@ -57,10 +57,9 @@ RegisterNetEvent('bcc-ranch:ViewEmployeeMenu', function(result)
                 _G[data.trigger]()
             end
             if data.current.value then
-                charid = data.current.info.charidentifier
                 Inmenu = false
                 MenuData.CloseAll()
-                TriggerServerEvent('bcc-ranch:FireEmployee', charid)
+                TriggerServerEvent('bcc-ranch:FireEmployee', data.current.info.charidentifier)
                 EmployeeMenu()
             end
         end,
@@ -102,8 +101,7 @@ function HireEmployees()
                 _G[data.trigger]()
             end
             if data.current.value then
-                charid = data.current.info.staticid
-                TriggerServerEvent('bcc-ranch:HireEmployee', RanchId, charid)
+                TriggerServerEvent('bcc-ranch:HireEmployee', RanchId, data.current.info.staticid)
                 VORPcore.NotifyRightTip(_U("Hired"), 4000)
             end
         end)
