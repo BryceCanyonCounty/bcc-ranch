@@ -1,6 +1,6 @@
 ----- Close Menu When Backspaced Out -----
 Inmenu = false
-charid = nil
+local charid = nil
 
 AddEventHandler('bcc-ranch:MenuClose', function()
     while true do
@@ -21,7 +21,7 @@ RegisterNetEvent('bcc-ranch:CreateRanchmenu', function()
 end)
 
 function CreateRanchMen()
-    local ranchname, ranchradius
+    local ranchName, ranchRadius
     local coords = GetEntityCoords(PlayerPedId())
     Inmenu = true
     TriggerEvent('bcc-ranch:MenuClose')
@@ -64,7 +64,7 @@ function CreateRanchMen()
                 }
                 TriggerEvent("vorpinputs:advancedInput", json.encode(myInput), function(result)
                     if result ~= '' and result then
-                        ranchname = result
+                        ranchName = result
                     else
                         VORPcore.NotifyRightTip(_U("InvalidInput"), 4000)
                     end
@@ -86,13 +86,13 @@ function CreateRanchMen()
                 }
                 TriggerEvent("vorpinputs:advancedInput", json.encode(myInput), function(result)
                     if tonumber(result) > 0 then
-                        ranchradius = tonumber(result)
+                        ranchRadius = tonumber(result)
                     else
                         VORPcore.NotifyRightTip(_U("InvalidInput"), 4000)
                     end
                 end)
             elseif data.current.value == 'confirm' then
-                TriggerServerEvent('bcc-ranch:InsertCreatedRanchIntoDB', ranchname, ranchradius, charid, coords)
+                TriggerServerEvent('bcc-ranch:InsertCreatedRanchIntoDB', ranchName, ranchRadius, charid, coords)
                 charid = nil
                 MenuData.CloseAll()
             end

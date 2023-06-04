@@ -1,7 +1,7 @@
 ----------- Catching Ranches ------------
 local ranches
-RegisterNetEvent('bcc-ranch:CatchAllRanches', function(allranches)
-    ranches = allranches
+RegisterNetEvent('bcc-ranch:CatchAllRanches', function(allRanches)
+    ranches = allRanches
     ShowAllRanchesMenu()
 end)
 
@@ -39,7 +39,7 @@ function ShowAllRanchesMenu()
 end
 
 ------------ Ranch Selected Menu --------------
-function RanchSelected(ranchtable)
+function RanchSelected(ranchTable)
     Inmenu = false
     MenuData.CloseAll()
     local elements = {
@@ -62,7 +62,7 @@ function RanchSelected(ranchtable)
                 _G[data.trigger]()
             end
             if data.current.value == 'delranch' then
-                TriggerServerEvent('bcc-ranch:DeleteRanchFromDB', ranchtable.ranchid)
+                TriggerServerEvent('bcc-ranch:DeleteRanchFromDB', ranchTable.ranchid)
                 VORPcore.NotifyRightTip(_U('RanchDeleted'), 4000)
                 MenuData.CloseAll()
             elseif data.current.value == 'changeradius' then
@@ -82,7 +82,7 @@ function RanchSelected(ranchtable)
                 }
                 TriggerEvent("vorpinputs:advancedInput", json.encode(myInput), function(result)
                     if tonumber(result) > 0 then
-                        TriggerServerEvent('bcc-ranch:ChangeRanchRadius', ranchtable.ranchid, tonumber(result))
+                        TriggerServerEvent('bcc-ranch:ChangeRanchRadius', ranchTable.ranchid, tonumber(result))
                         VORPcore.NotifyRightTip(_U("RadiusChanged"), 4000)
                     else
                         VORPcore.NotifyRightTip(_U("InvalidInput"), 4000)
@@ -105,7 +105,7 @@ function RanchSelected(ranchtable)
                 }
                 TriggerEvent("vorpinputs:advancedInput", json.encode(myInput), function(result)
                     if result ~= '' and result then
-                        TriggerServerEvent('bcc-ranch:ChangeRanchname', ranchtable.ranchid, result)
+                        TriggerServerEvent('bcc-ranch:ChangeRanchname', ranchTable.ranchid, result)
                         VORPcore.NotifyRightTip(_U("NameChanged"), 4000)
                     else
                         VORPcore.NotifyRightTip(_U("InvalidInput"), 4000)
@@ -128,14 +128,14 @@ function RanchSelected(ranchtable)
                 }
                 TriggerEvent("vorpinputs:advancedInput", json.encode(myInput), function(result)
                     if tonumber(result) > 0 then
-                        TriggerServerEvent('bcc-ranch:ChangeRanchCondAdminMenu', ranchtable.ranchid, tonumber(result))
+                        TriggerServerEvent('bcc-ranch:ChangeRanchCondAdminMenu', ranchTable.ranchid, tonumber(result))
                         VORPcore.NotifyRightTip(_U("CondChanged"), 4000)
                     else
                         VORPcore.NotifyRightTip(_U("InvalidInput"), 4000)
                     end
                 end)
             elseif data.current.value == 'openinv' then
-                TriggerServerEvent('bcc-ranch:OpenInv', ranchtable.ranchid)
+                TriggerServerEvent('bcc-ranch:OpenInv', ranchTable.ranchid)
                 MenuData.CloseAll()
             end
         end)

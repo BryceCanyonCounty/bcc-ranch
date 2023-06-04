@@ -1,5 +1,5 @@
 ----- Hammertime Minigame Config ------------
-local hammertimecfg = {
+local hammerTimeCfg = {
     focus = true, -- Should minigame take nui focus (required)
     cursor = true, -- Should minigame have cursor  (required)
     nails = 7, -- How many nails to be hammered
@@ -8,59 +8,59 @@ local hammertimecfg = {
 
 ---- Chore Setup ----
 RegisterNetEvent('bcc-ranch:ShovelHay', function(chore)
-    local chorecoords,choreanim,incamount,animtime,minigame,minigamecfg
+    local choreCoords,choreAnim,incAmount,animTime,miniGame,miniGameCfg
 
     if chore == 'shovelhay' then
-        chorecoords = Haycoords
-        choreanim = joaat("WORLD_HUMAN_FARMER_RAKE")
-        incamount = Config.ChoreConfig.HayChore.ConditionIncrease
-        animtime = Config.ChoreConfig.HayChore.AnimTime
-        minigame = 'skillcheck'
-        minigamecfg = Config.ChoreMinigameConfig
+        choreCoords = Haycoords
+        choreAnim = joaat("WORLD_HUMAN_FARMER_RAKE")
+        incAmount = Config.ChoreConfig.HayChore.ConditionIncrease
+        animTime = Config.ChoreConfig.HayChore.AnimTime
+        miniGame = 'skillcheck'
+        miniGameCfg = Config.ChoreMinigameConfig
     elseif chore == 'wateranimals' then
-        chorecoords = WaterAnimalCoords
-        choreanim = joaat('WORLD_HUMAN_BUCKET_POUR_LOW')
-        incamount = Config.ChoreConfig.WaterAnimals.ConditionIncrease
-        animtime = Config.ChoreConfig.WaterAnimals.AnimTime
-        minigame = 'skillcheck'
-        minigamecfg = Config.ChoreMinigameConfig
+        choreCoords = WaterAnimalCoords
+        choreAnim = joaat('WORLD_HUMAN_BUCKET_POUR_LOW')
+        incAmount = Config.ChoreConfig.WaterAnimals.ConditionIncrease
+        animTime = Config.ChoreConfig.WaterAnimals.AnimTime
+        miniGame = 'skillcheck'
+        miniGameCfg = Config.ChoreMinigameConfig
     elseif chore == 'repairfeedtrough' then
-        chorecoords = RepairTroughCoords
-        choreanim = joaat('PROP_HUMAN_REPAIR_WAGON_WHEEL_ON_SMALL') --credit syn_construction for anim(just where I found it at lol)
-        incamount = Config.ChoreConfig.RepairFeedTrough.ConditionIncrease
-        animtime = Config.ChoreConfig.RepairFeedTrough.AnimTime
-        minigame = 'hammertime'
-        minigamecfg = hammertimecfg
+        choreCoords = RepairTroughCoords
+        choreAnim = joaat('PROP_HUMAN_REPAIR_WAGON_WHEEL_ON_SMALL') --credit syn_construction for anim(just where I found it at lol)
+        incAmount = Config.ChoreConfig.RepairFeedTrough.ConditionIncrease
+        animTime = Config.ChoreConfig.RepairFeedTrough.AnimTime
+        miniGame = 'hammertime'
+        miniGameCfg = hammerTimeCfg
     elseif chore == 'scooppoop' then
-        chorecoords = ScoopPoopCoords
-        choreanim = joaat('WORLD_HUMAN_PITCH_HAY_SCOOP')
-        incamount = Config.ChoreConfig.ShovelPoop.ConditionIncrease
-        animtime = Config.ChoreConfig.ShovelPoop.AnimTime
-        minigame = 'skillcheck'
-        minigamecfg = Config.ChoreMinigameConfig
+        choreCoords = ScoopPoopCoords
+        choreAnim = joaat('WORLD_HUMAN_PITCH_HAY_SCOOP')
+        incAmount = Config.ChoreConfig.ShovelPoop.ConditionIncrease
+        animTime = Config.ChoreConfig.ShovelPoop.AnimTime
+        miniGame = 'skillcheck'
+        miniGameCfg = Config.ChoreMinigameConfig
     end
 
     InMission = true
     VORPcore.NotifyRightTip(_U("GoToChoreLocation"), 4000)
     TriggerEvent('bcc-ranch:ChoreDeadCheck')
     
-    BccUtils.Misc.SetGps(chorecoords.x, chorecoords.y, chorecoords.z)
+    BccUtils.Misc.SetGps(choreCoords.x, choreCoords.y, choreCoords.z)
     while true do
         Wait(5)
         if PlayerDead then break end
         local plc = GetEntityCoords(PlayerPedId())
-        local dist = GetDistanceBetweenCoords(plc.x, plc.y, plc.z, chorecoords.x, chorecoords.y, chorecoords.z, true)
+        local dist = GetDistanceBetweenCoords(plc.x, plc.y, plc.z, choreCoords.x, choreCoords.y, choreCoords.z, true)
         if dist < 15 then
-            BccUtils.Misc.DrawText3D(chorecoords.x, chorecoords.y, chorecoords.z, _U("StartChore"))
+            BccUtils.Misc.DrawText3D(choreCoords.x, choreCoords.y, choreCoords.z, _U("StartChore"))
         end
         if dist < 5 then
             if IsControlJustReleased(0, 0x760A9C6F) then
                 ClearGpsMultiRoute()
                 if Config.ChoreMinigames then
-                    MiniGame.Start(minigame, minigamecfg, function(result)
-                        if minigame == 'hammertime' then
+                    MiniGame.Start(miniGame, miniGameCfg, function(result)
+                        if miniGame == 'hammertime' then
                             if result.result then
-                                ChoreComplete(choreanim, animtime, incamount)
+                                ChoreComplete(choreAnim, animTime, incAmount)
                             else
                                 InMission = false
                                 VORPcore.NotifyRightTip(_U("Failed"), 4000) return
@@ -70,7 +70,7 @@ RegisterNetEvent('bcc-ranch:ShovelHay', function(chore)
                                 if chore == 'scooppoop' then
                                     TriggerServerEvent('bcc-ranch:AddItem', Config.ChoreConfig.ShovelPoop.RecievedItem, Config.ChoreConfig.ShovelPoop.RecievedAmount)
                                 end
-                                ChoreComplete(choreanim, animtime, incamount)
+                                ChoreComplete(choreAnim, animTime, incAmount)
                             else
                                 InMission = false
                                 VORPcore.NotifyRightTip(_U("Failed"), 4000) return
@@ -78,13 +78,13 @@ RegisterNetEvent('bcc-ranch:ShovelHay', function(chore)
                         end
                     end) break
                 else
-                    BccUtils.Ped.ScenarioInPlace(PlayerPedId(), choreanim, animtime)
+                    BccUtils.Ped.ScenarioInPlace(PlayerPedId(), choreAnim, animTime)
                     if PlayerDead then
                         InMission = false
                         VORPcore.NotifyRightTip(_U("PlayerDead"), 4000) break
                     end
                     VORPcore.NotifyRightTip(_U("ChoreComplete"), 4000)
-                    TriggerServerEvent('bcc-ranch:RanchConditionIncrease', incamount, RanchId)
+                    TriggerServerEvent('bcc-ranch:RanchConditionIncrease', incAmount, RanchId)
                     InMission = false break
                 end
             end
@@ -116,13 +116,13 @@ end)
     Sacred Comment Penis
 ]]
 
-function ChoreComplete(choreanim, animtime, incamount) --what to do if chore is success
-    BccUtils.Ped.ScenarioInPlace(PlayerPedId(), choreanim, animtime)
+function ChoreComplete(choreAnim, animTime, incAmount) --what to do if chore is success
+    BccUtils.Ped.ScenarioInPlace(PlayerPedId(), choreAnim, animTime)
     if PlayerDead then
         InMission = false
         VORPcore.NotifyRightTip(_U("PlayerDead"), 4000) return
     end
     VORPcore.NotifyRightTip(_U("ChoreComplete"), 4000)
-    TriggerServerEvent('bcc-ranch:RanchConditionIncrease', incamount, RanchId)
+    TriggerServerEvent('bcc-ranch:RanchConditionIncrease', incAmount, RanchId)
     InMission = false
 end

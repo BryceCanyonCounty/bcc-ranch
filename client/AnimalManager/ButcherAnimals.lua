@@ -1,46 +1,46 @@
-function ButcherAnimals(animaltype)
-    local model, tables, spawncoords
+function ButcherAnimals(animalType)
+    local model, tables, spawnCoords
     TriggerEvent('bcc-ranch:ChoreDeadCheck')
-    if animaltype == 'cows' then
+    if animalType == 'cows' then
         if Cowsage < Config.RanchSetup.AnimalGrownAge then
             VORPcore.NotifyRightTip(_U("TooYoung"), 4000) return
         end
         tables = Config.RanchSetup.RanchAnimalSetup.Cows
         model = 'a_c_cow'
-        spawncoords = Cowcoords
-    elseif animaltype == 'chickens' then
+        spawnCoords = Cowcoords
+    elseif animalType == 'chickens' then
         if Chickensage < Config.RanchSetup.AnimalGrownAge then
             VORPcore.NotifyRightTip(_U("TooYoung"), 4000) return
         end
         tables = Config.RanchSetup.RanchAnimalSetup.Chickens
         model = 'a_c_chicken_01'
-        spawncoords = Chickencoords
-    elseif animaltype == 'goats' then
+        spawnCoords = Chickencoords
+    elseif animalType == 'goats' then
         if Goatsage < Config.RanchSetup.AnimalGrownAge then
             VORPcore.NotifyRightTip(_U("TooYoung"), 4000) return
         end
         tables = Config.RanchSetup.RanchAnimalSetup.Goats
         model = 'a_c_goat_01'
-        spawncoords = Goatcoords
-    elseif animaltype == 'pigs' then
+        spawnCoords = Goatcoords
+    elseif animalType == 'pigs' then
         if Pigsage < Config.RanchSetup.AnimalGrownAge then
             VORPcore.NotifyRightTip(_U("TooYoung"), 4000) return
         end
         tables = Config.RanchSetup.RanchAnimalSetup.Pigs
         model = 'a_c_pig_01'
-        spawncoords = Pigcoords
+        spawnCoords = Pigcoords
     end
     InMission = true
 
-    local createdped = BccUtils.Ped.CreatePed(model, spawncoords.x, spawncoords.y, spawncoords.z, true, true, false)
-    SetBlockingOfNonTemporaryEvents(createdped, true)
-    Citizen.InvokeNative(0x9587913B9E772D29, createdped, true)
-    FreezeEntityPosition(createdped, true)
+    local createdPed = BccUtils.Ped.CreatePed(model, spawnCoords.x, spawnCoords.y, spawnCoords.z, true, true, false)
+    SetBlockingOfNonTemporaryEvents(createdPed, true)
+    Citizen.InvokeNative(0x9587913B9E772D29, createdPed, true)
+    FreezeEntityPosition(createdPed, true)
     VORPcore.NotifyRightTip(_U("KillAnimal"), 4000)
     while true do
         Wait(5)
         if PlayerDead then break end
-        if IsEntityDead(createdped) then
+        if IsEntityDead(createdPed) then
             VORPcore.NotifyRightTip(_U("GoSkin"), 4000) break
         end
     end
@@ -50,14 +50,14 @@ function ButcherAnimals(animaltype)
     while true do
         Wait(5)
         local pl = GetEntityCoords(PlayerPedId())
-        local cp = GetEntityCoords(createdped)
+        local cp = GetEntityCoords(createdPed)
         if PlayerDead then break end
         if GetDistanceBetweenCoords(pl.x, pl.y, pl.z, cp.x, cp.y, cp.z, true) < 3 then
             PromptGroup:ShowGroup('')
             if firstprompt:HasCompleted() then
                 BccUtils.Ped.ScenarioInPlace(PlayerPedId(), 'WORLD_HUMAN_CROUCH_INSPECT', 5000)
                 DeletePed(createdped)
-                TriggerServerEvent('bcc-ranch:ButcherAnimalHandler', animaltype, RanchId, tables) break
+                TriggerServerEvent('bcc-ranch:ButcherAnimalHandler', animalType, RanchId, tables) break
             end
         end
     end
