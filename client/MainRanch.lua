@@ -30,6 +30,8 @@ RegisterNetEvent('bcc-ranch:HasRanchHandler', function(ranch)
     RanchCoords = json.decode(ranch.ranchcoords)
     RanchRadius = ranch.ranch_radius_limit
     RanchId = ranch.ranchid
+    ChickenCoop = ranch.chicken_coop
+    ChickenCoop_coords = json.decode(ranch.chicken_coop_coords)
     TriggerEvent('bcc-ranch:StartCondDec')
     TriggerServerEvent('bcc-ranch:AgeCheck', RanchId)
     local blip = VORPutils.Blips:SetBlip(ranch.ranchname, Config.RanchSetup.BlipHash, 0.2, RanchCoords.x, RanchCoords.y, RanchCoords.z)

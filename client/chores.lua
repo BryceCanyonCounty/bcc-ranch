@@ -12,7 +12,6 @@ RegisterNetEvent('bcc-ranch:ShovelHay', function(chore)
 
     if chore == 'shovelhay' then
         choreCoords = Haycoords
-        choreAnim = joaat("WORLD_HUMAN_FARMER_RAKE")
         incAmount = Config.ChoreConfig.HayChore.ConditionIncrease
         animTime = Config.ChoreConfig.HayChore.AnimTime
         miniGame = 'skillcheck'
@@ -33,7 +32,6 @@ RegisterNetEvent('bcc-ranch:ShovelHay', function(chore)
         miniGameCfg = hammerTimeCfg
     elseif chore == 'scooppoop' then
         choreCoords = ScoopPoopCoords
-        choreAnim = joaat('WORLD_HUMAN_PITCH_HAY_SCOOP')
         incAmount = Config.ChoreConfig.ShovelPoop.ConditionIncrease
         animTime = Config.ChoreConfig.ShovelPoop.AnimTime
         miniGame = 'skillcheck'
@@ -58,27 +56,34 @@ RegisterNetEvent('bcc-ranch:ShovelHay', function(chore)
                 ClearGpsMultiRoute()
                 if Config.ChoreMinigames then
                     MiniGame.Start(miniGame, miniGameCfg, function(result)
-                        if miniGame == 'hammertime' then
-                            if result.result then
-                                ChoreComplete(choreAnim, animTime, incAmount)
+                        if result.passed then
+                            if chore == 'scooppoop' then
+                                TriggerServerEvent('bcc-ranch:AddItem', Config.ChoreConfig.ShovelPoop.RecievedItem, Config.ChoreConfig.ShovelPoop.RecievedAmount)
+                            end
+                            if chore == 'shovelhay' or 'scooppoop' then
+                                playAnim('amb_work@world_human_farmer_rake@male_a@idle_a', 'idle_a', animTime)
+                                local rakeObj = CreateObject("p_rake02x", 0, 0, 0, true, true, false)
+                                AttachEntityToEntity(rakeObj, PlayerPedId(), GetEntityBoneIndexByName(PlayerPedId(), "PH_R_Hand"), 0.0, 0.0, 0.19, 0.0, 0.0, 0.0, false, false, true, false, 0, true, false, false)
+                                Wait(animTime)
+                                DeleteObject(rakeObj)
                             else
-                                InMission = false
-                                VORPcore.NotifyRightTip(_U("Failed"), 4000) return
+                                ChoreComplete(choreAnim, animTime, incAmount)
                             end
                         else
-                            if result.passed then
-                                if chore == 'scooppoop' then
-                                    TriggerServerEvent('bcc-ranch:AddItem', Config.ChoreConfig.ShovelPoop.RecievedItem, Config.ChoreConfig.ShovelPoop.RecievedAmount)
-                                end
-                                ChoreComplete(choreAnim, animTime, incAmount)
-                            else
-                                InMission = false
-                                VORPcore.NotifyRightTip(_U("Failed"), 4000) return
-                            end
+                            InMission = false
+                            VORPcore.NotifyRightTip(_U("Failed"), 4000) return
                         end
                     end) break
                 else
-                    BccUtils.Ped.ScenarioInPlace(PlayerPedId(), choreAnim, animTime)
+                    if chore == 'shovelhay' or 'scooppoop' then
+                        playAnim('amb_work@world_human_farmer_rake@male_a@idle_a', 'idle_a', animTime)
+                        local rakeObj = CreateObject("p_rake02x", 0, 0, 0, true, true, false)
+                        AttachEntityToEntity(rakeObj, PlayerPedId(), GetEntityBoneIndexByName(PlayerPedId(), "PH_R_Hand"), 0.0, 0.0, 0.19, 0.0, 0.0, 0.0, false, false, true, false, 0, true, false, false)
+                        Wait(animTime)
+                        DeleteObject(rakeObj)
+                    else
+                        BccUtils.Ped.ScenarioInPlace(PlayerPedId(), choreAnim, animTime)
+                    end
                     if PlayerDead then
                         InMission = false
                         VORPcore.NotifyRightTip(_U("PlayerDead"), 4000) break

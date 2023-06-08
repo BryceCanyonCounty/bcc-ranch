@@ -52,8 +52,8 @@ function FeedAnimals(animalType)
         table.insert(feedPeds, createdPed)
         SetEntityHealth(createdPed, tables.Health, 0)
         catch = catch + 1
-        SetRelAndFollowPlayer(createdPed)
     until catch == tables.AmountSpawned
+    SetRelAndFollowPlayer(feedPeds)
 
     TriggerEvent('bcc-ranch:ChoreDeadCheck')
     local car = joaat('cart06')
