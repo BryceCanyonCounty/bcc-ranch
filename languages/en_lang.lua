@@ -152,6 +152,19 @@ Locales["en_lang"] = {
     PutLedger = "You put ",
     TookLedger = 'You took ',
     IntheLedger = ' in the ledger',
-    FromtheLedger = ' from the ledger'
+    FromtheLedger = ' from the ledger',
+
+    ----ByProducts
+    BuyChickenCoop = 'Buy Chicken Coop',
+    BuyChickenCoop_desc = 'Purchase a chicken coop for your ranch, and you will be able to collect eggs from it!',
+    AlreadyOwnCoop = 'You already own a chicken coop!',
+    PlaceCoop = 'Press "G" at the location you want to place your coop!',
+    HarvestFromCoop = 'Harvest Eggs',
+    HarvestFromCoop_desc = 'Harvest Eggs from your chicken coop?',
+    NoCoop = 'You do not own a coop!',
+    HarvestedTooSoon = 'Has been harvested already wait!',
+    HarvestEggs = 'Go To your coop and harvest the eggs!',
+    HarvestEggs_blip = 'Harvest Eggs',
+    HarvestedEggs = 'You harvested eggs!'
 
 }

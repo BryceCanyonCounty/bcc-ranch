@@ -139,6 +139,8 @@ RegisterNetEvent('bcc-ranch:OwnedAnimalManagerMenu', function(animalCond, animal
             { label = _U("SellCows"), value = 'sellanimal', desc = _U("SellCows_desc") },
             { label = _U("ButcherAnimal"), value = 'butcheranimal', desc = _U("ButcherAnimal_desc") },
             { label = _U("FeedAnimals"), value = 'feedanimal', desc = _U("FeedAnimals_desc") },
+            { label = _U("BuyChickenCoop") .. ' ' .. tostring(Config.RanchSetup.RanchAnimalSetup.Chickens.CoopCost), value = 'buychickencoop', desc = _U("BuyChickenCoop_desc") },
+            { label = _U("HarvestFromCoop"), value = 'harvestchickencoop', desc = _U("HarvestFromCoop_desc") },
         }
     elseif animalType == 'cows' then
         herdType = 'cows'
@@ -279,6 +281,18 @@ RegisterNetEvent('bcc-ranch:OwnedAnimalManagerMenu', function(animalCond, animal
                     end
                 else
                     VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
+                end
+            elseif data.current.value == 'buychickencoop' then
+                if ChickenCoop ~= 'none' then
+                    VORPcore.NotifyRightTip(_U("AlreadyOwnCoop"), 4000)
+                else
+                    TriggerServerEvent('bcc-ranch:ChickenCoopFundsCheck')
+                end
+            elseif data.current.value == 'harvestchickencoop' then
+                if ChickenCoop ~= 'none' then
+                    TriggerServerEvent('bcc-ranch:CoopCollectionCooldown', RanchId)
+                else
+                    VORPcore.NotifyRightTip(_U("NoCoop"), 4000)
                 end
             end
         end)

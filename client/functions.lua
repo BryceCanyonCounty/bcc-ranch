@@ -44,3 +44,11 @@ function SetRelAndFollowPlayer(table) --will set the peds relation with player a
     TaskFollowToOffsetOfEntity(v, PlayerPedId(), 5, 5, 0, 1, -1, 5, true, true, Config.RanchSetup.AnimalsWalkOnly, true, true, true)
   end
 end
+
+function playAnim(animDict, animName, time) --function to play an animation
+  RequestAnimDict(animDict)
+  while not HasAnimDictLoaded(animDict) do
+    Wait(100)
+  end
+  TaskPlayAnim(PlayerPedId(), animDict, animName, 1.0, 1.0, time, 16, 0, true, 0, false, 0, false)
+end

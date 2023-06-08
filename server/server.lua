@@ -471,5 +471,39 @@ RegisterServerEvent('bcc-ranch:AgeIncrease', function(animalType, ranchid)
     end
 end)
 
+------ Coop Setup -----
+RegisterServerEvent('bcc-ranch:CoopDBStorage', function(ranchId, coopCoords) --storing coop to db
+    local param = { ['ranchid'] = ranchId, ['coopcoords'] = json.encode(coopCoords) }
+    exports.oxmysql:execute("UPDATE ranch SET `chicken_coop`='true', `chicken_coop_coords`=@coopcoords WHERE ranchid=@ranchid", param)
+end)
+
+RegisterServerEvent('bcc-ranch:ChickenCoopFundsCheck', function() --loading coop from db
+    local _source = source
+    local character = VORPcore.getUser(_source).getUsedCharacter
+    if character.money >= Config.RanchSetup.RanchAnimalSetup.Chickens.CoopCost then
+        character.removeCurrency(0, Config.RanchSetup.RanchAnimalSetup.Chickens.CoopCost)
+        TriggerClientEvent('bcc-ranch:PlaceChickenCoop', _source)
+    else
+        VORPcore.NotifyRightTip(_source, _U("Notenoughmoney"), 4000)
+    end
+end)
+
+local coopCooldowns = {} --CoopCooldown
+RegisterServerEvent('bcc-ranch:CoopCollectionCooldown', function(ranchId)
+  local _source = source
+  local shopid = ranchId
+  if coopCooldowns[shopid] then
+    if os.difftime(os.time(), coopCooldowns[shopid]) >= Config.RanchSetup.RanchAnimalSetup.Chickens.CoopCollectionCooldownTime then
+      coopCooldowns[shopid] = os.time()
+      TriggerClientEvent('bcc-ranch:ChickenCoopHarvest', _source)
+    else
+      VORPcore.NotifyRightTip(_source, _U("HarvestedTooSoon"), 4000)
+    end
+  else
+        coopCooldowns[shopid] = os.time() --Store the current time
+        TriggerClientEvent('bcc-ranch:ChickenCoopHarvest', _source)    --Robbery is not on cooldown
+  end
+end)
+
 ----- Version Check ----
 BccUtils.Versioner.checkRelease(GetCurrentResourceName(), 'https://github.com/BryceCanyonCounty/bcc-ranch')
