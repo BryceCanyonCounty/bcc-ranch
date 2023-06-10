@@ -6,6 +6,8 @@ RegisterNetEvent('bcc-ranch:PlaceChickenCoop', function()
         Wait(5)
         if IsControlJustReleased(0, 0x760A9C6F) then
             local coopCoords = GetEntityCoords(PlayerPedId())
+            ChickenCoop = 'true' --Setting these 2 vars here so you dont have too disconnect and rejoin just to buy a coop
+            ChickenCoop_coords = coopCoords
             TriggerServerEvent('bcc-ranch:CoopDBStorage', RanchId, coopCoords) break
         end
         VORPcore.NotifyRightTip(_U("PlaceCoop"), 0)

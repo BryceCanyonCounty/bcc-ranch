@@ -477,7 +477,7 @@ RegisterServerEvent('bcc-ranch:CoopDBStorage', function(ranchId, coopCoords) --s
     exports.oxmysql:execute("UPDATE ranch SET `chicken_coop`='true', `chicken_coop_coords`=@coopcoords WHERE ranchid=@ranchid", param)
 end)
 
-RegisterServerEvent('bcc-ranch:ChickenCoopFundsCheck', function() --loading coop from db
+RegisterServerEvent('bcc-ranch:ChickenCoopFundsCheck', function() --Checking money to buy coop
     local _source = source
     local character = VORPcore.getUser(_source).getUsedCharacter
     if character.money >= Config.RanchSetup.RanchAnimalSetup.Chickens.CoopCost then
@@ -488,7 +488,7 @@ RegisterServerEvent('bcc-ranch:ChickenCoopFundsCheck', function() --loading coop
     end
 end)
 
-local coopCooldowns = {} --CoopCooldown
+local coopCooldowns = {} --Coop Collection Cooldown
 RegisterServerEvent('bcc-ranch:CoopCollectionCooldown', function(ranchId)
   local _source = source
   local shopid = ranchId
