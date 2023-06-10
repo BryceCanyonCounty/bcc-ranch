@@ -109,8 +109,8 @@ function FeedAnimals(animalType)
         if PlayerDead then break end
     end
     if PlayerDead or animalsDead then
-        feedPeds = nil
         DelPedsForTable(feedPeds)
+        feedPeds = nil
         if animalsDead then
             TriggerServerEvent('bcc-ranch:RemoveAnimalFromDB', RanchId, animalType)
         end
