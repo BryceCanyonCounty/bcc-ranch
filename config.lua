@@ -2,7 +2,7 @@ Config = {}
 
 Config.Debug = true --false on live server
 
--- Set Language (Current Languages: "en_lang" English, "fr_lang" French, "de_lang" German)
+-- Set Language (Current Languages: "en_lang" English, "fr_lang" French, "de_lang" German, "pt_lang" Portuguese-Brazilian)
 Config.defaultlang = "en_lang"
 
 --Webhok Setup
