@@ -60,12 +60,19 @@ RegisterNetEvent('bcc-ranch:ShovelHay', function(chore)
                             if chore == 'scooppoop' then
                                 TriggerServerEvent('bcc-ranch:AddItem', Config.ChoreConfig.ShovelPoop.RecievedItem, Config.ChoreConfig.ShovelPoop.RecievedAmount)
                             end
-                            if chore == 'shovelhay' or 'scooppoop' then
+                            if chore == 'shovelhay' or chore == 'scooppoop' then --You have to do both chore == here otherwise this always triggers no matter what chore is
                                 playAnim('amb_work@world_human_farmer_rake@male_a@idle_a', 'idle_a', animTime)
                                 local rakeObj = CreateObject("p_rake02x", 0, 0, 0, true, true, false)
                                 AttachEntityToEntity(rakeObj, PlayerPedId(), GetEntityBoneIndexByName(PlayerPedId(), "PH_R_Hand"), 0.0, 0.0, 0.19, 0.0, 0.0, 0.0, false, false, true, false, 0, true, false, false)
                                 Wait(animTime)
                                 DeleteObject(rakeObj)
+                                if PlayerDead then
+                                    InMission = false
+                                    VORPcore.NotifyRightTip(_U("PlayerDead"), 4000)
+                                end
+                                VORPcore.NotifyRightTip(_U("ChoreComplete"), 4000)
+                                TriggerServerEvent('bcc-ranch:RanchConditionIncrease', incAmount, RanchId)
+                                InMission = false
                             else
                                 ChoreComplete(choreAnim, animTime, incAmount)
                             end
@@ -75,7 +82,7 @@ RegisterNetEvent('bcc-ranch:ShovelHay', function(chore)
                         end
                     end) break
                 else
-                    if chore == 'shovelhay' or 'scooppoop' then
+                    if chore == 'shovelhay' or chore == 'scooppoop' then
                         playAnim('amb_work@world_human_farmer_rake@male_a@idle_a', 'idle_a', animTime)
                         local rakeObj = CreateObject("p_rake02x", 0, 0, 0, true, true, false)
                         AttachEntityToEntity(rakeObj, PlayerPedId(), GetEntityBoneIndexByName(PlayerPedId(), "PH_R_Hand"), 0.0, 0.0, 0.19, 0.0, 0.0, 0.0, false, false, true, false, 0, true, false, false)
