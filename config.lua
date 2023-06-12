@@ -28,10 +28,10 @@ Config.Webhooks = {
         ----- Dont Change Just Translate -----
         TitleText = 'Ranch ID ',
         Sold = 'Sold ',
-        Cows = 'Cows',
-        Pigs = 'Pigs',
-        Goats = 'Goats',
-        Chickens = 'Chickens',
+        Cows = 'Cows for: ',
+        Pigs = 'Pigs for: ',
+        Goats = 'Goats for: ',
+        Chickens = 'Chickens for: ',
     }
 }
 

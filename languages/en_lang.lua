@@ -68,7 +68,7 @@ Locales["en_lang"] = {
     CheckAnimalCond_desc =
     'Check your animals condition, the higher this is the more profit you can make when you sell them!',
     LeadAnimalsToSale = 'Lead Your Animals to the sale area safely!',
-    AnimalsSold = 'You Sold The Animals!',
+    AnimalsSold = 'You Sold The Animals! You made: ',
     SetHerdLocation = 'Set Herd Location',
     SetHerdLocation_desc = 'Set the location you will herd your animals to!',
     TooCloseToRanch = 'Too close to ranch!',

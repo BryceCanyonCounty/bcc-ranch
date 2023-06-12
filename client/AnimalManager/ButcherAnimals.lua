@@ -57,6 +57,7 @@ function ButcherAnimals(animalType)
             if firstprompt:HasCompleted() then
                 BccUtils.Ped.ScenarioInPlace(PlayerPedId(), 'WORLD_HUMAN_CROUCH_INSPECT', 5000)
                 DeletePed(createdped)
+                VORPcore.NotifyRightTip(_U("AnimalKilled"), 4000)
                 TriggerServerEvent('bcc-ranch:ButcherAnimalHandler', animalType, RanchId, tables) break
             end
         end

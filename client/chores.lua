@@ -56,7 +56,13 @@ RegisterNetEvent('bcc-ranch:ShovelHay', function(chore)
                 ClearGpsMultiRoute()
                 if Config.ChoreMinigames then
                     MiniGame.Start(miniGame, miniGameCfg, function(result)
-                        if result.passed then
+                        local choreResult = nil
+                        if chore == 'repairfeedtrough' then
+                            choreResult = result.result
+                        else
+                            choreResult = result.passed
+                        end
+                        if choreResult then
                             if chore == 'scooppoop' then
                                 TriggerServerEvent('bcc-ranch:AddItem', Config.ChoreConfig.ShovelPoop.RecievedItem, Config.ChoreConfig.ShovelPoop.RecievedAmount)
                             end
