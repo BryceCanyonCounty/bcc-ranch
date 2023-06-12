@@ -110,6 +110,10 @@ function FeedAnimals(animalType)
     end
     if PlayerDead or animalsDead then
         DelPedsForTable(feedPeds)
+        DeleteVehicle(vehicle)
+        DeleteEntity(crate)
+        DeleteEntity(crate2)
+        DeleteEntity(crate3)
         feedPeds = nil
         if animalsDead then
             TriggerServerEvent('bcc-ranch:RemoveAnimalFromDB', RanchId, animalType)
@@ -169,8 +173,12 @@ function FeedAnimals(animalType)
     until repAmount == 3
     if PlayerDead or animalsDead then
         DelPedsForTable(feedPeds)
+        DeleteVehicle(vehicle)
+        DeleteEntity(crate)
+        DeleteEntity(crate2)
+        DeleteEntity(crate3)
         feedPeds = nil
-        if animalsdead then
+        if animalsDead then
             TriggerServerEvent('bcc-ranch:RemoveAnimalFromDB', RanchId, animalType)
         end
         InMission = false
@@ -195,13 +203,17 @@ function FeedAnimals(animalType)
         if GetEntityHealth(vehicle) == 0 then break end
         if GetDistanceBetweenCoords(cw.x, cw.y, cw.z, FeedWagonLocation.x, FeedWagonLocation.y, FeedWagonLocation.z, true) < 15 then break end
     end
+    ClearGpsMultiRoute()
     if PlayerDead == true or GetEntityHealth(vehicle) == 0 then
         DelPedsForTable(feedPeds)
+        DeleteVehicle(vehicle)
+        DeleteEntity(crate)
+        DeleteEntity(crate2)
+        DeleteEntity(crate3)
         feedPeds = nil
         InMission = false
         VORPcore.NotifyRightTip(_U("PlayerDead"), 4000) return
     end
-    ClearGpsMultiRoute()
     FreezeEntityPosition(vehicle, true)
     TaskLeaveAnyVehicle(PlayerPedId(), 0, 0)
     Wait(3000)

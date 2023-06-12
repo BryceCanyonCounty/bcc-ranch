@@ -92,7 +92,7 @@ function SellAnimals(animalType, animalCond)
                 pay = tables.LowPay
             end
             TriggerServerEvent('bcc-ranch:AnimalsSoldHandler', pay, animalType, RanchId)
-            VORPcore.NotifyRightTip(_U("AnimalsSold"), 4000) break
+            VORPcore.NotifyRightTip(_U("AnimalsSold") .. tostring(pay), 4000) break
         elseif dist < 400 and doOnce == false then
             doOnce = true
             if Config.RanchSetup.WolfAttacks then
