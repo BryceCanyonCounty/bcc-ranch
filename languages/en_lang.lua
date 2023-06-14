@@ -165,6 +165,11 @@ Locales["en_lang"] = {
     HarvestedTooSoon = 'Has been harvested already wait!',
     HarvestEggs = 'Go To your coop and harvest the eggs!',
     HarvestEggs_blip = 'Harvest Eggs',
-    HarvestedEggs = 'You harvested eggs!'
+    HarvestedEggs = 'You harvested eggs!',
+    milkCows = 'Milk Cows',
+    milkCows_desc = 'Milk your cows to get milk!',
+    goMilk = 'Go to the cow and begin milking it!',
+    milkingCow = 'Milking the cow',
+    cowMilked = 'Cow milked successfully!'
 
 }

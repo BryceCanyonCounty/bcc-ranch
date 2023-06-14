@@ -49,6 +49,14 @@ Config.ChoreMinigameConfig = {
     speed = 20, -- How fast the orbiter grows
     strict = false -- if true, letting the timer run out counts as a failed attempt
 }
+
+Config.MilkingMinigameConfig = {
+    focus = true, -- Should minigame take nui focus (required)
+    cursor = true, -- Should minigame have cursor  (required)
+    timer = 20, -- The amount of seconds the game will run for
+    minMilkPerSqueez = 0.2,
+    maxMilkPerSqueez = 0.6
+}
 --Main Chore Setup
 Config.ChoreConfig = {
     HayChore = {
@@ -90,6 +98,10 @@ Config.RanchSetup = {
             AgeIncreaseTime = 30000, --The time that has to pass before the animals age increases
             AgeIncreaseAmount = 5, --the amount the age will increase
             Cost = 500, --cost to buy animal
+            MilkingCooldown = 30000, --time in ms you have to  wait before being able to milk them again
+            MilkingItem = 'water', --item recieved after milking
+            MilkingItemAmount = 3, --the amount of the item you get
+            AmountToCollect = 0.10, --The minimum amount of milk you need to collect from the minigame to successfully milk the cow!
             RoamingRadius = 6.0, --this is the radius the cows will be able to roam around the ranch in(Make sure this is a decimal number ie 0.2, 5.0, 3.9 not a whole number ie 1, 2, 3 will break them wandering if its a whole number)
             MaxCondition = 200, --the maximum condition the animal can reach
             BasePay = 300, --This is the base pay(what will be paid when selling the animal if animal condition is not max)

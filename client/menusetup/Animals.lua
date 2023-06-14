@@ -158,6 +158,7 @@ RegisterNetEvent('bcc-ranch:OwnedAnimalManagerMenu', function(animalCond, animal
             { label = _U("SellCows"), value = 'sellanimal', desc = _U("SellCows_desc") },
             { label = _U("ButcherAnimal"), value = 'butcheranimal', desc = _U("ButcherAnimal_desc") },
             { label = _U("FeedAnimals"), value = 'feedanimal', desc = _U("FeedAnimals_desc") },
+            { label = _U("milkCows"), value = 'milkanimal', desc = _U("milkCows_desc") },
         }
     end
 
@@ -298,6 +299,12 @@ RegisterNetEvent('bcc-ranch:OwnedAnimalManagerMenu', function(animalCond, animal
                     TriggerServerEvent('bcc-ranch:CoopCollectionCooldown', RanchId)
                 else
                     VORPcore.NotifyRightTip(_U("NoCoop"), 4000)
+                end
+            elseif data.current.value == 'milkanimal' then
+                if Cowcoords then
+                    TriggerServerEvent('bcc-ranch:CowMilkingCooldown', RanchId)
+                else
+                    VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
                 end
             end
         end)
