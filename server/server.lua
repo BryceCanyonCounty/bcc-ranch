@@ -488,6 +488,7 @@ RegisterServerEvent('bcc-ranch:ChickenCoopFundsCheck', function() --Checking mon
     end
 end)
 
+--------- Main Cooldown Area ---------
 local coopCooldowns = {} --Coop Collection Cooldown
 RegisterServerEvent('bcc-ranch:CoopCollectionCooldown', function(ranchId)
   local _source = source
@@ -502,6 +503,23 @@ RegisterServerEvent('bcc-ranch:CoopCollectionCooldown', function(ranchId)
   else
         coopCooldowns[shopid] = os.time() --Store the current time
         TriggerClientEvent('bcc-ranch:ChickenCoopHarvest', _source)    --Robbery is not on cooldown
+  end
+end)
+
+local cowMilkingCooldowns = {} --Cow Milking Cooldown
+RegisterServerEvent('bcc-ranch:CowMilkingCooldown', function(ranchId)
+  local _source = source
+  local shopid = ranchId
+  if cowMilkingCooldowns[shopid] then
+    if os.difftime(os.time(), cowMilkingCooldowns[shopid]) >= Config.RanchSetup.RanchAnimalSetup.Cows.MilkingCooldown then
+      cowMilkingCooldowns[shopid] = os.time()
+      TriggerClientEvent('bcc-ranch:MilkCows', _source)
+    else
+      VORPcore.NotifyRightTip(_source, _U("HarvestedTooSoon"), 4000)
+    end
+  else
+        cowMilkingCooldowns[shopid] = os.time() --Store the current time
+        TriggerClientEvent('bcc-ranch:MilkCows', _source)    --Robbery is not on cooldown
   end
 end)
 
