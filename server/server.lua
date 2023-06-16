@@ -99,8 +99,6 @@ RegisterServerEvent('bcc-ranch:CheckIfRanchIsOwned', function()
     local param = { ['charidentifier'] = character.charIdentifier }
     exports.oxmysql:execute("SELECT * FROM ranch WHERE charidentifier=@charidentifier", param, function(result)
         if result[1] then
-           VORPInv.removeInventory('Player_' .. result[1].ranchid .. '_bcc-ranchinv')
-            Wait(50)
             VORPInv.registerInventory('Player_' .. result[1].ranchid .. '_bcc-ranchinv', Config.RanchSetup.InvName, Config.RanchSetup.InvLimit)
             TriggerClientEvent('bcc-ranch:HasRanchHandler', _source, result[1])
         end
