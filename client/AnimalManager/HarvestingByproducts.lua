@@ -114,6 +114,7 @@ RegisterNetEvent('bcc-ranch:MilkCows', function()
                 VORPcore.NotifyRightTip(_U("cowMilked"), 4000)
                 TriggerServerEvent('bcc-ranch:AddItem', Config.RanchSetup.RanchAnimalSetup.Cows.MilkingItem, Config.RanchSetup.RanchAnimalSetup.Cows.MilkingItemAmount)
                 DeletePed(createdPed)
+                InMission = false
             else
                 InMission = false
                 DeletePed(createdPed)
