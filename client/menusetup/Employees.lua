@@ -2,8 +2,7 @@ Employees = {}
 
 ----- Employee Menu Setup -----
 function EmployeeMenu()
-    Inmenu = true
-    TriggerEvent('bcc-ranch:MenuClose')
+    Inmenu = false
     MenuData.CloseAll()
     local elements = {
         { label = _U("FireMembers"), value = 'firemembers', desc = _U("FireMembers_desc") },
@@ -30,14 +29,13 @@ function EmployeeMenu()
 end
 
 RegisterNetEvent('bcc-ranch:ViewEmployeeMenu', function(result)
-    Inmenu = true
-    TriggerEvent('bcc-ranch:MenuClose')
     MenuData.CloseAll()
     local elements, elementIndex = {}, 1
     for k, v in pairs(result) do
         elements[elementIndex] = {
             label = v.firstname,
             value = "players",
+            lastmenu = 'EmployeeMenu',
             desc = _U('FireMembers_desc2'),
             info = v
 
@@ -69,8 +67,6 @@ RegisterNetEvent('bcc-ranch:ViewEmployeeMenu', function(result)
 end)
 
 function HireEmployees()
-    Inmenu = true
-    TriggerEvent('bcc-ranch:MenuClose')
     MenuData.CloseAll()
     local elements = {}
     local players = GetPlayers()
@@ -83,6 +79,7 @@ function HireEmployees()
         elements[#elements + 1] = {
             label = playersInfo.PlayerName,
             value = "players" .. k,
+            lastmenu = 'EmployeeMenu',
             info = playersInfo
 
         }

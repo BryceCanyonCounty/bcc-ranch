@@ -51,11 +51,7 @@ RegisterNetEvent('bcc-ranch:HasRanchHandler', function(ranch)
                 if not InMission then
                     TriggerServerEvent('bcc-ranch:CheckisOwner')
                     Wait(250)
-                    if IsOwner then
-                        MainMenu()
-                    else
-                        MainMenuEmployee()
-                    end
+                    MainMenu()
                 else
                     VORPcore.NotifyRightTip(_U("inmission"), 4000)
                 end
