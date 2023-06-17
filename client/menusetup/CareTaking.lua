@@ -40,26 +40,26 @@ function ChoreMenu(choreType)
     if choreType == 'shovelhay' then
         title = _U("ShovelHay")
         elements = {
-            { label = _U("SetCoords"), value = 'setcoords', desc = _U("SetCoords_desc") },
-            { label = _U("ShovelHay"), value = 'start', desc = _U("ShovelHay_desc") }
+            { label = _U("ShovelHay"), value = 'start', desc = _U("ShovelHay_desc") },
+            { label = _U("SetCoords"), value = 'setcoords', desc = _U("SetCoords_desc") }
         }
     elseif choreType == 'wateranimal' then
         title = _U("WaterAnimalChore")
         elements = {
-            { label = _U("SetCoords"), value = 'setcoords', desc = _U("SetCoords_desc") },
-            { label = _U("WaterAnimalChore"), value = 'start', desc = _U("WaterAnimalChore_desc") }
+            { label = _U("WaterAnimalChore"), value = 'start', desc = _U("WaterAnimalChore_desc") },
+            { label = _U("SetCoords"), value = 'setcoords', desc = _U("SetCoords_desc") }
         }
     elseif choreType == 'repairfeedtrough' then
         title = _U("RepairTroughChore")
         elements = {
-            { label = _U("SetCoords"), value = 'setcoords', desc = _U("SetCoords_desc") },
-            { label = _U("RepairTroughChore"), value = 'start', desc = _U("RepairFeedTrough_desc") }
+            { label = _U("RepairTroughChore"), value = 'start', desc = _U("RepairFeedTrough_desc") },
+            { label = _U("SetCoords"), value = 'setcoords', desc = _U("SetCoords_desc") }
         }
     elseif choreType == 'scooppoop' then
         title = _U("ScoopPoopChore")
         elements = {
-            { label = _U("SetCoords"), value = 'setcoords', desc = _U("SetCoords_desc") },
-            { label = _U("ScoopPoopChore"), value = 'start', desc = _U("ScoopPoopChore_desc") }
+            { label = _U("ScoopPoopChore"), value = 'start', desc = _U("ScoopPoopChore_desc") },
+            { label = _U("SetCoords"), value = 'setcoords', desc = _U("SetCoords_desc") }
         }
     end
     
