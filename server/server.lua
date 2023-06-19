@@ -280,14 +280,16 @@ RegisterServerEvent('bcc-ranch:AnimalsSoldHandler', function(payAmount, animalTy
     local _source = source
     local character = VORPcore.getUser(_source).getUsedCharacter
     local ledger
+    
     exports.oxmysql:execute("SELECT * FROM ranch WHERE ranchid=@ranchid", param, function(result)
         ledger = result[1].ledger
         exports.ghmattimysql:execute("UPDATE ranch SET ledger=@1 WHERE ranchid=@id", { ["@id"] = ranchid, ["@1"] = ledger + tonumber(payAmount) })
     end)
 
-    character.addCurrency(0, tonumber(payAmount))
-    local discord = BccUtils.Discord.setup(Config.Webhooks.AnimalSold.WebhookLink, 'BCC Ranch', 'https://gamespot.com/a/uploads/original/1179/11799911/3383938-duck.jpg')
+    -- Remove the -- below if you want to add money to the player
+    --character.addCurrency(0, tonumber(payAmount))
 
+    local discord = BccUtils.Discord.setup(Config.Webhooks.AnimalSold.WebhookLink, 'BCC Ranch', 'https://i.imgur.com/vLy5jKH.png')
     if animalType == 'cows' then
         discord:sendMessage(Config.Webhooks.AnimalSold.TitleText .. tostring(ranchid), Config.Webhooks.AnimalSold.Sold .. Config.Webhooks.AnimalSold.Cows .. tostring(payAmount))
         exports.oxmysql:execute('UPDATE ranch SET `cows`="false", `cows_cond`=0, `cows_age`=0 WHERE ranchid=@ranchid', param)
