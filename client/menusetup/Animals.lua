@@ -8,8 +8,8 @@ function BuyAnimalMenu()
     local elements = {
         { label = _U("BuyCows") .. ' ' .. tostring(Config.RanchSetup.RanchAnimalSetup.Cows.Cost), value = 'buycows', desc = _U("BuyAnimals_desc") },
         { label = _U("BuyPigs") .. ' ' .. tostring(Config.RanchSetup.RanchAnimalSetup.Pigs.Cost), value = 'buypigs', desc = _U("BuyPigs_desc") },
-        { label = _U("BuyChickens") .. ' ' .. tostring(Config.RanchSetup.RanchAnimalSetup.Chickens.Cost), value = 'buychickens', desc = _U("BuyChickens_desc") },
         { label = _U("BuyGoats") .. ' ' .. tostring(Config.RanchSetup.RanchAnimalSetup.Goats.Cost), value = 'buygoats', desc = _U("BuyGoats_desc") },
+        { label = _U("BuyChickens") .. ' ' .. tostring(Config.RanchSetup.RanchAnimalSetup.Chickens.Cost), value = 'buychickens', desc = _U("BuyChickens_desc") },
     }
 
     MenuData.Open('default', GetCurrentResourceName(), 'menuapi',
@@ -59,9 +59,9 @@ function ManageOwnedAnimalsMenu()
         { label = _U('SetHerdLocation'), value = 'setherdlocation', desc = _U("SetHerdLocation_desc") },
         { label = _U('SetFeedWagonLocation'), value = 'setfeedwagonlocation', desc = _U("SetFeedWagonLocation_desc") },
         { label = _U("ManageCows"), value = 'managecows', desc = _U("ManageCows_desc") },
-        { label = _U("ManageChickens"), value = 'managechickens', desc = _U("ManageChickens_desc") },
-        { label = _U("ManageGoats"), value = 'managegoats', desc = _U("ManageGoats_desc") },
         { label = _U("ManagePigs"), value = 'managepigs', desc = _U("ManagePigs_desc") },
+        { label = _U("ManageGoats"), value = 'managegoats', desc = _U("ManageGoats_desc") },
+        { label = _U("ManageChickens"), value = 'managechickens', desc = _U("ManageChickens_desc") },
     }
 
     MenuData.Open('default', GetCurrentResourceName(), 'menuapi',
