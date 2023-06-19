@@ -70,13 +70,13 @@ function FeedAnimals(animalType)
     for i = 1, 3 do --credit to jannings for this amazing work here
         if i == 1 then
             crate = CreateObject('p_haybale01x', 0, 0, 0 + 1, false, false, false)
-            Citizen.InvokeNative(0x6B9BBD38AB0796DF, crate, vehicle, 0, 0.1, 0.5, 0.09, 0.0, 0.0, 0.0, 0, 0, 0, 0, 2, true)
+            Citizen.InvokeNative(0x6B9BBD38AB0796DF, crate, vehicle, 0, 0.1, 0.2, 0.60, 0.0, 0.0, 0.0, 0, 0, 0, 0, 2, true)
         elseif i == 2 then
             crate2 = CreateObject('p_haybale01x', 0, 0, 0 + 1, false, false, false)
             Citizen.InvokeNative(0x6B9BBD38AB0796DF, crate2, vehicle, 0, 0.1, -0.5, 0.09, 0.0, 0.0, 0.0, 0, 0, 0, 0, 2, true)
         elseif i == 3 then
             crate3 = CreateObject('p_haybale01x', 0, 0, 0 + 1, false, false, false)
-            Citizen.InvokeNative(0x6B9BBD38AB0796DF, crate3, vehicle, 0, 0.1, 0.2, 0.60, 0.0, 0.0, 0.0, 0, 0, 0, 0, 2, true)
+            Citizen.InvokeNative(0x6B9BBD38AB0796DF, crate3, vehicle, 0, 0.1, 0.5, 0.09, 0.0, 0.0, 0.0, 0, 0, 0, 0, 2, true)
         end
     end
 
