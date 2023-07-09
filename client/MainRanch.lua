@@ -59,6 +59,9 @@ RegisterNetEvent('bcc-ranch:HasRanchHandler', function(ranch)
         elseif dist > 200 then
             Wait(2000)
         end
+        if Inmenu and dist > RanchRadius + 20 then
+            MenuData.CloseAll()
+        end
     end
 end)
 
