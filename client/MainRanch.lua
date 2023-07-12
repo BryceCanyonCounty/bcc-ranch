@@ -34,6 +34,13 @@ RegisterNetEvent('bcc-ranch:HasRanchHandler', function(ranch)
     ChickenCoop_coords = json.decode(ranch.chicken_coop_coords)
     TriggerEvent('bcc-ranch:StartCondDec')
     TriggerServerEvent('bcc-ranch:AgeCheck', RanchId)
+	-- added by Little Creek
+	-- coords needed for Wandering.lua
+	Cowcoords = json.decode(ranch.cowcoords)
+	Pigcoords = json.decode(ranch.pigcoords)
+	Chickencoords = json.decode(ranch.chickencoords)
+	Goatcoords = json.decode(ranch.goatcoords)
+	-- end added by Little Creek
     local blip = VORPutils.Blips:SetBlip(ranch.ranchname, Config.RanchSetup.BlipHash, 0.2, RanchCoords.x, RanchCoords.y, RanchCoords.z)
     local PromptGroup = VORPutils.Prompts:SetupPromptGroup()
     local firstprompt = PromptGroup:RegisterPrompt(_U("OpenRanchMenu"), 0x760A9C6F, 1, 1, true, 'hold', { timedeventhash = "MEDIUM_TIMED_EVENT" })
@@ -58,9 +65,6 @@ RegisterNetEvent('bcc-ranch:HasRanchHandler', function(ranch)
             end
         elseif dist > 200 then
             Wait(2000)
-        end
-        if Inmenu and dist > RanchRadius + 20 then
-            MenuData.CloseAll()
         end
     end
 end)
@@ -97,4 +101,21 @@ end)
 
 RegisterNetEvent('bcc-ranch:SendList', function(result)
     table.insert(Employees, result)
+end)
+
+
+---- SETUP COORDS ----
+
+RegisterNetEvent("bcc-ranch:loadAll")
+AddEventHandler("bcc-ranch:loadAll", function ()
+    TriggerServerEvent("bcc-ranch:getCowCoords", RanchId)
+    TriggerServerEvent("bcc-ranch:getChickenCoords", RanchId)
+    TriggerServerEvent("bcc-ranch:getGoatCoords", RanchId)
+    TriggerServerEvent("bcc-ranch:getPigCoords", RanchId)
+    TriggerServerEvent("bcc-ranch:getHerdlocation", RanchId)
+    TriggerServerEvent('bcc-ranch:GetShovelHayCoords', RanchId)
+    TriggerServerEvent('bcc-ranch:GetWaterAnimalCoords', RanchId)
+    TriggerServerEvent('bcc-ranch:GetRepairFeedTroughCoords', RanchId)
+    TriggerServerEvent('bcc-ranch:GetScoopPoopCoords', RanchId)
+    TriggerServerEvent('bcc-ranch:getWagonFeedCoords', RanchId) -- added by Little Creek
 end)

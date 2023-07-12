@@ -78,29 +78,25 @@ function ChoreMenu(choreType)
                 local plc = GetEntityCoords(PlayerPedId())
                 if choreType == 'shovelhay' then
                     if GetDistanceBetweenCoords(plc.x, plc.y, plc.z, tonumber(RanchCoords.x), tonumber(RanchCoords.y), tonumber(RanchCoords.z), true) < tonumber(RanchRadius) then
-                        Haycoords = GetEntityCoords(PlayerPedId())
-                        VORPcore.NotifyRightTip(_U("Coordsset"), 4000)
+                        TriggerServerEvent('bcc-ranch:InsertShoveHayCdsIntoDB', GetEntityCoords(PlayerPedId()), RanchId)
                     else
                         VORPcore.NotifyRightTip(_U("TooFarFromRanch"), 4000)
                     end
                 elseif choreType == 'wateranimal' then
                     if GetDistanceBetweenCoords(plc.x, plc.y, plc.z, tonumber(RanchCoords.x), tonumber(RanchCoords.y), tonumber(RanchCoords.z), true) < tonumber(RanchRadius) then
-                        WaterAnimalCoords = GetEntityCoords(PlayerPedId())
-                        VORPcore.NotifyRightTip(_U("Coordsset"), 4000)
+                        TriggerServerEvent('bcc-ranch:InsertWaterAnimalCdsIntoDB', GetEntityCoords(PlayerPedId()), RanchId)
                     else
                         VORPcore.NotifyRightTip(_U("TooFarFromRanch"), 4000)
                     end
                 elseif choreType == 'repairfeedtrough' then
                     if GetDistanceBetweenCoords(plc.x, plc.y, plc.z, tonumber(RanchCoords.x), tonumber(RanchCoords.y), tonumber(RanchCoords.z), true) < tonumber(RanchRadius) then
-                        RepairTroughCoords = GetEntityCoords(PlayerPedId())
-                        VORPcore.NotifyRightTip(_U("Coordsset"), 4000)
+                        TriggerServerEvent('bcc-ranch:InsertRepairTroughCdsIntoDB', GetEntityCoords(PlayerPedId()), RanchId)
                     else
                         VORPcore.NotifyRightTip(_U("TooFarFromRanch"), 4000)
                     end
                 elseif choreType == 'scooppoop' then
                     if GetDistanceBetweenCoords(plc.x, plc.y, plc.z, tonumber(RanchCoords.x), tonumber(RanchCoords.y), tonumber(RanchCoords.z), true) < tonumber(RanchRadius) then
-                        ScoopPoopCoords = GetEntityCoords(PlayerPedId())
-                        VORPcore.NotifyRightTip(_U("Coordsset"), 4000)
+                        TriggerServerEvent('bcc-ranch:InsertScoopPoopCdsIntoDB', GetEntityCoords(PlayerPedId()), RanchId)
                     else
                         VORPcore.NotifyRightTip(_U("TooFarFromRanch"), 4000)
                     end
@@ -138,3 +134,23 @@ function ChoreMenu(choreType)
             end
         end)
 end
+
+RegisterNetEvent('bcc_ranch:getHayCoords')
+AddEventHandler('bcc_ranch:getHayCoords', function (cds)
+    Haycoords = json.decode(cds)
+end)
+
+RegisterNetEvent('bcc_ranch:getWaterAnimalCoords')
+AddEventHandler('bcc_ranch:getWaterAnimalCoords', function (cds)
+    WaterAnimalCoords = json.decode(cds)
+end)
+
+RegisterNetEvent('bcc_ranch:getRepairTroughCoords')
+AddEventHandler('bcc_ranch:getRepairTroughCoords', function (cds)
+    RepairTroughCoords = json.decode(cds)
+end)
+
+RegisterNetEvent('bcc_ranch:getScoopPoopCoords')
+AddEventHandler('bcc_ranch:getScoopPoopCoords', function (cds)
+    ScoopPoopCoords = json.decode(cds)
+end)

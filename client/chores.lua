@@ -9,7 +9,6 @@ local hammerTimeCfg = {
 ---- Chore Setup ----
 RegisterNetEvent('bcc-ranch:ShovelHay', function(chore)
     local choreCoords,choreAnim,incAmount,animTime,miniGame,miniGameCfg
-
     if chore == 'shovelhay' then
         choreCoords = Haycoords
         incAmount = Config.ChoreConfig.HayChore.ConditionIncrease
@@ -41,7 +40,6 @@ RegisterNetEvent('bcc-ranch:ShovelHay', function(chore)
     InMission = true
     VORPcore.NotifyRightTip(_U("GoToChoreLocation"), 4000)
     TriggerEvent('bcc-ranch:ChoreDeadCheck')
-    
     BccUtils.Misc.SetGps(choreCoords.x, choreCoords.y, choreCoords.z)
     while true do
         Wait(5)
@@ -129,10 +127,6 @@ AddEventHandler('bcc-ranch:ChoreDeadCheck', function()
     end
 end)
 
---[[
-    8========================D
-    Sacred Comment Penis
-]]
 
 function ChoreComplete(choreAnim, animTime, incAmount) --what to do if chore is success
     BccUtils.Ped.ScenarioInPlace(PlayerPedId(), choreAnim, animTime)

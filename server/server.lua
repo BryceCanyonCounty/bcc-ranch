@@ -34,8 +34,6 @@ RegisterServerEvent('bcc-ranch:AddItem', function(item, amount)
     VORPInv.addItem(_source, item, amount)
 end)
 
----------------------- DB AREA ----------------------------------
-
 ------ Create Ranch Db Handler -----
 RegisterServerEvent('bcc-ranch:InsertCreatedRanchIntoDB', function(ranchName, ranchRadius, ownerStaticId, coords)
     local _source = source
@@ -53,6 +51,205 @@ RegisterServerEvent('bcc-ranch:InsertCreatedRanchIntoDB', function(ranchName, ra
     end)
 end)
 
+RegisterServerEvent('bcc-ranch:InsertShoveHayCdsIntoDB', function(coords, RanchId)
+    local _source = source
+    local param = { ['shovehaycoords'] = json.encode(coords), ['ranchid'] = RanchId }
+    exports.oxmysql:execute("UPDATE ranch SET shovehaycoords = @shovehaycoords WHERE ranchid=@ranchid", param)
+    VORPcore.NotifyRightTip(_source, _U("ShoveHaySave"), 4000)
+end)
+
+RegisterServerEvent('bcc-ranch:InsertWaterAnimalCdsIntoDB', function(coords, RanchId)
+    local _source = source
+    local param = { ['wateranimalcoords'] = json.encode(coords), ['ranchid'] = RanchId }
+    exports.oxmysql:execute("UPDATE ranch SET wateranimalcoords = @wateranimalcoords WHERE ranchid=@ranchid", param)
+    VORPcore.NotifyRightTip(_source, _U("WaterAnimalSave"), 4000)
+end)
+
+RegisterServerEvent('bcc-ranch:InsertRepairTroughCdsIntoDB', function(coords, RanchId)
+    local _source = source
+    local param = { ['repairtroughcoords'] = json.encode(coords), ['ranchid'] = RanchId }
+    exports.oxmysql:execute("UPDATE ranch SET repairtroughcoords = @repairtroughcoords WHERE ranchid=@ranchid", param)
+    VORPcore.NotifyRightTip(_source, _U("RepairTroughSave"), 4000)
+end)
+
+RegisterServerEvent('bcc-ranch:InsertScoopPoopCdsIntoDB', function(coords, RanchId)
+    local _source = source
+    local param = { ['scooppoopcoords'] = json.encode(coords), ['ranchid'] = RanchId }
+    exports.oxmysql:execute("UPDATE ranch SET scooppoopcoords = @scooppoopcoords WHERE ranchid=@ranchid", param)
+    VORPcore.NotifyRightTip(_source, _U("ScoopPoopSave"), 4000)
+end)
+
+RegisterServerEvent('bcc-ranch:InserHerdLocation', function(coords, RanchId)
+    local _source = source
+    local param = { ['herdlocation'] = json.encode(coords), ['ranchid'] = RanchId }
+    exports.oxmysql:execute("UPDATE ranch SET herdlocation = @herdlocation WHERE ranchid=@ranchid", param)
+    VORPcore.NotifyRightTip(_source, _U("Coordsset"), 4000)
+end)
+
+RegisterServerEvent('bcc-ranch:InserPigCoord', function(coords, RanchId)
+    local _source = source
+    local param = { ['pigcoords'] = json.encode(coords), ['ranchid'] = RanchId }
+    exports.oxmysql:execute("UPDATE ranch SET pigcoords = @pigcoords WHERE ranchid=@ranchid", param)
+    VORPcore.NotifyRightTip(_source, _U("Coordsset"), 4000)
+end)
+
+RegisterServerEvent('bcc-ranch:InserCowCoord', function(coords, RanchId)
+    local _source = source
+    local param = { ['cowcoords'] = json.encode(coords), ['ranchid'] = RanchId }
+    exports.oxmysql:execute("UPDATE ranch SET cowcoords = @cowcoords WHERE ranchid=@ranchid", param)
+    VORPcore.NotifyRightTip(_source, _U("Coordsset"), 4000)
+end)
+
+RegisterServerEvent('bcc-ranch:InserGoatCoord', function(coords, RanchId)
+    local _source = source
+    local param = { ['goatcoords'] = json.encode(coords), ['ranchid'] = RanchId }
+    exports.oxmysql:execute("UPDATE ranch SET goatcoords = @goatcoords WHERE ranchid=@ranchid", param)
+    VORPcore.NotifyRightTip(_source, _U("Coordsset"), 4000)
+end)
+
+RegisterServerEvent('bcc-ranch:InserChickenCoord', function(coords, RanchId)
+    local _source = source
+    local param = { ['chickencoords'] = json.encode(coords), ['ranchid'] = RanchId }
+    exports.oxmysql:execute("UPDATE ranch SET chickencoords = @chickencoords WHERE ranchid=@ranchid", param)
+    VORPcore.NotifyRightTip(_source, _U("Coordsset"), 4000)
+end)
+
+RegisterServerEvent('bcc-ranch:InsertWagonFeedCoords', function(coords, RanchId)
+    local _source = source
+    local param = { ['wagonfeedcoords'] = json.encode(coords), ['ranchid'] = RanchId }
+    exports.oxmysql:execute("UPDATE ranch SET wagonfeedcoords = @wagonfeedcoords WHERE ranchid=@ranchid", param)
+    VORPcore.NotifyRightTip(_source, _U("Coordsset"), 4000)
+end)
+
+RegisterServerEvent('bcc-ranch:GetShovelHayCoords', function(RanchId)
+    local _source = source
+    local param = { ['ranchid'] = RanchId }
+    exports.oxmysql:execute("SELECT shovehaycoords FROM ranch WHERE ranchid=@ranchid", param,
+        function(results)
+            if results and #results > 0 then
+                local cds = results[1].shovehaycoords
+                TriggerClientEvent('bcc_ranch:getHayCoords', _source, cds)
+            end
+        end
+    )
+end)
+
+RegisterServerEvent('bcc-ranch:GetWaterAnimalCoords', function(RanchId)
+    local _source = source
+    local param = { ['ranchid'] = RanchId }
+    exports.oxmysql:execute("SELECT wateranimalcoords FROM ranch WHERE ranchid=@ranchid", param,
+        function(results)
+            if results and #results > 0 then
+                local cds = results[1].wateranimalcoords
+                TriggerClientEvent('bcc_ranch:getWaterAnimalCoords', _source, cds)
+            end
+        end
+    )
+end)
+
+RegisterServerEvent('bcc-ranch:GetRepairFeedTroughCoords', function(RanchId)
+    local _source = source
+    local param = { ['ranchid'] = RanchId }
+    exports.oxmysql:execute("SELECT repairtroughcoords FROM ranch WHERE ranchid=@ranchid", param,
+        function(results)
+            if results and #results > 0 then
+                local cds = results[1].repairtroughcoords
+                TriggerClientEvent('bcc_ranch:getRepairTroughCoords', _source, cds)
+            end
+        end
+    )
+end)
+
+RegisterServerEvent('bcc-ranch:GetScoopPoopCoords', function(RanchId)
+    local _source = source
+    local param = { ['ranchid'] = RanchId }
+    exports.oxmysql:execute("SELECT scooppoopcoords FROM ranch WHERE ranchid=@ranchid", param,
+        function(results)
+            if results and #results > 0 then
+                local cds = results[1].scooppoopcoords
+                TriggerClientEvent('bcc_ranch:getScoopPoopCoords', _source, cds)
+            end
+        end
+    )
+end)
+
+RegisterServerEvent('bcc-ranch:getHerdlocation', function(RanchId)
+    local _source = source
+    local param = { ['ranchid'] = RanchId }
+    exports.oxmysql:execute("SELECT herdlocation FROM ranch WHERE ranchid=@ranchid", param,
+        function(results)
+            if results and #results > 0 then
+                local cds = results[1].herdlocation
+                TriggerClientEvent('bcc_ranch:getHerdlocation', _source, cds)
+            end
+        end
+    )
+end)
+
+RegisterServerEvent('bcc-ranch:getChickenCoords', function(RanchId)
+    local _source = source
+    local param = { ['ranchid'] = RanchId }
+    exports.oxmysql:execute("SELECT chickencoords FROM ranch WHERE ranchid=@ranchid", param,
+        function(results)
+            if results and #results > 0 then
+                local cds = results[1].chickencoords
+                TriggerClientEvent('bcc_ranch:getChickenCoords', _source, cds)
+            end
+        end
+    )
+end)
+
+RegisterServerEvent('bcc-ranch:getGoatCoords', function(RanchId)
+    local _source = source
+    local param = { ['ranchid'] = RanchId }
+    exports.oxmysql:execute("SELECT goatcoords FROM ranch WHERE ranchid=@ranchid", param,
+        function(results)
+            if results and #results > 0 then
+                local cds = results[1].goatcoords
+                TriggerClientEvent('bcc_ranch:getGoatCoords', _source, cds)
+            end
+        end
+    )
+end)
+
+RegisterServerEvent('bcc-ranch:getPigCoords', function(RanchId)
+    local _source = source
+    local param = { ['ranchid'] = RanchId }
+    exports.oxmysql:execute("SELECT pigcoords FROM ranch WHERE ranchid=@ranchid", param,
+        function(results)
+            if results and #results > 0 then
+                local cds = results[1].pigcoords
+                TriggerClientEvent('bcc_ranch:getPigCoords', _source, cds)
+            end
+        end
+    )
+end)
+
+RegisterServerEvent('bcc-ranch:getCowCoords', function(RanchId)
+    local _source = source
+    local param = { ['ranchid'] = RanchId }
+    exports.oxmysql:execute("SELECT cowcoords FROM ranch WHERE ranchid=@ranchid", param,
+        function(results)
+            if results and #results > 0 then
+                local cds = results[1].cowcoords
+                TriggerClientEvent('bcc_ranch:getCowCoords', _source, cds)
+            end
+        end
+    )
+end)
+
+RegisterServerEvent('bcc-ranch:getWagonFeedCoords', function(RanchId)
+    local _source = source
+    local param = { ['ranchid'] = RanchId }
+    exports.oxmysql:execute("SELECT wagonfeedcoords FROM ranch WHERE ranchid=@ranchid", param,
+        function(results)
+            if results and #results > 0 then
+                local cds = results[1].wagonfeedcoords
+                TriggerClientEvent('bcc_ranch:getWagonFeedCoords', _source, cds)
+            end
+        end
+    )
+end)
 
 RegisterServerEvent('bcc-ranch:CheckisOwner', function()
     local _source = source
