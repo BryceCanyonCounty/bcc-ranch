@@ -62,7 +62,7 @@ function ManageOwnedAnimalsMenu()
     local set_or_change_feed_wagon = ''
     local set_or_change_feed_wagon_desc = ''
 
-    if Herdlocation then
+    if Herdlocation and Herdlocation ~= 'none' then
         set_or_change_herd = 'ChangeHerdLocation'
         set_or_change_herd_desc = 'ChangeHerdLocation_desc'
     else
@@ -70,7 +70,7 @@ function ManageOwnedAnimalsMenu()
         set_or_change_desc_herd = 'SetHerdLocation_desc'
     end
 
-    if FeedWagonLocation then
+    if FeedWagonLocation and FeedWagonLocation ~= 'none' then
         set_or_change_feed_wagon = 'ChangeFeedWagonLocation'
         set_or_change_feed_wagon_desc = 'ChangeFeedWagonLocation_desc'
     else
