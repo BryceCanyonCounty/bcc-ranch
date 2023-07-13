@@ -57,17 +57,14 @@ function ManageOwnedAnimalsMenu()
     MenuData.CloseAll()
 
     -- added / changed by Little Creek
-    local set_or_change_herd = ''
-    local set_or_change_herd_desc = ''
-    local set_or_change_feed_wagon = ''
-    local set_or_change_feed_wagon_desc = ''
+    local set_or_change_herd, set_or_change_herd_desc, set_or_change_feed_wagon, set_or_change_feed_wagon_desc = '', '', '', ''
 
     if Herdlocation and Herdlocation ~= 'none' then
         set_or_change_herd = 'ChangeHerdLocation'
         set_or_change_herd_desc = 'ChangeHerdLocation_desc'
     else
         set_or_change_herd = 'SetHerdLocation'
-        set_or_change_desc_herd = 'SetHerdLocation_desc'
+        set_or_change_herd_desc = 'SetHerdLocation_desc'
     end
 
     if FeedWagonLocation and FeedWagonLocation ~= 'none' then
