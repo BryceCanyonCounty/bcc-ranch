@@ -44,6 +44,7 @@
 - Ranch names can not have spaces in them currently!
 - To delete ranches you will currently have to delete them manually from the database!
 - Make sure to set yourself admin in the config.lua by adding your steam id where it asks for it!
+- After you set chore locations, and animal locations you must relog for them to work
 
 ## API
 

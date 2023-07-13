@@ -257,13 +257,7 @@ Config.SaleLocations = {
 ---------- Admin Configuration (Anyone listed here will be able to create and delete ranches!) -----------
 Config.AdminSteamIds = {
     {
-        steamid = 'steam:1100001069727ee', --insert players steam id
-    }, --to add more just copy this table paste and change id
-    {
-        steamid = 'steam:1100001041de6d5', --insert players steam id
-    }, --to add more just copy this table paste and change id
-    {
-        steamid = 'steam:110000103ecc746', --insert players steam id
+        steamid = 'steam:11000013707db22', --insert players steam id
     } --to add more just copy this table paste and change id
 }
 Config.CreateRanchCommand = 'createranch' --name of the command used to create ranches!

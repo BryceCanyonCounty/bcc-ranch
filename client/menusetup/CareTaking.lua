@@ -103,7 +103,9 @@ function ChoreMenu(choreType)
                 end
             elseif data.current.value == 'start' then
                 if choreType == 'shovelhay' then
+                    print(Haycoords)
                     if not Haycoords and Haycoords ~= 'none' then
+                        print(Haycoords)
                         VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
                     else
                         TriggerServerEvent('bcc-ranch:ChoreCheckRanchCondition', RanchId, 'shovelhay')

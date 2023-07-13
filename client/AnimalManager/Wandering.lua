@@ -4,17 +4,19 @@ RegisterNetEvent('bcc-ranch:CowsWander', function()
     local deleted = false
 	local spawnCoords -- added by Little Creek
 	spawnCoords = Cowcoords -- added by Little Creek
-    spawnWanderingAnimals('cows')
-    while true do
-        Wait(2000)
-        local pl = GetEntityCoords(PlayerPedId())
-        local dist = GetDistanceBetweenCoords(pl.x, pl.y, pl.z, spawnCoords.x, spawnCoords.y, spawnCoords.z, false)
-        if dist > 400 and deleted == false then
-            deleted = true
-            DelPedsForTable(cows)
-        elseif dist < 400 and deleted == true then
-            deleted = false
-            spawnWanderingAnimals('cows')
+    if spawnCoords ~= 'none' then
+        spawnWanderingAnimals('cows')
+        while true do
+            Wait(2000)
+            local pl = GetEntityCoords(PlayerPedId())
+            local dist = GetDistanceBetweenCoords(pl.x, pl.y, pl.z, spawnCoords.x, spawnCoords.y, spawnCoords.z, false)
+            if dist > 400 and not deleted then
+                deleted = true
+                DelPedsForTable(cows)
+            elseif dist < 400 and deleted then
+                deleted = false
+                spawnWanderingAnimals('cows')
+            end
         end
     end
 end)
@@ -23,17 +25,19 @@ RegisterNetEvent('bcc-ranch:ChickensWander', function()
     local deleted = false
 	local spawnCoords -- added by Little Creek
 	spawnCoords = Chickencoords -- added by Little Creek
-    spawnWanderingAnimals('chickens')
-    while true do
-        Wait(2000)
-        local pl = GetEntityCoords(PlayerPedId())
-        local dist = GetDistanceBetweenCoords(pl.x, pl.y, pl.z, spawnCoords.x, spawnCoords.y, spawnCoords.z, false)
-        if dist > 400 and deleted == false then
-            deleted = true
-            DelPedsForTable(chickens)
-        elseif dist < 400 and deleted == true then
-            deleted = false
-            spawnWanderingAnimals('chickens')
+    if spawnCoords ~= 'none' then
+        spawnWanderingAnimals('chickens')
+        while true do
+            Wait(2000)
+            local pl = GetEntityCoords(PlayerPedId())
+            local dist = GetDistanceBetweenCoords(pl.x, pl.y, pl.z, spawnCoords.x, spawnCoords.y, spawnCoords.z, false)
+            if dist > 400 and not deleted then
+                deleted = true
+                DelPedsForTable(chickens)
+            elseif dist < 400 and deleted then
+                deleted = false
+                spawnWanderingAnimals('chickens')
+            end
         end
     end
 end)
@@ -42,17 +46,19 @@ RegisterNetEvent('bcc-ranch:GoatsWander', function()
     local deleted = false
 	local spawnCoords -- added by Little Creek
 	spawnCoords = Goatcoords -- added by Little Creek
-    spawnWanderingAnimals('goats')
-    while true do
-        Wait(2000)
-        local pl = GetEntityCoords(PlayerPedId())
-        local dist = GetDistanceBetweenCoords(pl.x, pl.y, pl.z, spawnCoords.x, spawnCoords.y, spawnCoords.z, false)
-        if dist > 400 and deleted == false then
-            deleted = true
-            DelPedsForTable(goats)
-        elseif dist < 400 and deleted == true then
-            deleted = false
-            spawnWanderingAnimals('goats')
+    if spawnCoords ~= 'none' then
+        spawnWanderingAnimals('goats')
+        while true do
+            Wait(2000)
+            local pl = GetEntityCoords(PlayerPedId())
+            local dist = GetDistanceBetweenCoords(pl.x, pl.y, pl.z, spawnCoords.x, spawnCoords.y, spawnCoords.z, false)
+            if dist > 400 and not deleted then
+                deleted = true
+                DelPedsForTable(goats)
+            elseif dist < 400 and deleted then
+                deleted = false
+                spawnWanderingAnimals('goats')
+            end
         end
     end
 end)
@@ -61,17 +67,19 @@ RegisterNetEvent('bcc-ranch:PigsWander', function()
     local deleted = false
 	local spawnCoords -- added by Little Creek
 	spawnCoords = Pigcoords -- added by Little Creek
-    spawnWanderingAnimals('pigs')
-    while true do
-        Wait(2000)
-        local pl = GetEntityCoords(PlayerPedId())
-        local dist = GetDistanceBetweenCoords(pl.x, pl.y, pl.z, spawnCoords.x, spawnCoords.y, spawnCoords.z, false)
-        if dist > 400 and deleted == false then
-            deleted = true
-            DelPedsForTable(pigs)
-        elseif dist < 400 and deleted == true then
-            deleted = false
-            spawnWanderingAnimals('pigs')
+    if spawnCoords ~= 'none' then
+        spawnWanderingAnimals('pigs')
+        while true do
+            Wait(2000)
+            local pl = GetEntityCoords(PlayerPedId())
+            local dist = GetDistanceBetweenCoords(pl.x, pl.y, pl.z, spawnCoords.x, spawnCoords.y, spawnCoords.z, false)
+            if dist > 400 and not deleted then
+                deleted = true
+                DelPedsForTable(pigs)
+            elseif dist < 400 and deleted then
+                deleted = false
+                spawnWanderingAnimals('pigs')
+            end
         end
     end
 end)
