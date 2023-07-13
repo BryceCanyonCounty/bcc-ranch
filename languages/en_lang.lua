@@ -112,7 +112,6 @@ Locales["en_lang"] = {
     ChangeRanchName_desc = 'Change the ranches name?',
     NameChanged = 'Name Changed!',
 
-
     ChangeRanchCond = 'Change Ranch Condition',
     ChangeRanchCond_desc = 'Change the ranches condition?',
     CondChanged = 'Condition Changed!',
@@ -170,6 +169,19 @@ Locales["en_lang"] = {
     milkCows_desc = 'Milk your cows to get milk!',
     goMilk = 'Go to the cow and begin milking it!',
     milkingCow = 'Milking the cow',
-    cowMilked = 'Cow milked successfully!'
+    cowMilked = 'Cow milked successfully!',
+--- location saves
+    ShoveHaySave = 'Location for Shoveling hay is Saved',
+    WaterAnimalSave = 'Location for Watering Animal is Saved',
+    RepairTroughSave = 'Location for Reparing Trough is Saved',
+    ScoopPoopSave = 'Location for Scooping Poop is Saved',
 
+    -- added by Little Creek
+    ChangeCoords = 'Change Location',
+    ChangeCoords_desc = 'Go to the location you want this to be changed to, then select this option!',
+    ChangeHerdLocation = 'Change Herd Location',
+    ChangeHerdLocation_desc = 'Change the location you will herd your animals to!',
+    ChangeFeedWagonLocation = 'Change Feed Wagon Location',
+    ChangeFeedWagonLocation_desc = 'Move your Feed Wagon location here. After relogging or server restart it will respawn here.' -- no comma after the last one!
+    -- end added by Little Creek
 }

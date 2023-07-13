@@ -34,8 +34,6 @@ RegisterServerEvent('bcc-ranch:AddItem', function(item, amount)
     VORPInv.addItem(_source, item, amount)
 end)
 
----------------------- DB AREA ----------------------------------
-
 ------ Create Ranch Db Handler -----
 RegisterServerEvent('bcc-ranch:InsertCreatedRanchIntoDB', function(ranchName, ranchRadius, ownerStaticId, coords)
     local _source = source
@@ -53,6 +51,75 @@ RegisterServerEvent('bcc-ranch:InsertCreatedRanchIntoDB', function(ranchName, ra
     end)
 end)
 
+RegisterServerEvent('bcc-ranch:InsertShoveHayCdsIntoDB', function(coords, RanchId)
+    local _source = source
+    local param = { ['shovehaycoords'] = json.encode(coords), ['ranchid'] = RanchId }
+    exports.oxmysql:execute("UPDATE ranch SET shovehaycoords = @shovehaycoords WHERE ranchid=@ranchid", param)
+    VORPcore.NotifyRightTip(_source, _U("ShoveHaySave"), 4000)
+end)
+
+RegisterServerEvent('bcc-ranch:InsertWaterAnimalCdsIntoDB', function(coords, RanchId)
+    local _source = source
+    local param = { ['wateranimalcoords'] = json.encode(coords), ['ranchid'] = RanchId }
+    exports.oxmysql:execute("UPDATE ranch SET wateranimalcoords = @wateranimalcoords WHERE ranchid=@ranchid", param)
+    VORPcore.NotifyRightTip(_source, _U("WaterAnimalSave"), 4000)
+end)
+
+RegisterServerEvent('bcc-ranch:InsertRepairTroughCdsIntoDB', function(coords, RanchId)
+    local _source = source
+    local param = { ['repairtroughcoords'] = json.encode(coords), ['ranchid'] = RanchId }
+    exports.oxmysql:execute("UPDATE ranch SET repairtroughcoords = @repairtroughcoords WHERE ranchid=@ranchid", param)
+    VORPcore.NotifyRightTip(_source, _U("RepairTroughSave"), 4000)
+end)
+
+RegisterServerEvent('bcc-ranch:InsertScoopPoopCdsIntoDB', function(coords, RanchId)
+    local _source = source
+    local param = { ['scooppoopcoords'] = json.encode(coords), ['ranchid'] = RanchId }
+    exports.oxmysql:execute("UPDATE ranch SET scooppoopcoords = @scooppoopcoords WHERE ranchid=@ranchid", param)
+    VORPcore.NotifyRightTip(_source, _U("ScoopPoopSave"), 4000)
+end)
+
+RegisterServerEvent('bcc-ranch:InserHerdLocation', function(coords, RanchId)
+    local _source = source
+    local param = { ['herdlocation'] = json.encode(coords), ['ranchid'] = RanchId }
+    exports.oxmysql:execute("UPDATE ranch SET herdlocation = @herdlocation WHERE ranchid=@ranchid", param)
+    VORPcore.NotifyRightTip(_source, _U("Coordsset"), 4000)
+end)
+
+RegisterServerEvent('bcc-ranch:InserPigCoord', function(coords, RanchId)
+    local _source = source
+    local param = { ['pigcoords'] = json.encode(coords), ['ranchid'] = RanchId }
+    exports.oxmysql:execute("UPDATE ranch SET pigcoords = @pigcoords WHERE ranchid=@ranchid", param)
+    VORPcore.NotifyRightTip(_source, _U("Coordsset"), 4000)
+end)
+
+RegisterServerEvent('bcc-ranch:InserCowCoord', function(coords, RanchId)
+    local _source = source
+    local param = { ['cowcoords'] = json.encode(coords), ['ranchid'] = RanchId }
+    exports.oxmysql:execute("UPDATE ranch SET cowcoords = @cowcoords WHERE ranchid=@ranchid", param)
+    VORPcore.NotifyRightTip(_source, _U("Coordsset"), 4000)
+end)
+
+RegisterServerEvent('bcc-ranch:InserGoatCoord', function(coords, RanchId)
+    local _source = source
+    local param = { ['goatcoords'] = json.encode(coords), ['ranchid'] = RanchId }
+    exports.oxmysql:execute("UPDATE ranch SET goatcoords = @goatcoords WHERE ranchid=@ranchid", param)
+    VORPcore.NotifyRightTip(_source, _U("Coordsset"), 4000)
+end)
+
+RegisterServerEvent('bcc-ranch:InserChickenCoord', function(coords, RanchId)
+    local _source = source
+    local param = { ['chickencoords'] = json.encode(coords), ['ranchid'] = RanchId }
+    exports.oxmysql:execute("UPDATE ranch SET chickencoords = @chickencoords WHERE ranchid=@ranchid", param)
+    VORPcore.NotifyRightTip(_source, _U("Coordsset"), 4000)
+end)
+
+RegisterServerEvent('bcc-ranch:InsertWagonFeedCoords', function(coords, RanchId)
+    local _source = source
+    local param = { ['wagonfeedcoords'] = json.encode(coords), ['ranchid'] = RanchId }
+    exports.oxmysql:execute("UPDATE ranch SET wagonfeedcoords = @wagonfeedcoords WHERE ranchid=@ranchid", param)
+    VORPcore.NotifyRightTip(_source, _U("Coordsset"), 4000)
+end)
 
 RegisterServerEvent('bcc-ranch:CheckisOwner', function()
     local _source = source

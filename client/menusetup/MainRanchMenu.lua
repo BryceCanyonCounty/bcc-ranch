@@ -3,8 +3,8 @@ function MainMenu()
     Inmenu = true
     TriggerEvent('bcc-ranch:MenuClose')
     MenuData.CloseAll()
+    TriggerEvent('bcc-ranch:loadAll')
     local elements = {
-
         { label = _U("CheckRanchCond"), value = 'checkranchcond', desc = _U("CheckRanchCond_desc") },
         { label = _U("Caretaking"),     value = 'caretaking',     desc = _U("Caretaking_desc") },
         { label = _U("ManageAnimals"),  value = 'manageanimals',  desc = _U("ManageAnimals_desc") },
@@ -14,6 +14,7 @@ function MainMenu()
         table.insert(elements, { label = _U("BuyAnimals"),     value = 'buyanimals',      desc = _U("BuyAnimals_desc") })
         table.insert(elements, { label = _U("ManageEmployee"), value = 'manageemployees', desc = _U("ManageEmployee_desc") })
         table.insert(elements, { label = _U("Ledger"),         value = 'ledger',          desc = _U("Ledger") })
+
     end
 
     MenuData.Open('default', GetCurrentResourceName(), 'menuapi',

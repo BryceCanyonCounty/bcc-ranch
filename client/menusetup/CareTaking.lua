@@ -78,57 +78,55 @@ function ChoreMenu(choreType)
                 local plc = GetEntityCoords(PlayerPedId())
                 if choreType == 'shovelhay' then
                     if GetDistanceBetweenCoords(plc.x, plc.y, plc.z, tonumber(RanchCoords.x), tonumber(RanchCoords.y), tonumber(RanchCoords.z), true) < tonumber(RanchRadius) then
-                        Haycoords = GetEntityCoords(PlayerPedId())
-                        VORPcore.NotifyRightTip(_U("Coordsset"), 4000)
+                        TriggerServerEvent('bcc-ranch:InsertShoveHayCdsIntoDB', GetEntityCoords(PlayerPedId()), RanchId)
                     else
                         VORPcore.NotifyRightTip(_U("TooFarFromRanch"), 4000)
                     end
                 elseif choreType == 'wateranimal' then
                     if GetDistanceBetweenCoords(plc.x, plc.y, plc.z, tonumber(RanchCoords.x), tonumber(RanchCoords.y), tonumber(RanchCoords.z), true) < tonumber(RanchRadius) then
-                        WaterAnimalCoords = GetEntityCoords(PlayerPedId())
-                        VORPcore.NotifyRightTip(_U("Coordsset"), 4000)
+                        TriggerServerEvent('bcc-ranch:InsertWaterAnimalCdsIntoDB', GetEntityCoords(PlayerPedId()), RanchId)
                     else
                         VORPcore.NotifyRightTip(_U("TooFarFromRanch"), 4000)
                     end
                 elseif choreType == 'repairfeedtrough' then
                     if GetDistanceBetweenCoords(plc.x, plc.y, plc.z, tonumber(RanchCoords.x), tonumber(RanchCoords.y), tonumber(RanchCoords.z), true) < tonumber(RanchRadius) then
-                        RepairTroughCoords = GetEntityCoords(PlayerPedId())
-                        VORPcore.NotifyRightTip(_U("Coordsset"), 4000)
+                        TriggerServerEvent('bcc-ranch:InsertRepairTroughCdsIntoDB', GetEntityCoords(PlayerPedId()), RanchId)
                     else
                         VORPcore.NotifyRightTip(_U("TooFarFromRanch"), 4000)
                     end
                 elseif choreType == 'scooppoop' then
                     if GetDistanceBetweenCoords(plc.x, plc.y, plc.z, tonumber(RanchCoords.x), tonumber(RanchCoords.y), tonumber(RanchCoords.z), true) < tonumber(RanchRadius) then
-                        ScoopPoopCoords = GetEntityCoords(PlayerPedId())
-                        VORPcore.NotifyRightTip(_U("Coordsset"), 4000)
+                        TriggerServerEvent('bcc-ranch:InsertScoopPoopCdsIntoDB', GetEntityCoords(PlayerPedId()), RanchId)
                     else
                         VORPcore.NotifyRightTip(_U("TooFarFromRanch"), 4000)
                     end
                 end
             elseif data.current.value == 'start' then
                 if choreType == 'shovelhay' then
-                    if not Haycoords then
+                    print(Haycoords)
+                    if not Haycoords and Haycoords ~= 'none' then
+                        print(Haycoords)
                         VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
                     else
                         TriggerServerEvent('bcc-ranch:ChoreCheckRanchCondition', RanchId, 'shovelhay')
                         MenuData.CloseAll()
                     end
                 elseif choreType == 'wateranimal' then
-                    if not WaterAnimalCoords then
+                    if not WaterAnimalCoords and WaterAnimalCoords ~= 'none' then
                         VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
                     else
                         TriggerServerEvent('bcc-ranch:ChoreCheckRanchCondition', RanchId, 'wateranimals')
                         MenuData.CloseAll()
                     end
                 elseif choreType == 'repairfeedtrough' then
-                    if not RepairTroughCoords then
+                    if not RepairTroughCoords and RepairTroughCoords ~= 'none' then
                         VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
                     else
                         TriggerServerEvent('bcc-ranch:ChoreCheckRanchCondition', RanchId, 'repairfeedtrough')
                         MenuData.CloseAll()
                     end
                 elseif choreType == 'scooppoop' then
-                    if not ScoopPoopCoords then
+                    if not ScoopPoopCoords and ScoopPoopCoords ~= 'none' then
                         VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
                     else
                         TriggerServerEvent('bcc-ranch:ChoreCheckRanchCondition', RanchId, 'scooppoop')

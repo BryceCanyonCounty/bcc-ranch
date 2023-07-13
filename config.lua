@@ -41,27 +41,28 @@ Config.ChoreMinigames = true --if true a minigame will have to be completed to f
 Config.ChoreMinigameConfig = {
     focus = true, -- Should minigame take nui focus (required)
     cursor = false, -- Should minigame have cursor
-    maxattempts = 3, -- How many fail attempts are allowed before game over
+    maxattempts = 2, -- How many fail attempts are allowed before game over
     type = 'bar', -- What should the bar look like. (bar, trailing)
-    userandomkey = true, -- Should the minigame generate a random key to press?
-    keytopress = 'B', -- userandomkey must be false for this to work. Static key to press
-    keycode = 66, -- The JS keycode for the keytopress
-    speed = 20, -- How fast the orbiter grows
-    strict = false -- if true, letting the timer run out counts as a failed attempt
+    userandomkey = false, -- Should the minigame generate a random key to press?
+    keytopress = 'E', -- userandomkey must be false for this to work. Static key to press
+    keycode = 69, -- The JS keycode for the keytopress
+    speed = 25, -- How fast the orbiter grows
+    strict = true -- if true, letting the timer run out counts as a failed attempt
 }
 
 Config.MilkingMinigameConfig = {
     focus = true, -- Should minigame take nui focus (required)
     cursor = true, -- Should minigame have cursor  (required)
-    timer = 20, -- The amount of seconds the game will run for
-    minMilkPerSqueez = 0.2,
-    maxMilkPerSqueez = 0.6
+    timer = 30, -- The amount of seconds the game will run for
+    minMilkPerSqueez = 100.0,
+    maxMilkPerSqueez = 200.0
 }
+
 --Main Chore Setup
 Config.ChoreConfig = {
     HayChore = {
         AnimTime = 15000, --time the animation will play for
-        ConditionIncrease = 10, --amount the condition will increase by
+        ConditionIncrease = 5, --amount the condition will increase by
     },
     WaterAnimals = {
         AnimTime = 10000,
@@ -69,18 +70,18 @@ Config.ChoreConfig = {
     },
     RepairFeedTrough = {
         AnimTime = 15000,
-        ConditionIncrease = 20,
+        ConditionIncrease = 10,
     },
     ShovelPoop = {
-        RecievedItem = 'poop', --You will recieve this item upon completion of this chore(database name of the item)
-        RecievedAmount = 2, --this is the amount of the item you will recieve (set 0 if you do not want this feature)
+        RecievedItem = 'Supply_Manure', --You will recieve this item upon completion of this chore(database name of the item)
+        RecievedAmount = 5, --this is the amount of the item you will recieve (set 0 if you do not want this feature)
         AnimTime = 5000,
         ConditionIncrease = 5,
     },
 }
 
 --Main Ranch Setup
-Config.RanchSetup = {
+Config.RanchSetup = { 
     AnimalGrownAge = 100, -- the age the animals will have to be reach before they are grown(animals below this age will be considered babies, and you can not sell or butcher them the age increase while the player is online)
     AnimalsRoamRanch = true, --if you want your animals to roam your ranch set this true
     WolfAttacks = true, --if true there is a chance 2 wolves will spawn while herding or selling animals and attack you!(50 50 chance)
@@ -90,73 +91,91 @@ Config.RanchSetup = {
     InvName = 'Ranch Inventory', --Name of the inventory
     RanchCondDecreaseAmount = 10, --how much it will decrease
     MaxRanchCondition = 100, --This is the maximum ranch condition possible. This can only be set upto 999
-    BlipHash = 'blip_mp_predator_hunt_mask', --ranch blip hash
-    HerdingMinDistance = 70, --this is the minimum distance a player will have to be from there ranch to set thier herd location
+    BlipHash = 'blip_mp_roundup', --ranch blip hash
+    HerdingMinDistance = 300, --this is the minimum distance a player will have to be from there ranch to set thier herd location
     RanchAnimalSetup = { --ranch animal setup
         Cows = {
-            Health = 200, --How much health the cows will have while being herded or sold
-            AgeIncreaseTime = 30000, --The time that has to pass before the animals age increases
+            Health = 200, --How much health the cows will have while being herded or sold 
+            AgeIncreaseTime = 60000, --The time that has to pass before the animals age increases
             AgeIncreaseAmount = 5, --the amount the age will increase
-            Cost = 500, --cost to buy animal
-            MilkingCooldown = 30, --time in seconds you have to  wait before being able to milk them again
-            MilkingItem = 'water', --item recieved after milking
-            MilkingItemAmount = 3, --the amount of the item you get
-            AmountToCollect = 0.10, --The minimum amount of milk you need to collect from the minigame to successfully milk the cow!
-            RoamingRadius = 6.0, --this is the radius the cows will be able to roam around the ranch in(Make sure this is a decimal number ie 0.2, 5.0, 3.9 not a whole number ie 1, 2, 3 will break them wandering if its a whole number)
+            MilkingCooldown = 900, --time in seconds you have to  wait before being able to milk them again
+            MilkingItem = 'Ingredient_Milk', --item recieved after milking
+            MilkingItemAmount = 5, --the amount of the item you get
+            AmountToCollect = 0.70, --The minimum amount of milk you need to collect from the minigame to successfully milk the cow!
+            RoamingRadius = 4.0, --this is the radius the cows will be able to roam around the ranch in(Make sure this is a decimal number ie 0.2, 5.0, 3.9 not a whole number ie 1, 2, 3 will break them wandering if its a whole number)
             MaxCondition = 200, --the maximum condition the animal can reach
-            BasePay = 300, --This is the base pay(what will be paid when selling the animal if animal condition is not max)
+            --
+            Cost = 500, --cost to buy animal
+            LowPay = 600, --This is the amount that will be payed if any animals die along the way
+            BasePay = 800, --This is the base pay(what will be paid when selling the animal if animal condition is not max)
             MaxConditionPay = 1000, --amount to pay when selling the animal if the animals condition is maxed
-            AmountSpawned = 4, --Amount of animals that will spawn when herding or selling them
-            LowPay = 150, --This is the amount that will be payed if any animals die along the way
-            FeedAnimalCondIncrease = 50, --how much the animal condition will go up after feeding them!
-            CondIncreasePerHerd = 10, --this is the amount the animals condition will increase when successfully herded!
+            --
+            AmountSpawned = 9, --Amount of animals that will spawn when herding or selling them
+            FeedAnimalCondIncrease = 10, --how much the animal condition will go up after feeding them!
+            CondIncreasePerHerd = 15, --this is the amount the animals condition will increase when successfully herded!
             CondIncreasePerHerdNotMaxRanchCond = 5, --this is the amount the animals condition will go up per herd if the ranchs condition is not max
             ButcherItems = { --items you will get when you butcher this animal
                 {
-                    name = 'water', --item db name
-                    count = 1, --amount you will get
+                    name = 'Ingredient_Beef_Meat', --item db name
+                    count = 4, --amount you will get
+                }, --you can add more by copy pasting this table
+                {
+                    name = 'Ingredient_Beef_Organs', --item db name
+                    count = 2, --amount you will get
                 }, --you can add more by copy pasting this table
             },
         },
         Pigs = {
             Health = 200, --How much health the pigs will have while being herded or sold
-            AgeIncreaseTime = 30000, --The time that has to pass before the animals age increases
+            AgeIncreaseTime = 60000, --The time that has to pass before the animals age increases
             AgeIncreaseAmount = 5, --the amount the age will increase
+            RoamingRadius = 2.0,
+            MaxCondition = 200,
+            --
             Cost = 200,
-            RoamingRadius = 6.0,
-            MaxCondition = 100,
-            BasePay = 200,
-            MaxConditionPay = 500,
+            LowPay = 225, --This is the amount that will be payed if any animals die along the way
+            BasePay = 300,
+            MaxConditionPay = 400,
+            --
             AmountSpawned = 4, --Amount of animals that will spawn when herding or selling them
-            LowPay = 150, --This is the amount that will be payed if any animals die along the way
-            FeedAnimalCondIncrease = 50, --how much the animal condition will go up after feeding them!
-            CondIncreasePerHerd = 10, --this is the amount the animals condition will increase when successfully herded!
+            FeedAnimalCondIncrease = 10, --how much the animal condition will go up after feeding them!
+            CondIncreasePerHerd = 15, --this is the amount the animals condition will increase when successfully herded!
             CondIncreasePerHerdNotMaxRanchCond = 5, --this is the amount the animals condition will go up per herd if the ranchs condition is not max
             ButcherItems = { --items you will get when you butcher this animal
                 {
-                    name = '', --item db name
-                    count = 1, --amount you will get
+                    name = 'Ingredient_Pig_Meat', --item db name
+                    count = 4, --amount you will get
+                }, --you can add more by copy pasting this table
+                {
+                    name = 'Ingredient_Pig_Organs', --item db name
+                    count = 2, --amount you will get
                 }, --you can add more by copy pasting this table
             },
         },
         Goats = {
             Health = 200, --How much health the goats will have while being herded or sold
-            AgeIncreaseTime = 30000, --The time that has to pass before the animals age increases
+            AgeIncreaseTime = 60000, --The time that has to pass before the animals age increases
             AgeIncreaseAmount = 5, --the amount the age will increase
+            RoamingRadius = 3.0,
+            MaxCondition = 200,
+            --
             Cost = 100,
-            RoamingRadius = 6.0,
-            MaxCondition = 50,
-            BasePay = 100,
-            MaxConditionPay = 200,
+            LowPay = 125, --This is the amount that will be payed if any animals die along the way
+            BasePay = 175,--This is the base pay(what will be paid when selling the animal if animal condition is not max)
+            MaxConditionPay = 250,
+            --
             AmountSpawned = 4, --Amount of animals that will spawn when herding or selling them
-            LowPay = 150, --This is the amount that will be payed if any animals die along the way
-            FeedAnimalCondIncrease = 50, --how much the animal condition will go up after feeding them!
-            CondIncreasePerHerd = 10, --this is the amount the animals condition will increase when successfully herded!
+            FeedAnimalCondIncrease = 10, --how much the animal condition will go up after feeding them!
+            CondIncreasePerHerd = 15, --this is the amount the animals condition will increase when successfully herded!
             CondIncreasePerHerdNotMaxRanchCond = 5, --this is the amount the animals condition will go up per herd if the ranchs condition is not max
             ButcherItems = { --items you will get when you butcher this animal
                 {
-                    name = '', --item db name
-                    count = 1, --amount you will get
+                    name = 'Ingredient_Goat_Meat', --item db name
+                    count = 4, --amount you will get
+                }, --you can add more by copy pasting this table
+                {
+                    name = 'Ingredient_Goat_Organs', --item db name
+                    count = 2, --amount you will get
                 }, --you can add more by copy pasting this table
             },
         },
@@ -165,22 +184,28 @@ Config.RanchSetup = {
             AgeIncreaseTime = 30000, --The time that has to pass before the animals age increases
             AgeIncreaseAmount = 5, --the amount the age will increase
             CoopCost = 400, --cost to buy a chicken coop
-            CoopCollectionCooldownTime = 30, --Time in seconds that must pass before you can harvest eggs from the coop again
-            EggItem = 'iron', --The item you will get from harvesting eggs from the coop
-            EggItem_Amount = 2, --the amount of the item you will get
+            CoopCollectionCooldownTime = 900, --Time in ms that must pass before you can harvest eggs from the coop again
+            EggItem = 'Ingredient_Egg', --The item you will get from harvesting eggs from the coop
+            EggItem_Amount = 6, --the amount of the item you will get
+            --
             Cost = 50,
-            RoamingRadius = 6.0,
-            MaxCondition = 20,
-            BasePay = 50,
-            MaxConditionPay = 100,
-            AmountSpawned = 4, --Amount of animals that will spawn when herding or selling them
-            LowPay = 150, --This is the amount that will be payed if any animals die along the way
-            FeedAnimalCondIncrease = 50, --how much the animal condition will go up after feeding them!
-            CondIncreasePerHerd = 10, --this is the amount the animals condition will increase when successfully herded!
+            LowPay = 75, --This is the amount that will be payed if any animals die along the way
+            BasePay = 100,--This is the base pay(what will be paid when selling the animal if animal condition is not max)
+            MaxConditionPay = 150,
+            --
+            RoamingRadius = 0.5,
+            MaxCondition = 200,
+            AmountSpawned = 9, --Amount of animals that will spawn when herding or selling them
+            FeedAnimalCondIncrease = 10, --how much the animal condition will go up after feeding them!
+            CondIncreasePerHerd = 15, --this is the amount the animals condition will increase when successfully herded!
             CondIncreasePerHerdNotMaxRanchCond = 5, --this is the amount the animals condition will go up per herd if the ranchs condition is not max
             ButcherItems = { --items you will get when you butcher this animal
                 {
-                    name = '', --item db name
+                    name = 'Ingredient_Chicken_Meat', --item db name
+                    count = 4, --amount you will get
+                }, --you can add more by copy pasting this table
+                {
+                    name = 'Ingredient_Chicken_Organs', --item db name
                     count = 1, --amount you will get
                 }, --you can add more by copy pasting this table
             },
@@ -188,27 +213,52 @@ Config.RanchSetup = {
     }
 }
 
-Config.SaleLocationBlipHash = 'blip_ambient_vip' --hash of the blip to show
+Config.SaleLocationBlipHash = 'blip_ambient_herd' --hash of the blip to show
 Config.SaleLocations = {
     --These are the locations players will be able to sell thier cattle/animals at
     {
-        LocationName = 'Sale Area 1', --this will be the name of the blip
-        Coords = {x = -281.72, y = 697.67, z = 113.49}, --the coords the player will have to go to
+        LocationName = 'Valentine Cattle Auction', --this will be the name of the blip
+        Coords = {x=-217.18, y=634.94, z=113.20}, --the coords the player will have to go to
     }, --to add more just copy this table paste and change what you want
     {
-        LocationName = 'Sale Area 2',
-        Coords = {x = -767.63, y = -1389.87, z = 43.27},
+        LocationName = 'Rhodes Cattle Auction',
+        Coords = {x=1332.0, y=-1271.8, z=76.8},
     },
+    {
+        LocationName = 'Blackwater Cattle Auction',
+        Coords = {x=-853.13, y=-1337.95, z=43.48},
+    },
+    {
+        LocationName = 'Strawberry Cattle Auction',
+        Coords = {x=-1837.10, y=-438.56, z=159.53},
+    },
+    {
+        LocationName = 'Armadillo Cattle Auction',
+        Coords = {x=-3660.93, y=-2564.88, z=-13.75},
+    },
+    {
+        LocationName = 'St-Denis Cattle Auction',
+        Coords = {x=2393.30, y=-1416.46, z=45.76},
+    },
+    {
+        LocationName = 'Annesburg Cattle Auction',
+        Coords = {x=2936.83, y=1312.21, z=44.53},
+    },
+    {
+        LocationName = 'Emerald Ranch Cattle Auction',
+        Coords = {x = 1420.13, y = 295.07, z = 88.96},
+    },
+    {
+        LocationName = 'Tumbleweed Cattle Auction',
+        Coords = {x=-5410.35, y=-2934.25, z=0.92},
+    }
 }
 
 ---------- Admin Configuration (Anyone listed here will be able to create and delete ranches!) -----------
 Config.AdminSteamIds = {
     {
         steamid = 'steam:11000013707db22', --insert players steam id
-    }, --to add more just copy this table paste and change id
-    {
-        steamid = 'id2'
-    }
+    } --to add more just copy this table paste and change id
 }
 Config.CreateRanchCommand = 'createranch' --name of the command used to create ranches!
 Config.ManageRanchsCommand = 'manageranches' --name of the command used to manage ranches!
