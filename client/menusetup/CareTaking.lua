@@ -103,28 +103,28 @@ function ChoreMenu(choreType)
                 end
             elseif data.current.value == 'start' then
                 if choreType == 'shovelhay' then
-                    if not Haycoords then
+                    if not Haycoords and Haycoords ~= 'none' then
                         VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
                     else
                         TriggerServerEvent('bcc-ranch:ChoreCheckRanchCondition', RanchId, 'shovelhay')
                         MenuData.CloseAll()
                     end
                 elseif choreType == 'wateranimal' then
-                    if not WaterAnimalCoords then
+                    if not WaterAnimalCoords and WaterAnimalCoords ~= 'none' then
                         VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
                     else
                         TriggerServerEvent('bcc-ranch:ChoreCheckRanchCondition', RanchId, 'wateranimals')
                         MenuData.CloseAll()
                     end
                 elseif choreType == 'repairfeedtrough' then
-                    if not RepairTroughCoords then
+                    if not RepairTroughCoords and RepairTroughCoords ~= 'none' then
                         VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
                     else
                         TriggerServerEvent('bcc-ranch:ChoreCheckRanchCondition', RanchId, 'repairfeedtrough')
                         MenuData.CloseAll()
                     end
                 elseif choreType == 'scooppoop' then
-                    if not ScoopPoopCoords then
+                    if not ScoopPoopCoords and ScoopPoopCoords ~= 'none' then
                         VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
                     else
                         TriggerServerEvent('bcc-ranch:ChoreCheckRanchCondition', RanchId, 'scooppoop')
@@ -134,23 +134,3 @@ function ChoreMenu(choreType)
             end
         end)
 end
-
-RegisterNetEvent('bcc_ranch:getHayCoords')
-AddEventHandler('bcc_ranch:getHayCoords', function (cds)
-    Haycoords = json.decode(cds)
-end)
-
-RegisterNetEvent('bcc_ranch:getWaterAnimalCoords')
-AddEventHandler('bcc_ranch:getWaterAnimalCoords', function (cds)
-    WaterAnimalCoords = json.decode(cds)
-end)
-
-RegisterNetEvent('bcc_ranch:getRepairTroughCoords')
-AddEventHandler('bcc_ranch:getRepairTroughCoords', function (cds)
-    RepairTroughCoords = json.decode(cds)
-end)
-
-RegisterNetEvent('bcc_ranch:getScoopPoopCoords')
-AddEventHandler('bcc_ranch:getScoopPoopCoords', function (cds)
-    ScoopPoopCoords = json.decode(cds)
-end)

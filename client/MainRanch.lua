@@ -40,6 +40,12 @@ RegisterNetEvent('bcc-ranch:HasRanchHandler', function(ranch)
 	Pigcoords = json.decode(ranch.pigcoords)
 	Chickencoords = json.decode(ranch.chickencoords)
 	Goatcoords = json.decode(ranch.goatcoords)
+    Herdlocation = json.decode(ranch.herdlocation)
+    FeedWagonLocation = json.decode(ranch.wagonfeedcoords)
+    Haycoords = json.decode(ranch.shovelhaycoords)
+    WaterAnimalCoords = json.decode(ranch.wateranimalcoords)
+    RepairTroughCoords = json.decode(ranch.repairtroughcoords)
+    ScoopPoopCoords = json.decode(ranch.scooppoopcoords)
 	-- end added by Little Creek
     local blip = VORPutils.Blips:SetBlip(ranch.ranchname, Config.RanchSetup.BlipHash, 0.2, RanchCoords.x, RanchCoords.y, RanchCoords.z)
     local PromptGroup = VORPutils.Prompts:SetupPromptGroup()
@@ -65,6 +71,9 @@ RegisterNetEvent('bcc-ranch:HasRanchHandler', function(ranch)
             end
         elseif dist > 200 then
             Wait(2000)
+        end
+        if Inmenu and dist > RanchRadius + 20 then
+            MenuData.CloseAll()
         end
     end
 end)
@@ -101,21 +110,4 @@ end)
 
 RegisterNetEvent('bcc-ranch:SendList', function(result)
     table.insert(Employees, result)
-end)
-
-
----- SETUP COORDS ----
-
-RegisterNetEvent("bcc-ranch:loadAll")
-AddEventHandler("bcc-ranch:loadAll", function ()
-    TriggerServerEvent("bcc-ranch:getCowCoords", RanchId)
-    TriggerServerEvent("bcc-ranch:getChickenCoords", RanchId)
-    TriggerServerEvent("bcc-ranch:getGoatCoords", RanchId)
-    TriggerServerEvent("bcc-ranch:getPigCoords", RanchId)
-    TriggerServerEvent("bcc-ranch:getHerdlocation", RanchId)
-    TriggerServerEvent('bcc-ranch:GetShovelHayCoords', RanchId)
-    TriggerServerEvent('bcc-ranch:GetWaterAnimalCoords', RanchId)
-    TriggerServerEvent('bcc-ranch:GetRepairFeedTroughCoords', RanchId)
-    TriggerServerEvent('bcc-ranch:GetScoopPoopCoords', RanchId)
-    TriggerServerEvent('bcc-ranch:getWagonFeedCoords', RanchId) -- added by Little Creek
 end)

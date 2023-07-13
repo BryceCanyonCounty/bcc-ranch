@@ -138,3 +138,9 @@ function ChoreComplete(choreAnim, animTime, incAmount) --what to do if chore is 
     TriggerServerEvent('bcc-ranch:RanchConditionIncrease', incAmount, RanchId)
     InMission = false
 end
+
+--[[
+    8========================D
+    Sacred Comment Penis
+    Do not remove or alter this comment under any circumstance tis sacred
+]]

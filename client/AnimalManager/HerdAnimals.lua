@@ -1,8 +1,7 @@
 ------ This is the herding function to increase animal cond -----
 function herdanimals(animalType, ranchCond)
-    local pl = PlayerPedId()
+    local pl, scale = PlayerPedId(), nil
     local model, tables
-    local scale = nil
     InMission = true
     TriggerEvent('bcc-ranch:ChoreDeadCheck')
     if animalType == 'cows' then
@@ -53,33 +52,30 @@ function herdanimals(animalType, ranchCond)
     -- TODO: change some of these to config.lua
     local totalDist = GetDistanceBetweenCoords(plc.x, plc.y, plc.z, Herdlocation.x, Herdlocation.y, Herdlocation.z, true)
     local halfDist = totalDist / 2
-    local curDist, plcw
-    local wolvesAttackedHerd = false
-    local maxWolvesPerAttack = 3 -- Set to 1, 2, or 3
-    local animalsNear = false
+    local animalsNear, wolvesAttackedHerd, maxWolvesPerAttack = false, false, 3
 
     while true do
-        if Config.RanchSetup.WolfAttacks and wolvesAttackedHerd == false then
+        if Config.RanchSetup.WolfAttacks and not wolvesAttackedHerd then
             -- check if the current distance of the player to the herd location is within 20% of the halfDist
-            plcw = GetEntityCoords(pl)
-            curDist = GetDistanceBetweenCoords(plcw.x, plcw.y, plcw.z, Herdlocation.x, Herdlocation.y, Herdlocation.z, true)
+            local plcw = GetEntityCoords(pl)
+            local curDist = GetDistanceBetweenCoords(plcw.x, plcw.y, plcw.z, Herdlocation.x, Herdlocation.y, Herdlocation.z, true)
             Wait(500)
             if curDist >= (halfDist - (halfDist * 0.2)) and curDist <= (halfDist + (halfDist * 0.2)) then
                 -- now this will check every Wait(50) so very often and even with very low chances most likely trigger guaranteed
                 if math.random(1, 4) == 1 then
                     local spawnCount = math.random(1, maxWolvesPerAttack)
                     if 1 <= spawnCount then
-                        createdPed1 = BccUtils.Ped.CreatePed('A_C_Wolf', plcw.x + math.random(1, 10), plcw.y + math.random(1, 10), plcw.z, true, true, false)
+                        local createdPed1 = BccUtils.Ped.CreatePed('A_C_Wolf', plcw.x + math.random(1, 10), plcw.y + math.random(1, 10), plcw.z, true, true, false)
                         Citizen.InvokeNative(0x23f74c2fda6e7c61, 953018525, createdPed1)
                         TaskCombatPed(createdPed1, PlayerPedId())
                     end
                     if 2 <= spawnCount then
-                        createdPed2 = BccUtils.Ped.CreatePed('A_C_Wolf', plcw.x + math.random(1, 10), plcw.y + math.random(1, 10), plcw.z, true, true, false)
+                        local createdPed2 = BccUtils.Ped.CreatePed('A_C_Wolf', plcw.x + math.random(1, 10), plcw.y + math.random(1, 10), plcw.z, true, true, false)
                         Citizen.InvokeNative(0x23f74c2fda6e7c61, 953018525, createdPed2)
                         TaskCombatPed(createdPed2, PlayerPedId())
                     end
                     if 3 <= spawnCount then
-                        createdPed3 = BccUtils.Ped.CreatePed('A_C_Wolf', plcw.x + math.random(1, 10), plcw.y + math.random(1, 10), plcw.z, true, true, false)
+                        local createdPed3 = BccUtils.Ped.CreatePed('A_C_Wolf', plcw.x + math.random(1, 10), plcw.y + math.random(1, 10), plcw.z, true, true, false)
                         Citizen.InvokeNative(0x23f74c2fda6e7c61, 953018525, createdPed3)
                         TaskCombatPed(createdPed3, PlayerPedId())
                     end

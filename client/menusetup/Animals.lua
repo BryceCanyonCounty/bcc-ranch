@@ -137,7 +137,7 @@ RegisterNetEvent('bcc-ranch:OwnedAnimalManagerMenu', function(animalCond, animal
         maxCond = tostring(Config.RanchSetup.RanchAnimalSetup.Pigs.MaxCondition)
 
         -- added / changed by Little Creek
-        if Pigcoords then
+        if Pigcoords and Pigcoords ~= 'none' then
             set_or_change = 'ChangeCoords'
             set_or_change_desc = 'ChangeCoords_desc'
         else
@@ -160,7 +160,7 @@ RegisterNetEvent('bcc-ranch:OwnedAnimalManagerMenu', function(animalCond, animal
         maxCond = tostring(Config.RanchSetup.RanchAnimalSetup.Goats.MaxCondition)
 
         -- added / changed by Little Creek
-        if Goatcoords then
+        if Goatcoords and Goatcoords ~= 'none' then
             set_or_change = 'ChangeCoords'
             set_or_change_desc = 'ChangeCoords_desc'
         else
@@ -183,7 +183,7 @@ RegisterNetEvent('bcc-ranch:OwnedAnimalManagerMenu', function(animalCond, animal
         maxCond = tostring(Config.RanchSetup.RanchAnimalSetup.Chickens.MaxCondition)
 
         -- added / changed by Little Creek
-        if Chickencoords then
+        if Chickencoords and ChickenCoop ~= 'none' then
             set_or_change = 'ChangeCoords'
             set_or_change_desc = 'ChangeCoords_desc'
         else
@@ -213,7 +213,7 @@ RegisterNetEvent('bcc-ranch:OwnedAnimalManagerMenu', function(animalCond, animal
         maxCond = tostring(Config.RanchSetup.RanchAnimalSetup.Cows.MaxCondition)
 
         -- added / changed by Little Creek
-        if Cowcoords then
+        if Cowcoords and Cowcoords ~= 'none' then
             set_or_change = 'ChangeCoords'
             set_or_change_desc = 'ChangeCoords_desc'
         else
@@ -266,7 +266,7 @@ RegisterNetEvent('bcc-ranch:OwnedAnimalManagerMenu', function(animalCond, animal
                     TriggerServerEvent("bcc-ranch:getCowCoords", RanchId)
                 end
             elseif data.current.value == 'herdanimal' then
-                if Herdlocation ~= nil then
+                if Herdlocation ~= nil and Herdlocation ~= 'none' then
                     MenuData.CloseAll()
                     herdanimals(herdType, ranchCond)
                 else
@@ -274,28 +274,28 @@ RegisterNetEvent('bcc-ranch:OwnedAnimalManagerMenu', function(animalCond, animal
                 end
             elseif data.current.value == 'sellanimal' then
                 if animalType == 'pigs' then
-                    if Pigcoords then
+                    if Pigcoords and Pigcoords ~= 'none' then
                         MenuData.CloseAll()
                         SellAnimals('pigs', animalCond)
                     else
                         VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
                     end
                 elseif animalType == 'goats' then
-                    if Goatcoords then
+                    if Goatcoords and Goatcoords ~= 'none' then
                         MenuData.CloseAll()
                         SellAnimals('goats', animalCond)
                     else
                         VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
                     end
                 elseif animalType == 'chickens' then
-                    if Chickencoords then
+                    if Chickencoords and Chickencoords ~= 'none' then
                         MenuData.CloseAll()
                         SellAnimals('chickens', animalCond)
                     else
                         VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
                     end
                 elseif animalType == 'cows' then
-                    if Cowcoords then
+                    if Cowcoords and Cowcoords ~= 'none' then
                         MenuData.CloseAll()
                         SellAnimals('cows', animalCond)
                     else
@@ -304,28 +304,28 @@ RegisterNetEvent('bcc-ranch:OwnedAnimalManagerMenu', function(animalCond, animal
                 end
             elseif data.current.value == 'butcheranimal' then
                 if animalType == 'pigs' then
-                    if Pigcoords ~= nil then
+                    if Pigcoords ~= nil and Pigcoords ~= 'none' then
                         MenuData.CloseAll()
                         ButcherAnimals('pigs')
                     else
                         VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
                     end
                 elseif animalType == 'goats' then
-                    if Goatcoords ~= nil then
+                    if Goatcoords ~= nil and Goatcoords ~= 'none' then
                         MenuData.CloseAll()
                         ButcherAnimals('goats')
                     else
                         VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
                     end
                 elseif animalType == 'chickens' then
-                    if Chickencoords then
+                    if Chickencoords and Chickencoords ~= 'none' then
                         MenuData.CloseAll()
                         ButcherAnimals('chickens')
                     else
                         VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
                     end
                 elseif animalType == 'cows' then
-                    if Cowcoords then
+                    if Cowcoords and Cowcoords ~= 'none' then
                         MenuData.CloseAll()
                         ButcherAnimals('cows')
                     else
@@ -335,28 +335,28 @@ RegisterNetEvent('bcc-ranch:OwnedAnimalManagerMenu', function(animalCond, animal
             elseif data.current.value == 'feedanimal' then
                 if FeedWagonLocation then
                     if animalType == 'pigs' then
-                        if Pigcoords ~= nil then
+                        if Pigcoords ~= nil and Pigcoords ~= 'none' then
                             MenuData.CloseAll()
                             FeedAnimals('pigs')
                         else
                             VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
                         end
                     elseif animalType == 'goats' then
-                        if Goatcoords ~= nil then
+                        if Goatcoords ~= nil and Goatcoords ~= 'none' then
                             MenuData.CloseAll()
                             FeedAnimals('goats')
                         else
                             VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
                         end
                     elseif animalType == 'chickens' then
-                        if Chickencoords then
+                        if Chickencoords and Chickencoords ~= 'none' then
                             MenuData.CloseAll()
                             FeedAnimals('chickens')
                         else
                             VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
                         end
                     elseif animalType == 'cows' then
-                        if Cowcoords then
+                        if Cowcoords and Cowcoords ~= 'none' then
                             MenuData.CloseAll()
                             FeedAnimals('cows')
                         else
@@ -379,41 +379,11 @@ RegisterNetEvent('bcc-ranch:OwnedAnimalManagerMenu', function(animalCond, animal
                     VORPcore.NotifyRightTip(_U("NoCoop"), 4000)
                 end
             elseif data.current.value == 'milkanimal' then
-                if Cowcoords then
+                if Cowcoords and Cowcoords ~= 'none' then
                     TriggerServerEvent('bcc-ranch:CowMilkingCooldown', RanchId)
                 else
                     VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
                 end
             end
         end)
-end)
-
-RegisterNetEvent('bcc_ranch:getHerdlocation')
-AddEventHandler('bcc_ranch:getHerdlocation', function (cds)
-    Herdlocation = json.decode(cds)
-end)
-
-RegisterNetEvent('bcc_ranch:getCowCoords')
-AddEventHandler('bcc_ranch:getCowCoords', function (cds)
-    Cowcoords = json.decode(cds)
-end)
-
-RegisterNetEvent('bcc_ranch:getChickenCoords')
-AddEventHandler('bcc_ranch:getChickenCoords', function (cds)
-    Chickencoords = json.decode(cds)
-end)
-
-RegisterNetEvent('bcc_ranch:getGoatCoords')
-AddEventHandler('bcc_ranch:getGoatCoords', function (cds)
-    Goatcoords = json.decode(cds)
-end)
-
-RegisterNetEvent('bcc_ranch:getPigCoords')
-AddEventHandler('bcc_ranch:getPigCoords', function (cds)
-    Pigcoords = json.decode(cds)
-end)
-
-RegisterNetEvent('bcc_ranch:getWagonFeedCoords')
-AddEventHandler('bcc_ranch:getWagonFeedCoords', function (cds)
-    FeedWagonLocation = json.decode(cds)
 end)
