@@ -8,13 +8,13 @@ Config.defaultlang = "en_lang"
 --Webhok Setup
 Config.Webhooks = {
     RanchCreation = { --ranch creation webhook
-        WebhookLink = 'https://discord.com/api/webhooks/1115356327858929764/hv7wiDwclRAywhEW2V1JqvK32kkkDsXBTSnEXLRie92ej25suMCfLQh2nFgsht7K7PbU', --insert your webhook link here(leave blank for no webhooks)
+        WebhookLink = '', --insert your webhook link here(leave blank for no webhooks)
         --- Dont Change Just Translate ----
         TitleText = 'Admin Character Static id ',
         Text = 'Has Created A Ranch and given it too Character Static ID '
     },
     AnimalBought = {
-        WebhookLink = 'https://discord.com/api/webhooks/1115356610940907700/5sRoxS9YwSmRx_k2rN1Ol304TCJAjhxMF7FkVxJDdBlBjlQ5UlmcMKz_CdJXZNXzaAOc', --insert your webhook link here(leave blank for no webhooks)
+        WebhookLink = '', --insert your webhook link here(leave blank for no webhooks)
         ----- Dont Change just translate ----
         TitleText = 'Ranch Id ',
         DescText = 'Bought ',
@@ -24,7 +24,7 @@ Config.Webhooks = {
         Chickens = 'Chickens',
     },
     AnimalSold = {
-        WebhookLink = 'https://discord.com/api/webhooks/1115356702955536424/LDjFfn60brzvVw_OnrjZmU8DbPaMEaqJH38ECXYtZ4xpzTQ1Gmy7cgWuvaFG4sRlsazo', --insert your webhook link (leave blank for no webhook)
+        WebhookLink = '', --insert your webhook link (leave blank for no webhook)
         ----- Dont Change Just Translate -----
         TitleText = 'Ranch ID ',
         Sold = 'Sold ',
