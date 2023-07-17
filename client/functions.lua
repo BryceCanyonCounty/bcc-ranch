@@ -7,7 +7,6 @@ VORPutils = {}
 TriggerEvent("getUtils", function(utils)
   VORPutils = utils
 end)
------- Pulling Essentials ------
 TriggerEvent("menuapi:getData", function(call)
   MenuData = call
 end)

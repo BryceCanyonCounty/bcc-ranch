@@ -1,35 +1,44 @@
 function ButcherAnimals(animalType)
     local model, tables, spawnCoords
     TriggerEvent('bcc-ranch:ChoreDeadCheck')
-    if animalType == 'cows' then
-        if Cowsage < Config.RanchSetup.AnimalGrownAge then
-            VORPcore.NotifyRightTip(_U("TooYoung"), 4000) return
+    local selectAnimalFuncts = {
+        ['cows'] = function()
+            if Cowsage < Config.RanchSetup.AnimalGrownAge then
+                VORPcore.NotifyRightTip(_U("TooYoung"), 4000) return
+            end
+            tables = Config.RanchSetup.RanchAnimalSetup.Cows
+            model = 'a_c_cow'
+            spawnCoords = Cowcoords
+        end,
+        ['chickens'] = function()
+            if Chickensage < Config.RanchSetup.AnimalGrownAge then
+                VORPcore.NotifyRightTip(_U("TooYoung"), 4000) return
+            end
+            tables = Config.RanchSetup.RanchAnimalSetup.Chickens
+            model = 'a_c_chicken_01'
+            spawnCoords = Chickencoords
+        end,
+        ['goats'] = function()
+            if Goatsage < Config.RanchSetup.AnimalGrownAge then
+                VORPcore.NotifyRightTip(_U("TooYoung"), 4000) return
+            end
+            tables = Config.RanchSetup.RanchAnimalSetup.Goats
+            model = 'a_c_goat_01'
+            spawnCoords = Goatcoords
+        end,
+        ['pigs'] = function()
+            if Pigsage < Config.RanchSetup.AnimalGrownAge then
+                VORPcore.NotifyRightTip(_U("TooYoung"), 4000) return
+            end
+            tables = Config.RanchSetup.RanchAnimalSetup.Pigs
+            model = 'a_c_pig_01'
+            spawnCoords = Pigcoords
         end
-        tables = Config.RanchSetup.RanchAnimalSetup.Cows
-        model = 'a_c_cow'
-        spawnCoords = Cowcoords
-    elseif animalType == 'chickens' then
-        if Chickensage < Config.RanchSetup.AnimalGrownAge then
-            VORPcore.NotifyRightTip(_U("TooYoung"), 4000) return
-        end
-        tables = Config.RanchSetup.RanchAnimalSetup.Chickens
-        model = 'a_c_chicken_01'
-        spawnCoords = Chickencoords
-    elseif animalType == 'goats' then
-        if Goatsage < Config.RanchSetup.AnimalGrownAge then
-            VORPcore.NotifyRightTip(_U("TooYoung"), 4000) return
-        end
-        tables = Config.RanchSetup.RanchAnimalSetup.Goats
-        model = 'a_c_goat_01'
-        spawnCoords = Goatcoords
-    elseif animalType == 'pigs' then
-        if Pigsage < Config.RanchSetup.AnimalGrownAge then
-            VORPcore.NotifyRightTip(_U("TooYoung"), 4000) return
-        end
-        tables = Config.RanchSetup.RanchAnimalSetup.Pigs
-        model = 'a_c_pig_01'
-        spawnCoords = Pigcoords
+    }
+    if selectAnimalFuncts[animalType] then
+        selectAnimalFuncts[animalType]()
     end
+    
     InMission = true
 
     local createdPed = BccUtils.Ped.CreatePed(model, spawnCoords.x, spawnCoords.y, spawnCoords.z, true, true, false)

@@ -23,30 +23,38 @@ function BuyAnimalMenu()
             if data.current == 'backup' then
                 _G[data.trigger]()
             end
-            if data.current.value == 'buycows' then
-                BoughtCows = false
-                Cowsage = 0
-                Wait(200)
-                BoughtCows = true
-                TriggerServerEvent('bcc-ranch:BuyAnimals', RanchId, 'cows')
-            elseif data.current.value == 'buypigs' then
-                BoughtPigs = false
-                Pigsage = 0
-                Wait(200)
-                BoughtPigs = true
-                TriggerServerEvent('bcc-ranch:BuyAnimals', RanchId, 'pigs')
-            elseif data.current.value == 'buychickens' then
-                BoughtChickens = false
-                Chickensage = 0
-                Wait(200)
-                BoughtChickens = true
-                TriggerServerEvent('bcc-ranch:BuyAnimals', RanchId, 'chickens')
-            elseif data.current.value == 'buygoats' then
-                BoughtGoats = false
-                Goatsage = 0
-                Wait(200)
-                BoughtGoats = true
-                TriggerServerEvent('bcc-ranch:BuyAnimals', RanchId, 'goats')
+            local MenuApiSelection = {
+                ['buycows'] = function()
+                    BoughtCows = false
+                    Cowsage = 0
+                    Wait(200)
+                    BoughtCows = true
+                    TriggerServerEvent('bcc-ranch:BuyAnimals', RanchId, 'cows')
+                end,
+                ['buypigs'] = function()
+                    BoughtPigs = false
+                    Pigsage = 0
+                    Wait(200)
+                    BoughtPigs = true
+                    TriggerServerEvent('bcc-ranch:BuyAnimals', RanchId, 'pigs')
+                end,
+                ['buychickens'] = function()
+                    BoughtChickens = false
+                    Chickensage = 0
+                    Wait(200)
+                    BoughtChickens = true
+                    TriggerServerEvent('bcc-ranch:BuyAnimals', RanchId, 'chickens')
+                end,
+                ['buygoats'] = function()
+                    BoughtGoats = false
+                    Goatsage = 0
+                    Wait(200)
+                    BoughtGoats = true
+                    TriggerServerEvent('bcc-ranch:BuyAnimals', RanchId, 'goats')
+                end
+            }
+            if MenuApiSelection[data.current.value] then
+                MenuApiSelection[data.current.value]()
             end
         end)
 end
@@ -98,27 +106,38 @@ function ManageOwnedAnimalsMenu()
             end
             local pl = GetEntityCoords(PlayerPedId())
             local dist = GetDistanceBetweenCoords(pl.x, pl.y, pl.z, RanchCoords.x, RanchCoords.y, RanchCoords.z, true)
-            if data.current.value == 'setherdlocation' then
-                if dist > Config.RanchSetup.HerdingMinDistance then
-                    TriggerServerEvent("bcc-ranch:InserHerdLocation", pl, RanchId)
-                    MenuData.CloseAll()
+
+            local selectedOption = {
+                ['setherdlocation'] = function()
+                    if dist > Config.RanchSetup.HerdingMinDistance then
+                        TriggerServerEvent("bcc-ranch:AnimalLocationDbInserts", pl, RanchId, 'herdcoords')
+                        MenuData.CloseAll()
+                        Wait(2000)
+                        TriggerServerEvent("bcc-ranch:getHerdlocation", RanchId)
+                    else
+                        VORPcore.NotifyRightTip(_U("TooCloseToRanch"), 4000)
+                    end
+                end,
+                ['setfeedwagonlocation'] = function()
+                    TriggerServerEvent("bcc-ranch:AnimalLocationDbInserts", pl, RanchId, 'feedwagoncoords')
                     Wait(2000)
-                    TriggerServerEvent("bcc-ranch:getHerdlocation", RanchId)
-                else
-                    VORPcore.NotifyRightTip(_U("TooCloseToRanch"), 4000)
+                    TriggerServerEvent("bcc-ranch:getWagonFeedCoords", RanchId)
+                end,
+                ['managecows'] = function()
+                    TriggerServerEvent('bcc-ranch:CheckIfAnimalsAreOwned', RanchId, 'cows')
+                end,
+                ['managechickens'] = function()
+                    TriggerServerEvent('bcc-ranch:CheckIfAnimalsAreOwned', RanchId, 'chickens')
+                end,
+                ['managegoats'] = function()
+                    TriggerServerEvent('bcc-ranch:CheckIfAnimalsAreOwned', RanchId, 'goats')
+                end,
+                ['managepigs'] = function()
+                    TriggerServerEvent('bcc-ranch:CheckIfAnimalsAreOwned', RanchId, 'pigs')
                 end
-            elseif data.current.value == 'setfeedwagonlocation' then
-                TriggerServerEvent("bcc-ranch:InsertWagonFeedCoords", pl, RanchId)
-                Wait(2000)
-                TriggerServerEvent("bcc-ranch:getWagonFeedCoords", RanchId)
-            elseif data.current.value == 'managecows' then
-                TriggerServerEvent('bcc-ranch:CheckIfAnimalsAreOwned', RanchId, 'cows')
-            elseif data.current.value == 'managechickens' then
-                TriggerServerEvent('bcc-ranch:CheckIfAnimalsAreOwned', RanchId, 'chickens')
-            elseif data.current.value == 'managegoats' then
-                TriggerServerEvent('bcc-ranch:CheckIfAnimalsAreOwned', RanchId, 'goats')
-            elseif data.current.value == 'managepigs' then
-                TriggerServerEvent('bcc-ranch:CheckIfAnimalsAreOwned', RanchId, 'pigs')
+            }
+            if selectedOption[data.current.value] then
+                selectedOption[data.current.value]()
             end
         end)
 end
@@ -128,106 +147,112 @@ RegisterNetEvent('bcc-ranch:OwnedAnimalManagerMenu', function(animalCond, animal
     local elements, title, maxCond, herdType
     local set_or_change, set_or_change_desc -- added by Little Creek
     MenuData.CloseAll()
-    if animalType == 'pigs' then
-        herdType = 'pigs'
-        title = _U("ManagePigs")
-        maxCond = tostring(Config.RanchSetup.RanchAnimalSetup.Pigs.MaxCondition)
+    local selectedElements = {
+        ['pigs'] = function()
+            herdType = 'pigs'
+            title = _U("ManagePigs")
+            maxCond = tostring(Config.RanchSetup.RanchAnimalSetup.Pigs.MaxCondition)
 
-        -- added / changed by Little Creek
-        if Pigcoords and Pigcoords ~= 'none' then
-            set_or_change = 'ChangeCoords'
-            set_or_change_desc = 'ChangeCoords_desc'
-        else
-            set_or_change = 'SetCoords'
-            set_or_change_desc = 'SetCoords_desc'
+            -- added / changed by Little Creek
+            if Pigcoords and Pigcoords ~= 'none' then
+                set_or_change = 'ChangeCoords'
+                set_or_change_desc = 'ChangeCoords_desc'
+            else
+                set_or_change = 'SetCoords'
+                set_or_change_desc = 'SetCoords_desc'
+            end
+
+            elements = {
+                { label = _U("CheckAnimalCond"), value = 'checkanimal', desc = _U("CheckAnimalCond_desc") },
+                { label = _U(set_or_change), value = 'setanimalcoords', desc = _U(set_or_change_desc) },
+                { label = _U("HerdAnimal"), value = 'herdanimal', desc = _U("HerdAnimal_desc") },
+                { label = _U("SellCows"), value = 'sellanimal', desc = _U("SellCows_desc") },
+                { label = _U("ButcherAnimal"), value = 'butcheranimal', desc = _U("ButcherAnimal_desc") },
+                { label = _U("FeedAnimals"), value = 'feedanimal', desc = _U("FeedAnimals_desc") },
+            }
+            -- end added / changed by Little Creek
+        end,
+        ['goats'] = function()
+            herdType = 'goats'
+            title = _U("ManageGoats")
+            maxCond = tostring(Config.RanchSetup.RanchAnimalSetup.Goats.MaxCondition)
+
+            -- added / changed by Little Creek
+            if Goatcoords and Goatcoords ~= 'none' then
+                set_or_change = 'ChangeCoords'
+                set_or_change_desc = 'ChangeCoords_desc'
+            else
+                set_or_change = 'SetCoords'
+                set_or_change_desc = 'SetCoords_desc'
+            end
+
+            elements = {
+                { label = _U("CheckAnimalCond"), value = 'checkanimal', desc = _U("CheckAnimalCond_desc") },
+                { label = _U(set_or_change), value = 'setanimalcoords', desc = _U(set_or_change_desc) },
+                { label = _U("HerdAnimal"), value = 'herdanimal', desc = _U("HerdAnimal_desc") },
+                { label = _U("SellCows"), value = 'sellanimal', desc = _U("SellCows_desc") },
+                { label = _U("ButcherAnimal"), value = 'butcheranimal', desc = _U("ButcherAnimal_desc") },
+                { label = _U("FeedAnimals"), value = 'feedanimal', desc = _U("FeedAnimals_desc") },
+            }
+            -- end added / changed by Little Creek
+        end,
+        ['chickens'] = function()
+            herdType = 'chickens'
+            title = _U('ManageChickens')
+            maxCond = tostring(Config.RanchSetup.RanchAnimalSetup.Chickens.MaxCondition)
+
+            -- added / changed by Little Creek
+            if Chickencoords and ChickenCoop ~= 'none' then
+                set_or_change = 'ChangeCoords'
+                set_or_change_desc = 'ChangeCoords_desc'
+            else
+                set_or_change = 'SetCoords'
+                set_or_change_desc = 'SetCoords_desc'
+            end
+            elements = {
+                { label = _U("CheckAnimalCond"), value = 'checkanimal', desc = _U("CheckAnimalCond_desc") },
+                { label = _U(set_or_change), value = 'setanimalcoords', desc = _U(set_or_change_desc) },
+                { label = _U("HerdAnimal"), value = 'herdanimal', desc = _U("HerdAnimal_desc") },
+                { label = _U("SellCows"), value = 'sellanimal', desc = _U("SellCows_desc") },
+                { label = _U("ButcherAnimal"), value = 'butcheranimal', desc = _U("ButcherAnimal_desc") },
+                { label = _U("FeedAnimals"), value = 'feedanimal', desc = _U("FeedAnimals_desc") },
+            }
+            -- end added / changed by Little Creek
+            --This insert is done to hide the buying coop option or the harvest egg option depending on if you own a coop or not
+            if ChickenCoop == 'none' then
+                table.insert(elements,             { label = _U("BuyChickenCoop") .. ' ' .. tostring(Config.RanchSetup.RanchAnimalSetup.Chickens.CoopCost), value = 'buychickencoop', desc = _U("BuyChickenCoop_desc") })
+            else
+                table.insert(elements,             { label = _U("HarvestFromCoop"), value = 'harvestchickencoop', desc = _U("HarvestFromCoop_desc") })
+            end
+        end,
+        ['cows'] = function()
+            herdType = 'cows'
+            title = _U("ManageCows")
+            maxCond = tostring(Config.RanchSetup.RanchAnimalSetup.Cows.MaxCondition)
+
+            -- added / changed by Little Creek
+            if Cowcoords and Cowcoords ~= 'none' then
+                set_or_change = 'ChangeCoords'
+                set_or_change_desc = 'ChangeCoords_desc'
+            else
+                set_or_change = 'SetCoords'
+                set_or_change_desc = 'SetCoords_desc'
+            end
+
+            elements = {
+                { label = _U("CheckAnimalCond"), value = 'checkanimal', desc = _U("CheckAnimalCond_desc") },
+                { label = _U(set_or_change), value = 'setanimalcoords', desc = _U(set_or_change_desc) },
+                { label = _U("HerdAnimal"), value = 'herdanimal', desc = _U("HerdAnimal_desc") },
+                { label = _U("SellCows"), value = 'sellanimal', desc = _U("SellCows_desc") },
+                { label = _U("ButcherAnimal"), value = 'butcheranimal', desc = _U("ButcherAnimal_desc") },
+                { label = _U("FeedAnimals"), value = 'feedanimal', desc = _U("FeedAnimals_desc") },
+                { label = _U("milkCows"), value = 'milkanimal', desc = _U("milkCows_desc") },
+            }
+            -- end added / changed by Little Creek
         end
-
-        elements = {
-            { label = _U("CheckAnimalCond"), value = 'checkanimal', desc = _U("CheckAnimalCond_desc") },
-            { label = _U(set_or_change), value = 'setanimalcoords', desc = _U(set_or_change_desc) },
-            { label = _U("HerdAnimal"), value = 'herdanimal', desc = _U("HerdAnimal_desc") },
-            { label = _U("SellCows"), value = 'sellanimal', desc = _U("SellCows_desc") },
-            { label = _U("ButcherAnimal"), value = 'butcheranimal', desc = _U("ButcherAnimal_desc") },
-            { label = _U("FeedAnimals"), value = 'feedanimal', desc = _U("FeedAnimals_desc") },
-        }
-        -- end added / changed by Little Creek
-    elseif animalType == 'goats' then
-        herdType = 'goats'
-        title = _U("ManageGoats")
-        maxCond = tostring(Config.RanchSetup.RanchAnimalSetup.Goats.MaxCondition)
-
-        -- added / changed by Little Creek
-        if Goatcoords and Goatcoords ~= 'none' then
-            set_or_change = 'ChangeCoords'
-            set_or_change_desc = 'ChangeCoords_desc'
-        else
-            set_or_change = 'SetCoords'
-            set_or_change_desc = 'SetCoords_desc'
-        end
-
-        elements = {
-            { label = _U("CheckAnimalCond"), value = 'checkanimal', desc = _U("CheckAnimalCond_desc") },
-            { label = _U(set_or_change), value = 'setanimalcoords', desc = _U(set_or_change_desc) },
-            { label = _U("HerdAnimal"), value = 'herdanimal', desc = _U("HerdAnimal_desc") },
-            { label = _U("SellCows"), value = 'sellanimal', desc = _U("SellCows_desc") },
-            { label = _U("ButcherAnimal"), value = 'butcheranimal', desc = _U("ButcherAnimal_desc") },
-            { label = _U("FeedAnimals"), value = 'feedanimal', desc = _U("FeedAnimals_desc") },
-        }
-        -- end added / changed by Little Creek
-    elseif animalType == 'chickens' then
-        herdType = 'chickens'
-        title = _U('ManageChickens')
-        maxCond = tostring(Config.RanchSetup.RanchAnimalSetup.Chickens.MaxCondition)
-
-        -- added / changed by Little Creek
-        if Chickencoords and ChickenCoop ~= 'none' then
-            set_or_change = 'ChangeCoords'
-            set_or_change_desc = 'ChangeCoords_desc'
-        else
-            set_or_change = 'SetCoords'
-            set_or_change_desc = 'SetCoords_desc'
-        end
-
-        elements = {
-            { label = _U("CheckAnimalCond"), value = 'checkanimal', desc = _U("CheckAnimalCond_desc") },
-            { label = _U(set_or_change), value = 'setanimalcoords', desc = _U(set_or_change_desc) },
-            { label = _U("HerdAnimal"), value = 'herdanimal', desc = _U("HerdAnimal_desc") },
-            { label = _U("SellCows"), value = 'sellanimal', desc = _U("SellCows_desc") },
-            { label = _U("ButcherAnimal"), value = 'butcheranimal', desc = _U("ButcherAnimal_desc") },
-            { label = _U("FeedAnimals"), value = 'feedanimal', desc = _U("FeedAnimals_desc") },
-        }
-        -- end added / changed by Little Creek
-        --This insert is done to hide the buying coop option or the harvest egg option depending on if you own a coop or not
-        if ChickenCoop == 'none' then
-            table.insert(elements,             { label = _U("BuyChickenCoop") .. ' ' .. tostring(Config.RanchSetup.RanchAnimalSetup.Chickens.CoopCost), value = 'buychickencoop', desc = _U("BuyChickenCoop_desc") })
-        else
-            table.insert(elements,             { label = _U("HarvestFromCoop"), value = 'harvestchickencoop', desc = _U("HarvestFromCoop_desc") })
-        end
-
-    elseif animalType == 'cows' then
-        herdType = 'cows'
-        title = _U("ManageCows")
-        maxCond = tostring(Config.RanchSetup.RanchAnimalSetup.Cows.MaxCondition)
-
-        -- added / changed by Little Creek
-        if Cowcoords and Cowcoords ~= 'none' then
-            set_or_change = 'ChangeCoords'
-            set_or_change_desc = 'ChangeCoords_desc'
-        else
-            set_or_change = 'SetCoords'
-            set_or_change_desc = 'SetCoords_desc'
-        end
-
-        elements = {
-            { label = _U("CheckAnimalCond"), value = 'checkanimal', desc = _U("CheckAnimalCond_desc") },
-            { label = _U(set_or_change), value = 'setanimalcoords', desc = _U(set_or_change_desc) },
-            { label = _U("HerdAnimal"), value = 'herdanimal', desc = _U("HerdAnimal_desc") },
-            { label = _U("SellCows"), value = 'sellanimal', desc = _U("SellCows_desc") },
-            { label = _U("ButcherAnimal"), value = 'butcheranimal', desc = _U("ButcherAnimal_desc") },
-            { label = _U("FeedAnimals"), value = 'feedanimal', desc = _U("FeedAnimals_desc") },
-            { label = _U("milkCows"), value = 'milkanimal', desc = _U("milkCows_desc") },
-        }
-        -- end added / changed by Little Creek
+    }
+    if selectedElements[animalType] then
+        selectedElements[animalType]()
     end
 
     MenuData.Open('default', GetCurrentResourceName(), 'menuapi',
@@ -241,146 +266,191 @@ RegisterNetEvent('bcc-ranch:OwnedAnimalManagerMenu', function(animalCond, animal
             if data.current == 'backup' then
                 _G[data.trigger]()
             end
-            if data.current.value == 'checkanimal' then
-                VORPcore.NotifyRightTip(tostring(animalCond).. '/' .. maxCond)
-            elseif data.current.value == 'setanimalcoords' then
-                local pl = GetEntityCoords(PlayerPedId())
-                if animalType == 'pigs' then
-                    TriggerServerEvent("bcc-ranch:InserPigCoord", pl, RanchId)
-                    Wait(500)
-                    TriggerServerEvent("bcc-ranch:getPigCoords", RanchId)
-                elseif animalType == 'goats' then
-                    TriggerServerEvent("bcc-ranch:InserGoatCoord", pl, RanchId)
-                    Wait(500)
-                    TriggerServerEvent("bcc-ranch:getGoatCoords", RanchId)
-                elseif animalType == 'chickens' then
-                    TriggerServerEvent("bcc-ranch:InserChickenCoord", pl, RanchId)
-                    Wait(500)
-                    TriggerServerEvent("bcc-ranch:getChickenCoords", RanchId)
-                elseif animalType == 'cows' then
-                    TriggerServerEvent("bcc-ranch:InserCowCoord", pl, RanchId)
-                    Wait(500)
-                    TriggerServerEvent("bcc-ranch:getCowCoords", RanchId)
-                end
-            elseif data.current.value == 'herdanimal' then
-                if Herdlocation ~= nil and Herdlocation ~= 'none' then
-                    MenuData.CloseAll()
-                    herdanimals(herdType, ranchCond)
-                else
-                    VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
-                end
-            elseif data.current.value == 'sellanimal' then
-                if animalType == 'pigs' then
-                    if Pigcoords and Pigcoords ~= 'none' then
+            local selectedOption = {
+                ['checkanimal'] = function()
+                    VORPcore.NotifyRightTip(tostring(animalCond).. '/' .. maxCond)
+                end,
+                ['setanimalcoords'] = function()
+                    local pl = GetEntityCoords(PlayerPedId())
+                    local setAnimalSelected = {
+                        ['pigs'] = function()
+                            TriggerServerEvent("bcc-ranch:AnimalLocationDbInserts", pl, RanchId, 'pigcoords')
+                            Wait(500)
+                            TriggerServerEvent("bcc-ranch:getPigCoords", RanchId)
+                        end,
+                        ['goats'] = function()
+                            TriggerServerEvent("bcc-ranch:AnimalLocationDbInserts", pl, RanchId, 'goatcoords')
+                            Wait(500)
+                            TriggerServerEvent("bcc-ranch:getGoatCoords", RanchId)
+                        end,
+                        ['chickens'] = function()
+                            TriggerServerEvent("bcc-ranch:AnimalLocationDbInserts", pl, RanchId, 'chickencoords')
+                            Wait(500)
+                            TriggerServerEvent("bcc-ranch:getChickenCoords", RanchId)
+                        end,
+                        ['cows'] = function()
+                            TriggerServerEvent("bcc-ranch:AnimalLocationDbInserts", pl, RanchId, 'cowcoords')
+                            Wait(500)
+                            TriggerServerEvent("bcc-ranch:getCowCoords", RanchId)
+                        end
+                    }
+                    if setAnimalSelected[animalType] then
+                        setAnimalSelected[animalType]()
+                    end
+                end,
+                ['herdanimal'] = function()
+                    if Herdlocation ~= nil and Herdlocation ~= 'none' then
                         MenuData.CloseAll()
-                        SellAnimals('pigs', animalCond)
+                        herdanimals(herdType, ranchCond)
                     else
                         VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
                     end
-                elseif animalType == 'goats' then
-                    if Goatcoords and Goatcoords ~= 'none' then
-                        MenuData.CloseAll()
-                        SellAnimals('goats', animalCond)
+                end,
+                ['sellanimal'] = function()
+                    local sellAnimalSelected = {
+                        ['pigs'] = function()
+                            if Pigcoords and Pigcoords ~= 'none' then
+                                MenuData.CloseAll()
+                                SellAnimals('pigs', animalCond)
+                            else
+                                VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
+                            end
+                        end,
+                        ['goats'] = function()
+                            if Goatcoords and Goatcoords ~= 'none' then
+                                MenuData.CloseAll()
+                                SellAnimals('goats', animalCond)
+                            else
+                                VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
+                            end
+                        end,
+                        ['chickens'] = function()
+                            if Chickencoords and Chickencoords ~= 'none' then
+                                MenuData.CloseAll()
+                                SellAnimals('chickens', animalCond)
+                            else
+                                VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
+                            end
+                        end,
+                        ['cows'] = function()
+                            if Cowcoords and Cowcoords ~= 'none' then
+                                MenuData.CloseAll()
+                                SellAnimals('cows', animalCond)
+                            else
+                                VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
+                            end
+                        end
+                    }
+                    if sellAnimalSelected[animalType] then
+                        sellAnimalSelected[animalType]()
+                    end
+                end,
+                ['butcheranimal'] = function()
+                    local butcherSelectedOption = {
+                        ['pigs'] = function()
+                            if Pigcoords ~= nil and Pigcoords ~= 'none' then
+                                MenuData.CloseAll()
+                                ButcherAnimals('pigs')
+                            else
+                                VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
+                            end
+                        end,
+                        ['goats'] = function()
+                            if Goatcoords ~= nil and Goatcoords ~= 'none' then
+                                MenuData.CloseAll()
+                                ButcherAnimals('goats')
+                            else
+                                VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
+                            end
+                        end,
+                        ['chickens'] = function()
+                            if Chickencoords and Chickencoords ~= 'none' then
+                                MenuData.CloseAll()
+                                ButcherAnimals('chickens')
+                            else
+                                VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
+                            end
+                        end,
+                        ['cows'] = function()
+                            if Cowcoords and Cowcoords ~= 'none' then
+                                MenuData.CloseAll()
+                                ButcherAnimals('cows')
+                            else
+                                VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
+                            end
+                        end
+                    }
+                    if butcherSelectedOption[animalType] then
+                        butcherSelectedOption[animalType]()
+                    end
+                end,
+                ['feedanimal'] = function()
+                    if FeedWagonLocation then
+                        local feedAnimalSelected = {
+                            ['pigs'] = function()
+                                if Pigcoords ~= nil and Pigcoords ~= 'none' then
+                                    MenuData.CloseAll()
+                                    FeedAnimals('pigs')
+                                else
+                                    VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
+                                end
+                            end,
+                            ['goats'] = function()
+                                if Goatcoords ~= nil and Goatcoords ~= 'none' then
+                                    MenuData.CloseAll()
+                                    FeedAnimals('goats')
+                                else
+                                    VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
+                                end
+                            end,
+                            ['chickens'] = function()
+                                if Chickencoords and Chickencoords ~= 'none' then
+                                    MenuData.CloseAll()
+                                    FeedAnimals('chickens')
+                                else
+                                    VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
+                                end
+                            end,
+                            ['cows'] = function()
+                                if Cowcoords and Cowcoords ~= 'none' then
+                                    MenuData.CloseAll()
+                                    FeedAnimals('cows')
+                                else
+                                    VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
+                                end
+                            end
+                        }
+                        if feedAnimalSelected[animalType] then
+                            feedAnimalSelected[animalType]()
+                        end
                     else
                         VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
                     end
-                elseif animalType == 'chickens' then
-                    if Chickencoords and Chickencoords ~= 'none' then
-                        MenuData.CloseAll()
-                        SellAnimals('chickens', animalCond)
+                end,
+                ['buychickencoop'] = function()
+                    if ChickenCoop ~= 'none' then
+                        VORPcore.NotifyRightTip(_U("AlreadyOwnCoop"), 4000)
                     else
-                        VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
+                        TriggerServerEvent('bcc-ranch:ChickenCoopFundsCheck')
                     end
-                elseif animalType == 'cows' then
+                end,
+                ['harvestchickencoop'] = function()
+                    if ChickenCoop ~= 'none' then
+                        TriggerServerEvent('bcc-ranch:CoopCollectionCooldown', RanchId)
+                    else
+                        VORPcore.NotifyRightTip(_U("NoCoop"), 4000)
+                    end
+                end,
+                ['milkanimal'] = function()
                     if Cowcoords and Cowcoords ~= 'none' then
-                        MenuData.CloseAll()
-                        SellAnimals('cows', animalCond)
+                        TriggerServerEvent('bcc-ranch:CowMilkingCooldown', RanchId)
                     else
                         VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
                     end
                 end
-            elseif data.current.value == 'butcheranimal' then
-                if animalType == 'pigs' then
-                    if Pigcoords ~= nil and Pigcoords ~= 'none' then
-                        MenuData.CloseAll()
-                        ButcherAnimals('pigs')
-                    else
-                        VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
-                    end
-                elseif animalType == 'goats' then
-                    if Goatcoords ~= nil and Goatcoords ~= 'none' then
-                        MenuData.CloseAll()
-                        ButcherAnimals('goats')
-                    else
-                        VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
-                    end
-                elseif animalType == 'chickens' then
-                    if Chickencoords and Chickencoords ~= 'none' then
-                        MenuData.CloseAll()
-                        ButcherAnimals('chickens')
-                    else
-                        VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
-                    end
-                elseif animalType == 'cows' then
-                    if Cowcoords and Cowcoords ~= 'none' then
-                        MenuData.CloseAll()
-                        ButcherAnimals('cows')
-                    else
-                        VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
-                    end
-                end
-            elseif data.current.value == 'feedanimal' then
-                if FeedWagonLocation then
-                    if animalType == 'pigs' then
-                        if Pigcoords ~= nil and Pigcoords ~= 'none' then
-                            MenuData.CloseAll()
-                            FeedAnimals('pigs')
-                        else
-                            VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
-                        end
-                    elseif animalType == 'goats' then
-                        if Goatcoords ~= nil and Goatcoords ~= 'none' then
-                            MenuData.CloseAll()
-                            FeedAnimals('goats')
-                        else
-                            VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
-                        end
-                    elseif animalType == 'chickens' then
-                        if Chickencoords and Chickencoords ~= 'none' then
-                            MenuData.CloseAll()
-                            FeedAnimals('chickens')
-                        else
-                            VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
-                        end
-                    elseif animalType == 'cows' then
-                        if Cowcoords and Cowcoords ~= 'none' then
-                            MenuData.CloseAll()
-                            FeedAnimals('cows')
-                        else
-                            VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
-                        end
-                    end
-                else
-                    VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
-                end
-            elseif data.current.value == 'buychickencoop' then
-                if ChickenCoop ~= 'none' then
-                    VORPcore.NotifyRightTip(_U("AlreadyOwnCoop"), 4000)
-                else
-                    TriggerServerEvent('bcc-ranch:ChickenCoopFundsCheck')
-                end
-            elseif data.current.value == 'harvestchickencoop' then
-                if ChickenCoop ~= 'none' then
-                    TriggerServerEvent('bcc-ranch:CoopCollectionCooldown', RanchId)
-                else
-                    VORPcore.NotifyRightTip(_U("NoCoop"), 4000)
-                end
-            elseif data.current.value == 'milkanimal' then
-                if Cowcoords and Cowcoords ~= 'none' then
-                    TriggerServerEvent('bcc-ranch:CowMilkingCooldown', RanchId)
-                else
-                    VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
-                end
+            }
+            if selectedOption[data.current.value] then
+                selectedOption[data.current.value]()
             end
         end)
 end)

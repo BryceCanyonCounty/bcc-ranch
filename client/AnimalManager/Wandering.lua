@@ -4,6 +4,9 @@ RegisterNetEvent('bcc-ranch:CowsWander', function()
     local deleted = false
 	local spawnCoords -- added by Little Creek
 	spawnCoords = Cowcoords -- added by Little Creek
+    if spawnCoords == nil then
+        spawnCoords = RanchCoords
+    end
     if spawnCoords ~= 'none' then
         spawnWanderingAnimals('cows')
         while true do
@@ -25,6 +28,9 @@ RegisterNetEvent('bcc-ranch:ChickensWander', function()
     local deleted = false
 	local spawnCoords -- added by Little Creek
 	spawnCoords = Chickencoords -- added by Little Creek
+    if spawnCoords == nil then
+        spawnCoords = RanchCoords
+    end
     if spawnCoords ~= 'none' then
         spawnWanderingAnimals('chickens')
         while true do
@@ -46,6 +52,9 @@ RegisterNetEvent('bcc-ranch:GoatsWander', function()
     local deleted = false
 	local spawnCoords -- added by Little Creek
 	spawnCoords = Goatcoords -- added by Little Creek
+    if spawnCoords == nil then
+        spawnCoords = RanchCoords
+    end
     if spawnCoords ~= 'none' then
         spawnWanderingAnimals('goats')
         while true do
@@ -67,6 +76,9 @@ RegisterNetEvent('bcc-ranch:PigsWander', function()
     local deleted = false
 	local spawnCoords -- added by Little Creek
 	spawnCoords = Pigcoords -- added by Little Creek
+    if spawnCoords == nil then
+        spawnCoords = RanchCoords
+    end
     if spawnCoords ~= 'none' then
         spawnWanderingAnimals('pigs')
         while true do
@@ -87,42 +99,54 @@ end)
 function spawnWanderingAnimals(animalType)
     local repAmount = 0
 	local spawnCoords
-    if animalType == 'cows' then
-		spawnCoords = Cowcoords -- added by Little Creek
-        local model = joaat('a_c_cow')
-        repeat
-            repAmount = repAmount + 1
-            local createdPed = spawnpedsroam(spawnCoords, model, Config.RanchSetup.RanchAnimalSetup.Cows.RoamingRadius)
-            table.insert(cows, createdPed)
-        until repAmount == 5
-    elseif animalType == 'chickens' then
-		spawnCoords = Chickencoords -- added by Little Creek
-        local model = joaat('a_c_chicken_01')
-        repeat
-            repAmount = repAmount + 1
-            local createdPed = spawnpedsroam(spawnCoords, model, Config.RanchSetup.RanchAnimalSetup.Chickens.RoamingRadius)
-            table.insert(chickens, createdPed)
-        until repAmount == 5
-    elseif animalType == 'goats' then
-		spawnCoords = Goatcoords -- added by Little Creek
-        local model = joaat('a_c_goat_01')
-        repeat
-            repAmount = repAmount + 1
-            local createdPed = spawnpedsroam(spawnCoords, model, Config.RanchSetup.RanchAnimalSetup.Goats.RoamingRadius)
-            table.insert(goats, createdPed)
-        until repAmount == 5
-    elseif animalType == 'pigs' then
-		spawnCoords = Pigcoords -- added by Little Creek
-        local model = joaat('a_c_pig_01')
-        repeat
-            repAmount = repAmount + 1
-            local createdPed = spawnpedsroam(spawnCoords, model, Config.RanchSetup.RanchAnimalSetup.Pigs.RoamingRadius)
-            table.insert(pigs, createdPed)
-        until repAmount == 5
+    local selectedAnimal = {
+        ['cows'] = function()
+            spawnCoords = Cowcoords -- added by Little Creek
+            local model = joaat('a_c_cow')
+            repeat
+                repAmount = repAmount + 1
+                local createdPed = spawnpedsroam(spawnCoords, model, Config.RanchSetup.RanchAnimalSetup.Cows.RoamingRadius)
+                table.insert(cows, createdPed)
+            until repAmount == 5
+        end,
+        ['chickens'] = function()
+            spawnCoords = Chickencoords -- added by Little Creek
+            local model = joaat('a_c_chicken_01')
+            repeat
+                repAmount = repAmount + 1
+                local createdPed = spawnpedsroam(spawnCoords, model, Config.RanchSetup.RanchAnimalSetup.Chickens.RoamingRadius)
+                table.insert(chickens, createdPed)
+            until repAmount == 5
+        end,
+        ['goats'] = function()
+            spawnCoords = Goatcoords -- added by Little Creek
+            local model = joaat('a_c_goat_01')
+            repeat
+                repAmount = repAmount + 1
+                local createdPed = spawnpedsroam(spawnCoords, model, Config.RanchSetup.RanchAnimalSetup.Goats.RoamingRadius)
+                table.insert(goats, createdPed)
+            until repAmount == 5
+        end,
+        ['pigs'] = function()
+            spawnCoords = Pigcoords -- added by Little Creek
+            local model = joaat('a_c_pig_01')
+            repeat
+                repAmount = repAmount + 1
+                local createdPed = spawnpedsroam(spawnCoords, model, Config.RanchSetup.RanchAnimalSetup.Pigs.RoamingRadius)
+                table.insert(pigs, createdPed)
+            until repAmount == 5
+        end
+    }
+
+    if selectedAnimal[animalType] then
+        selectedAnimal[animalType]()
     end
 end
 
 function spawnpedsroam(coords, model, roamDist)
+    if coords == nil then
+        coords = RanchCoords
+    end
     RequestModel(model)
     while not HasModelLoaded(model) do
         Wait(100)

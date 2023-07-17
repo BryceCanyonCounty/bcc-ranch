@@ -3,14 +3,11 @@ Inmenu = false
 local charid = nil
 
 AddEventHandler('bcc-ranch:MenuClose', function()
-    while true do
+    while Inmenu do
         Wait(10)
         if IsControlJustReleased(0, 0x156F7119) then
-            if Inmenu then
-                Inmenu = false
-                MenuData.CloseAll()
-                break
-            end
+            Inmenu = false
+            MenuData.CloseAll() break
         end
     end
 end)
@@ -44,57 +41,67 @@ function CreateRanchMen()
             if data.current == 'backup' then
                 _G[data.trigger]()
             end
+            local selectedOption = {
+                ['staticid'] = function()
+                    PlayerList()
+                end,
+                ['nameranch'] = function()
+                    local myInput = {
+                        type = "enableinput",                                               -- don't touch
+                        inputType = "textarea",                                             -- input type
+                        button = _U("Confirm"),                                             -- button name
+                        placeholder = _U("NameRanch"),                                      -- placeholder name
+                        style = "block",                                                    -- don't touch
+                        attributes = {
+                            inputHeader = "",                                               -- header
+                            type = "text",                                                  -- inputype text, number,date,textarea ETC
+                            pattern = "[A-Za-z]+",                                          --  only numbers "[0-9]" | for letters only "[A-Za-z]+"
+                            title = _U("InvalidInput"),                                     -- if input doesnt match show this message
+                            style = "border-radius: 10px; background-color: ; border:none;" -- style
+                        }
+                    }
+                    TriggerEvent("vorpinputs:advancedInput", json.encode(myInput), function(result)
+                        if result ~= '' and result then
+                            ranchName = result
+                            VORPcore.NotifyRightTip(_U("nameSet"), 4000)
+                        else
+                            VORPcore.NotifyRightTip(_U("InvalidInput"), 4000)
+                        end
+                    end)
+                end,
+                ['radiuslimit'] = function()
+                    local myInput = {
+                        type = "enableinput",                                               -- don't touch
+                        inputType = "input",                                                -- input type
+                        button = _U("Confirm"),                                             -- button name
+                        placeholder = _U("RanchRadiusLimit"),                               -- placeholder name
+                        style = "block",                                                    -- don't touch
+                        attributes = {
+                            inputHeader = "",                                               -- header
+                            type = "number",                                                -- inputype text, number,date,textarea ETC
+                            pattern = "[0-9]",                                              --  only numbers "[0-9]" | for letters only "[A-Za-z]+"
+                            title = _U("InvalidInput"),                                     -- if input doesnt match show this message
+                            style = "border-radius: 10px; background-color: ; border:none;" -- style
+                        }
+                    }
+                    TriggerEvent("vorpinputs:advancedInput", json.encode(myInput), function(result)
+                        if tonumber(result) > 0 then
+                            ranchRadius = tonumber(result)
+                            VORPcore.NotifyRightTip(_U("radiusSet"), 4000)
+                        else
+                            VORPcore.NotifyRightTip(_U("InvalidInput"), 4000)
+                        end
+                    end)
+                end,
+                ['confirm'] = function()
+                    TriggerServerEvent('bcc-ranch:InsertCreatedRanchIntoDB', ranchName, ranchRadius, charid, coords)
+                    charid = nil
+                    MenuData.CloseAll()
+                end
+            }
 
-            if data.current.value == 'staticid' then
-                PlayerList()
-            elseif data.current.value == 'nameranch' then
-                local myInput = {
-                    type = "enableinput",                                               -- don't touch
-                    inputType = "textarea",                                             -- input type
-                    button = _U("Confirm"),                                             -- button name
-                    placeholder = _U("NameRanch"),                                      -- placeholder name
-                    style = "block",                                                    -- don't touch
-                    attributes = {
-                        inputHeader = "",                                               -- header
-                        type = "text",                                                  -- inputype text, number,date,textarea ETC
-                        pattern = "[A-Za-z]+",                                          --  only numbers "[0-9]" | for letters only "[A-Za-z]+"
-                        title = _U("InvalidInput"),                                     -- if input doesnt match show this message
-                        style = "border-radius: 10px; background-color: ; border:none;" -- style
-                    }
-                }
-                TriggerEvent("vorpinputs:advancedInput", json.encode(myInput), function(result)
-                    if result ~= '' and result then
-                        ranchName = result
-                    else
-                        VORPcore.NotifyRightTip(_U("InvalidInput"), 4000)
-                    end
-                end)
-            elseif data.current.value == 'radiuslimit' then
-                local myInput = {
-                    type = "enableinput",                                               -- don't touch
-                    inputType = "input",                                                -- input type
-                    button = _U("Confirm"),                                             -- button name
-                    placeholder = _U("RanchRadiusLimit"),                               -- placeholder name
-                    style = "block",                                                    -- don't touch
-                    attributes = {
-                        inputHeader = "",                                               -- header
-                        type = "number",                                                -- inputype text, number,date,textarea ETC
-                        pattern = "[0-9]",                                              --  only numbers "[0-9]" | for letters only "[A-Za-z]+"
-                        title = _U("InvalidInput"),                                     -- if input doesnt match show this message
-                        style = "border-radius: 10px; background-color: ; border:none;" -- style
-                    }
-                }
-                TriggerEvent("vorpinputs:advancedInput", json.encode(myInput), function(result)
-                    if tonumber(result) > 0 then
-                        ranchRadius = tonumber(result)
-                    else
-                        VORPcore.NotifyRightTip(_U("InvalidInput"), 4000)
-                    end
-                end)
-            elseif data.current.value == 'confirm' then
-                TriggerServerEvent('bcc-ranch:InsertCreatedRanchIntoDB', ranchName, ranchRadius, charid, coords)
-                charid = nil
-                MenuData.CloseAll()
+            if selectedOption[data.current.value] then
+                selectedOption[data.current.value]()
             end
         end)
 end
