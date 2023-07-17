@@ -182,6 +182,9 @@ Locales["en_lang"] = {
     ChangeHerdLocation = 'Change Herd Location',
     ChangeHerdLocation_desc = 'Change the location you will herd your animals to!',
     ChangeFeedWagonLocation = 'Change Feed Wagon Location',
-    ChangeFeedWagonLocation_desc = 'Move your Feed Wagon location here. After relogging or server restart it will respawn here.' -- no comma after the last one!
+    ChangeFeedWagonLocation_desc = 'Move your Feed Wagon location here. After relogging or server restart it will respawn here.', -- no comma after the last one!
     -- end added by Little Creek
+    nameSet = 'Name Set',
+    radiusSet = 'Radius Set',
+    toFar = 'To far from ranch'
 }

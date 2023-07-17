@@ -4,30 +4,39 @@ function herdanimals(animalType, ranchCond)
     local model, tables
     InMission = true
     TriggerEvent('bcc-ranch:ChoreDeadCheck')
-    if animalType == 'cows' then
-        tables = Config.RanchSetup.RanchAnimalSetup.Cows
-        model = 'a_c_cow'
-        if Cowsage < Config.RanchSetup.AnimalGrownAge then
-            scale = 0.5
+
+    local selectAnimalFuncts = {
+        ['cows'] = function()
+            tables = Config.RanchSetup.RanchAnimalSetup.Cows
+            model = 'a_c_cow'
+            if Cowsage < Config.RanchSetup.AnimalGrownAge then
+                scale = 0.5
+            end
+        end,
+        ['chickens'] = function()
+            tables = Config.RanchSetup.RanchAnimalSetup.Chickens
+            model = 'a_c_chicken_01'
+            if Chickensage < Config.RanchSetup.AnimalGrownAge then
+                scale = 0.5
+            end
+        end,
+        ['goats'] = function()
+            tables = Config.RanchSetup.RanchAnimalSetup.Goats
+            model = 'a_c_goat_01'
+            if Goatsage < Config.RanchSetup.AnimalGrownAge then
+                scale = 0.5
+            end
+        end,
+        ['pigs'] = function()
+            tables = Config.RanchSetup.RanchAnimalSetup.Pigs
+            model = 'a_c_pig_01'
+            if Pigsage < Config.RanchSetup.AnimalGrownAge then
+                scale = 0.5
+            end
         end
-    elseif animalType == 'chickens' then
-        tables = Config.RanchSetup.RanchAnimalSetup.Chickens
-        model = 'a_c_chicken_01'
-        if Chickensage < Config.RanchSetup.AnimalGrownAge then
-            scale = 0.5
-        end
-    elseif animalType == 'goats' then
-        tables = Config.RanchSetup.RanchAnimalSetup.Goats
-        model = 'a_c_goat_01'
-        if Goatsage < Config.RanchSetup.AnimalGrownAge then
-            scale = 0.5
-        end
-    elseif animalType == 'pigs' then
-        tables = Config.RanchSetup.RanchAnimalSetup.Pigs
-        model = 'a_c_pig_01'
-        if Pigsage < Config.RanchSetup.AnimalGrownAge then
-            scale = 0.5
-        end
+    }
+    if selectAnimalFuncts[animalType] then
+        selectAnimalFuncts[animalType]()
     end
 
     local catch, peds, plc = 0, {}, GetEntityCoords(pl)
@@ -64,21 +73,13 @@ function herdanimals(animalType, ranchCond)
                 -- now this will check every Wait(50) so very often and even with very low chances most likely trigger guaranteed
                 if math.random(1, 4) == 1 then
                     local spawnCount = math.random(1, maxWolvesPerAttack)
-                    if 1 <= spawnCount then
+                    local spawnedAmount = 0
+                    repeat
                         local createdPed1 = BccUtils.Ped.CreatePed('A_C_Wolf', plcw.x + math.random(1, 10), plcw.y + math.random(1, 10), plcw.z, true, true, false)
                         Citizen.InvokeNative(0x23f74c2fda6e7c61, 953018525, createdPed1)
                         TaskCombatPed(createdPed1, PlayerPedId())
-                    end
-                    if 2 <= spawnCount then
-                        local createdPed2 = BccUtils.Ped.CreatePed('A_C_Wolf', plcw.x + math.random(1, 10), plcw.y + math.random(1, 10), plcw.z, true, true, false)
-                        Citizen.InvokeNative(0x23f74c2fda6e7c61, 953018525, createdPed2)
-                        TaskCombatPed(createdPed2, PlayerPedId())
-                    end
-                    if 3 <= spawnCount then
-                        local createdPed3 = BccUtils.Ped.CreatePed('A_C_Wolf', plcw.x + math.random(1, 10), plcw.y + math.random(1, 10), plcw.z, true, true, false)
-                        Citizen.InvokeNative(0x23f74c2fda6e7c61, 953018525, createdPed3)
-                        TaskCombatPed(createdPed3, PlayerPedId())
-                    end
+                        spawnedAmount = spawnedAmount + 1
+                    until spawnedAmount == spawnCount
                     wolvesAttackedHerd = true
                 end
             end
@@ -96,7 +97,7 @@ function herdanimals(animalType, ranchCond)
                 catch = catch - 1
             end
         end
-        if catch == 0 or PlayerDead == true then break end
+        if catch == 0 or PlayerDead then break end
 
         local plc2 = GetEntityCoords(pl)
         if GetDistanceBetweenCoords(plc2.x, plc2.y, plc2.z, Herdlocation.x, Herdlocation.y, Herdlocation.z, true) < 5 and animalsNear == true then

@@ -27,24 +27,35 @@ function MainMenu()
             if data.current == 'backup' then
                 _G[data.trigger]()
             end
-            if data.current.value == 'caretaking' then
-                CareTakingMenu()
-            elseif data.current.value == 'checkranchcond' then
-                TriggerServerEvent('bcc-ranch:DisplayRanchCondition', RanchId)
-            elseif data.current.value == 'buyanimals' then
-                BuyAnimalMenu()
-            elseif data.current.value == 'manageanimals' then
-                ManageOwnedAnimalsMenu()
-            elseif data.current.value == 'manageemployees' then
-                EmployeeMenu()
-            elseif data.current.value == 'ledger' then
-                Inmenu = false
-                MenuData.CloseAll()
-                TriggerServerEvent('bcc-ranch:GetLedger', RanchId)
+            local selectedOption = {
+                ['caretaking'] = function()
+                    CareTakingMenu()
+                end,
+                ['checkranchcond'] = function()
+                    TriggerServerEvent('bcc-ranch:DisplayRanchCondition', RanchId)
+                end,
+                ['buyanimals'] = function()
+                    BuyAnimalMenu()
+                end,
+                ['manageanimals'] = function()
+                    ManageOwnedAnimalsMenu()
+                end,
+                ['manageemployees'] = function()
+                    EmployeeMenu()
+                end,
+                ['ledger'] = function()
+                    Inmenu = false
+                    MenuData.CloseAll()
+                    TriggerServerEvent('bcc-ranch:GetLedger', RanchId)
+                    Wait(100)
+                end,
+                ['openinv'] = function()
+                    TriggerServerEvent('bcc-ranch:OpenInv', RanchId)
+                end
+            }
 
-                Wait(100)
-            elseif data.current.value == 'openinv' then
-                TriggerServerEvent('bcc-ranch:OpenInv', RanchId)
+            if selectedOption[data.current.value] then
+                selectedOption[data.current.value]()
             end
         end)
 end

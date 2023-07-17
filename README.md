@@ -45,6 +45,7 @@
 - To delete ranches you will currently have to delete them manually from the database!
 - Make sure to set yourself admin in the config.lua by adding your steam id where it asks for it!
 - After you set chore locations, and animal locations you must relog for them to work
+- Need more help join the bcc discord heres the invite link: https://discord.gg/VrZEEpBgZJ
 
 ## API
 

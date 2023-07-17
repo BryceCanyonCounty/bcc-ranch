@@ -81,7 +81,11 @@ Config.ChoreConfig = {
 }
 
 --Main Ranch Setup
-Config.RanchSetup = { 
+Config.RanchSetup = {
+    manageRanchCommand = {
+        enabled = true, --if enabled players will be able to use command
+        commandName = 'manageMyRanch', --name of the command (this command will allow players to open thier ranch menu using the command aslong as they are within thier ranch's set radius)
+    },
     AnimalGrownAge = 100, -- the age the animals will have to be reach before they are grown(animals below this age will be considered babies, and you can not sell or butcher them the age increase while the player is online)
     AnimalsRoamRanch = true, --if you want your animals to roam your ranch set this true
     WolfAttacks = true, --if true there is a chance 2 wolves will spawn while herding or selling animals and attack you!(50 50 chance)

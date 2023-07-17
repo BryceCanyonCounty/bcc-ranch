@@ -6,39 +6,49 @@ function FeedAnimals(animalType)
     local tables, model, spawnCoords, eatAnim
     local scale = nil
     feedPeds = {} --Feedpeds is set to nil when the mission is over or player dies to empty the table, this sets it from nil to table allowing this to work again (if it is not set nil when the mission is over or failed it will fail the mission the next time you do one)
-    if animalType == 'cows' then
-        tables = Config.RanchSetup.RanchAnimalSetup.Cows
-        model = 'a_c_cow'
-        eatAnim = joaat("WORLD_ANIMAL_COW_EATING_GROUND")
-        spawnCoords = Cowcoords
-        if Cowsage < Config.RanchSetup.AnimalGrownAge then
-            scale = 0.5
+    
+    local selectAnimalFuncts = {
+        ['cows'] = function()
+            tables = Config.RanchSetup.RanchAnimalSetup.Cows
+            model = 'a_c_cow'
+            eatAnim = joaat("WORLD_ANIMAL_COW_EATING_GROUND")
+            spawnCoords = Cowcoords
+            if Cowsage < Config.RanchSetup.AnimalGrownAge then
+                scale = 0.5
+            end
+        end,
+        ['chickens'] = function()
+            tables = Config.RanchSetup.RanchAnimalSetup.Chickens
+            model = 'a_c_chicken_01'
+            eatAnim = joaat("WORLD_ANIMAL_CHICKEN_EATING")
+            spawnCoords = Chickencoords
+            if Chickensage < Config.RanchSetup.AnimalGrownAge then
+                scale = 0.5
+            end
+        end,
+        ['goats'] = function()
+            tables = Config.RanchSetup.RanchAnimalSetup.Goats
+            model = 'a_c_goat_01'
+            spawnCoords = Goatcoords
+            eatAnim = joaat("PROP_ANIMAL_GOAT_EAT_TROUGH")
+            if Goatsage < Config.RanchSetup.AnimalGrownAge then
+                scale = 0.5
+            end
+        end,
+        ['pigs'] = function()
+            tables = Config.RanchSetup.RanchAnimalSetup.Pigs
+            model = 'a_c_pig_01'
+            spawnCoords = Pigcoords
+            eatAnim = joaat("WORLD_ANIMAL_PIG_EAT_CARCASS")
+            if Pigsage < Config.RanchSetup.AnimalGrownAge then
+                scale = 0.5
+            end
         end
-    elseif animalType == 'chickens' then
-        tables = Config.RanchSetup.RanchAnimalSetup.Chickens
-        model = 'a_c_chicken_01'
-        eatAnim = joaat("WORLD_ANIMAL_CHICKEN_EATING")
-        spawnCoords = Chickencoords
-        if Chickensage < Config.RanchSetup.AnimalGrownAge then
-            scale = 0.5
-        end
-    elseif animalType == 'goats' then
-        tables = Config.RanchSetup.RanchAnimalSetup.Goats
-        model = 'a_c_goat_01'
-        spawnCoords = Goatcoords
-        eatAnim = joaat("PROP_ANIMAL_GOAT_EAT_TROUGH")
-        if Goatsage < Config.RanchSetup.AnimalGrownAge then
-            scale = 0.5
-        end
-    elseif animalType == 'pigs' then
-        tables = Config.RanchSetup.RanchAnimalSetup.Pigs
-        model = 'a_c_pig_01'
-        spawnCoords = Pigcoords
-        eatAnim = joaat("WORLD_ANIMAL_PIG_EAT_CARCASS")
-        if Pigsage < Config.RanchSetup.AnimalGrownAge then
-            scale = 0.5
-        end
+    }
+    if selectAnimalFuncts[animalType] then
+        selectAnimalFuncts[animalType]()
     end
+
     amount = tables.AmountSpawned
 
     local catch = 0

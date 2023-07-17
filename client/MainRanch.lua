@@ -1,16 +1,14 @@
 InMission = false
 
 ----- This will run to check if the player owns a ranch when they select char -----
-CreateThread(function()
-    RegisterNetEvent('vorp:SelectedCharacter')
-    AddEventHandler('vorp:SelectedCharacter', function()
-        Wait(50)
-        local player = GetPlayerServerId(tonumber(PlayerId())) --credit vorp_admin
-        Wait(200)
-        TriggerServerEvent("bcc-ranch:getPlayersInfo", player) --credit vorp_admin
-        TriggerServerEvent('bcc-ranch:CheckIfRanchIsOwned')
-        TriggerServerEvent('bcc-ranch:CheckIfInRanch')
-    end)
+RegisterNetEvent('vorp:SelectedCharacter')
+AddEventHandler('vorp:SelectedCharacter', function()
+    Wait(50)
+    local player = GetPlayerServerId(tonumber(PlayerId())) --credit vorp_admin
+    Wait(200)
+    TriggerServerEvent("bcc-ranch:getPlayersInfo", player) --credit vorp_admin
+    TriggerServerEvent('bcc-ranch:CheckIfRanchIsOwned')
+    TriggerServerEvent('bcc-ranch:CheckIfInRanch')
 end)
 
 CreateThread(function()
@@ -52,6 +50,16 @@ RegisterNetEvent('bcc-ranch:HasRanchHandler', function(ranch)
     local firstprompt = PromptGroup:RegisterPrompt(_U("OpenRanchMenu"), 0x760A9C6F, 1, 1, true, 'hold', { timedeventhash = "MEDIUM_TIMED_EVENT" })
     if Config.RanchSetup.AnimalsRoamRanch then
         TriggerServerEvent('bcc-ranch:WanderingSetup', RanchId)
+    end
+    if Config.RanchSetup.manageRanchCommand.enabled then
+        RegisterCommand(Config.RanchSetup.manageRanchCommand.commandName, function()
+            local px, py, pz = table.unpack(GetEntityCoords(PlayerPedId()))
+            if GetDistanceBetweenCoords(px, py, pz, RanchCoords.x, RanchCoords.y, RanchCoords.z, true) <= tonumber(RanchRadius) then
+                MainMenu()
+            else
+                VORPcore.NotifyRightTip(_U("toFar"), 4000)
+            end
+        end)
     end
 
     while true do

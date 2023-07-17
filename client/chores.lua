@@ -9,32 +9,41 @@ local hammerTimeCfg = {
 ---- Chore Setup ----
 RegisterNetEvent('bcc-ranch:ShovelHay', function(chore)
     local choreCoords,choreAnim,incAmount,animTime,miniGame,miniGameCfg
-    if chore == 'shovelhay' then
-        choreCoords = Haycoords
-        incAmount = Config.ChoreConfig.HayChore.ConditionIncrease
-        animTime = Config.ChoreConfig.HayChore.AnimTime
-        miniGame = 'skillcheck'
-        miniGameCfg = Config.ChoreMinigameConfig
-    elseif chore == 'wateranimals' then
-        choreCoords = WaterAnimalCoords
-        choreAnim = joaat('WORLD_HUMAN_BUCKET_POUR_LOW')
-        incAmount = Config.ChoreConfig.WaterAnimals.ConditionIncrease
-        animTime = Config.ChoreConfig.WaterAnimals.AnimTime
-        miniGame = 'skillcheck'
-        miniGameCfg = Config.ChoreMinigameConfig
-    elseif chore == 'repairfeedtrough' then
-        choreCoords = RepairTroughCoords
-        choreAnim = joaat('PROP_HUMAN_REPAIR_WAGON_WHEEL_ON_SMALL') --credit syn_construction for anim(just where I found it at lol)
-        incAmount = Config.ChoreConfig.RepairFeedTrough.ConditionIncrease
-        animTime = Config.ChoreConfig.RepairFeedTrough.AnimTime
-        miniGame = 'hammertime'
-        miniGameCfg = hammerTimeCfg
-    elseif chore == 'scooppoop' then
-        choreCoords = ScoopPoopCoords
-        incAmount = Config.ChoreConfig.ShovelPoop.ConditionIncrease
-        animTime = Config.ChoreConfig.ShovelPoop.AnimTime
-        miniGame = 'skillcheck'
-        miniGameCfg = Config.ChoreMinigameConfig
+
+    local selectedChoreFunc = {
+        ['shovelhay'] = function()
+            choreCoords = Haycoords
+            incAmount = Config.ChoreConfig.HayChore.ConditionIncrease
+            animTime = Config.ChoreConfig.HayChore.AnimTime
+            miniGame = 'skillcheck'
+            miniGameCfg = Config.ChoreMinigameConfig
+        end,
+        ['wateranimals'] = function()
+            choreCoords = WaterAnimalCoords
+            choreAnim = joaat('WORLD_HUMAN_BUCKET_POUR_LOW')
+            incAmount = Config.ChoreConfig.WaterAnimals.ConditionIncrease
+            animTime = Config.ChoreConfig.WaterAnimals.AnimTime
+            miniGame = 'skillcheck'
+            miniGameCfg = Config.ChoreMinigameConfig
+        end,
+        ['repairfeedtrough'] = function()
+            choreCoords = RepairTroughCoords
+            choreAnim = joaat('PROP_HUMAN_REPAIR_WAGON_WHEEL_ON_SMALL') --credit syn_construction for anim(just where I found it at lol)
+            incAmount = Config.ChoreConfig.RepairFeedTrough.ConditionIncrease
+            animTime = Config.ChoreConfig.RepairFeedTrough.AnimTime
+            miniGame = 'hammertime'
+            miniGameCfg = hammerTimeCfg
+        end,
+        ['scooppoop'] = function()
+            choreCoords = ScoopPoopCoords
+            incAmount = Config.ChoreConfig.ShovelPoop.ConditionIncrease
+            animTime = Config.ChoreConfig.ShovelPoop.AnimTime
+            miniGame = 'skillcheck'
+            miniGameCfg = Config.ChoreMinigameConfig
+        end
+    }
+    if selectedChoreFunc[chore] then
+        selectedChoreFunc[chore]()
     end
 
     InMission = true
