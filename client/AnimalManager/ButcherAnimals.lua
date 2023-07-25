@@ -38,7 +38,7 @@ function ButcherAnimals(animalType)
     if selectAnimalFuncts[animalType] then
         selectAnimalFuncts[animalType]()
     end
-    
+
     InMission = true
 
     local createdPed = BccUtils.Ped.CreatePed(model, spawnCoords.x, spawnCoords.y, spawnCoords.z, true, true, false)
