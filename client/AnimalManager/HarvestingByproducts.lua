@@ -47,6 +47,9 @@ RegisterNetEvent('bcc-ranch:ChickenCoopHarvest', function()
                         if result.passed then
                             TriggerServerEvent('bcc-ranch:AddItem', Config.RanchSetup.RanchAnimalSetup.Chickens.EggItem, Config.RanchSetup.RanchAnimalSetup.Chickens.EggItem_Amount)
                             VORPcore.NotifyRightTip(_U("HarvestedEggs"), 4000)
+                            InMission = false
+                            VORPutils.Blips:RemoveBlip(blip.rawblip)
+                            DeleteObject(chickenCoop) return
                         else
                             InMission = false
                             VORPutils.Blips:RemoveBlip(blip.rawblip)
