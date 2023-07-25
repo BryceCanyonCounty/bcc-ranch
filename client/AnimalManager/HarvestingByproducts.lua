@@ -31,7 +31,7 @@ RegisterNetEvent('bcc-ranch:ChickenCoopHarvest', function()
     VORPcore.NotifyRightTip(_U("HarvestEggs"), 4000)
     BccUtils.Misc.SetGps(ChickenCoop_coords.x, ChickenCoop_coords.y, ChickenCoop_coords.z)
     local  blip = VORPutils.Blips:SetBlip(_U("HarvestEggs_blip"), 'blip_teamsters', 0.2, ChickenCoop_coords.x, ChickenCoop_coords.y, ChickenCoop_coords.z)
-    
+
 
     local  PromptGroup = VORPutils.Prompts:SetupPromptGroup()
     local firstprompt = PromptGroup:RegisterPrompt(_U("HarvestEggs_blip"), 0x760A9C6F, 1, 1, true, 'hold', {timedeventhash = "MEDIUM_TIMED_EVENT"})
@@ -48,11 +48,11 @@ RegisterNetEvent('bcc-ranch:ChickenCoopHarvest', function()
                             TriggerServerEvent('bcc-ranch:AddItem', Config.RanchSetup.RanchAnimalSetup.Chickens.EggItem, Config.RanchSetup.RanchAnimalSetup.Chickens.EggItem_Amount)
                             VORPcore.NotifyRightTip(_U("HarvestedEggs"), 4000)
                         else
+                            InMission = false
+                            VORPutils.Blips:RemoveBlip(blip.rawblip)
+                            DeleteObject(chickenCoop)
                             VORPcore.NotifyRightTip(_U("Failed"), 4000) return
                         end
-                        InMission = false
-                        VORPutils.Blips:RemoveBlip(blip.rawblip)
-                        DeleteObject(chickenCoop)
                     end) break
                 else
                     TriggerServerEvent('bcc-ranch:AddItem', Config.RanchSetup.RanchAnimalSetup.Chickens.EggItem, Config.RanchSetup.RanchAnimalSetup.Chickens.EggItem_Amount)
