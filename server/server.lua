@@ -483,7 +483,7 @@ RegisterServerEvent('bcc-ranch:DecranchCondIncrease', function(ranchid)
     local param = { ['ranchid'] = ranchid, ['levelinc'] = Config.RanchSetup.RanchCondDecreaseAmount }
     local result = MySQL.query.await("SELECT ranchCondition from ranch WHERE ranchid=@ranchid", param)
     if #result > 0 then
-        if resut[1].ranchCondition > 0 then
+        if result[1].ranchCondition > 0 then
             exports.oxmysql:execute('UPDATE ranch SET `ranchCondition`=ranchCondition-@levelinc WHERE ranchid=@ranchid', param)
         end
     end
