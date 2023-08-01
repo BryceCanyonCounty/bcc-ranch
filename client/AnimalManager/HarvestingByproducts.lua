@@ -1,6 +1,6 @@
 ----- Event to place the coop -----
 RegisterNetEvent('bcc-ranch:PlaceChickenCoop', function()
-    MenuData.CloseAll()
+    VORPMenu.CloseAll()
     InMission = true
     while true do
         Wait(5)
@@ -18,7 +18,7 @@ end)
 ------ Spawning Coop -------
 RegisterNetEvent('bcc-ranch:ChickenCoopHarvest', function()
     InMission = true
-    MenuData.CloseAll()
+    VORPMenu.CloseAll()
     local chickenCoopModel = joaat('p_chickencoopcart01x')
     RequestModel(chickenCoopModel)
     while not HasModelLoaded(chickenCoopModel) do
@@ -76,7 +76,7 @@ end)
 
 ----------------- Milking Cows --------------------
 RegisterNetEvent('bcc-ranch:MilkCows', function()
-    MenuData.CloseAll()
+    VORPMenu.CloseAll()
     InMission = true
     local model = joaat('a_c_cow')
     RequestModel(model)
