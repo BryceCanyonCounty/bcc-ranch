@@ -3,13 +3,13 @@ Employees = {}
 ----- Employee Menu Setup -----
 function EmployeeMenu()
     Inmenu = false
-    MenuData.CloseAll()
+    VORPMenu.CloseAll()
     local elements = {
         { label = _U("FireMembers"), value = 'firemembers', desc = _U("FireMembers_desc") },
         { label = _U("Hire"),        value = 'hire',        desc = _U("Hire_desc") },
     }
 
-    MenuData.Open('default', GetCurrentResourceName(), 'menuapi',
+    VORPMenu.Open('default', GetCurrentResourceName(), 'vorp_menu',
         {
             title = _U("RanchMenuName"),
             align = 'top-left',
@@ -29,7 +29,7 @@ function EmployeeMenu()
 end
 
 RegisterNetEvent('bcc-ranch:ViewEmployeeMenu', function(result)
-    MenuData.CloseAll()
+    VORPMenu.CloseAll()
     local elements, elementIndex = {}, 1
     for k, v in pairs(result) do
         elements[elementIndex] = {
@@ -43,7 +43,7 @@ RegisterNetEvent('bcc-ranch:ViewEmployeeMenu', function(result)
         elementIndex = elementIndex + 1
     end
 
-    MenuData.Open('default', GetCurrentResourceName(), 'menuapi',
+    VORPMenu.Open('default', GetCurrentResourceName(), 'vorp_menu',
         {
             title    = _U("RanchMenuName"),
             align    = 'left',
@@ -56,7 +56,7 @@ RegisterNetEvent('bcc-ranch:ViewEmployeeMenu', function(result)
             end
             if data.current.value then
                 Inmenu = false
-                MenuData.CloseAll()
+                VORPMenu.CloseAll()
                 TriggerServerEvent('bcc-ranch:FireEmployee', data.current.info.charidentifier)
                 EmployeeMenu()
             end
@@ -67,7 +67,7 @@ RegisterNetEvent('bcc-ranch:ViewEmployeeMenu', function(result)
 end)
 
 function HireEmployees()
-    MenuData.CloseAll()
+    VORPMenu.CloseAll()
     local elements = {}
     local players = GetPlayers()
 
@@ -85,7 +85,7 @@ function HireEmployees()
         }
     end
 
-    MenuData.Open('default', GetCurrentResourceName(), 'menuapi',
+    VORPMenu.Open('default', GetCurrentResourceName(), 'vorp_menu',
         {
             title    = _U("ManageEmployee"),
             subtext  = _U("ManageEmployee_desc"),

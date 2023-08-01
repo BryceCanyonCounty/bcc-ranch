@@ -8,7 +8,7 @@ end)
 ------ RanchAdminManagment Menu Setup --------------
 function ShowAllRanchesMenu()
     local elements = {}
-    MenuData.CloseAll()
+    VORPMenu.CloseAll()
     Inmenu = true
     TriggerEvent('bcc-ranch:MenuClose')
     for k, v in pairs(ranches) do
@@ -19,7 +19,7 @@ function ShowAllRanchesMenu()
             info = v
         }
     end
-    MenuData.Open('default', GetCurrentResourceName(), 'menuapi',
+    VORPMenu.Open('default', GetCurrentResourceName(), 'vorp_menu',
         {
             title      = _U("ManageRanches"),
             subtext    = _U("ManageRanches_desc"),
@@ -41,7 +41,7 @@ end
 ------------ Ranch Selected Menu --------------
 function RanchSelected(ranchTable)
     Inmenu = false
-    MenuData.CloseAll()
+    VORPMenu.CloseAll()
     local elements = {
         { label = _U("DeleteRanch"), value = 'delranch', desc = _U('DeleteRanch_desc') },
         { label = _U("ChangeRanchRadius"), value = 'changeradius', desc = _U("ChangeRanchRadius_desc") },
@@ -50,7 +50,7 @@ function RanchSelected(ranchTable)
         { label = _U("OpenRanchInventory"), value = 'openinv', desc = _U("OpenRanchInventory_desc") },
     }
 
-    MenuData.Open('default', GetCurrentResourceName(), 'menuapi',
+    VORPMenu.Open('default', GetCurrentResourceName(), 'vorp_menu',
         {
             title = _U("ManageRanches"),
             align = 'top-left',
@@ -65,7 +65,7 @@ function RanchSelected(ranchTable)
                 ['delranch'] = function()
                     TriggerServerEvent('bcc-ranch:DeleteRanchFromDB', ranchTable.ranchid)
                     VORPcore.NotifyRightTip(_U('RanchDeleted'), 4000)
-                    MenuData.CloseAll()
+                    VORPMenu.CloseAll()
                 end,
                 ['changeradius'] = function()
                     local myInput = {
@@ -141,7 +141,7 @@ function RanchSelected(ranchTable)
                 end,
                 ['openinv'] = function()
                     TriggerServerEvent('bcc-ranch:OpenInv', ranchTable.ranchid)
-                    MenuData.CloseAll()
+                    VORPMenu.CloseAll()
                 end
             }
 

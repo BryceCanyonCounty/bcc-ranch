@@ -2,7 +2,7 @@
 function MainMenu()
     Inmenu = true
     TriggerEvent('bcc-ranch:MenuClose')
-    MenuData.CloseAll()
+    VORPMenu.CloseAll()
     TriggerEvent('bcc-ranch:loadAll')
     local elements = {
         { label = _U("CheckRanchCond"), value = 'checkranchcond', desc = _U("CheckRanchCond_desc") },
@@ -17,7 +17,7 @@ function MainMenu()
 
     end
 
-    MenuData.Open('default', GetCurrentResourceName(), 'menuapi',
+    VORPMenu.Open('default', GetCurrentResourceName(), 'vorp_menu',
         {
             title = _U("RanchMenuName"),
             align = 'top-left',
@@ -45,7 +45,7 @@ function MainMenu()
                 end,
                 ['ledger'] = function()
                     Inmenu = false
-                    MenuData.CloseAll()
+                    VORPMenu.CloseAll()
                     TriggerServerEvent('bcc-ranch:GetLedger', RanchId)
                     Wait(100)
                 end,

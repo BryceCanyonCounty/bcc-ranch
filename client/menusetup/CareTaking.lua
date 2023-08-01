@@ -3,7 +3,7 @@ Haycoords, WaterAnimalCoords, RepairTroughCoords, ScoopPoopCoords = nil, nil, ni
 
 function CareTakingMenu()
     Inmenu = false
-    MenuData.CloseAll()
+    VORPMenu.CloseAll()
     local elements = {
         { label = _U("ShovelHay"), value = 'shovelhay', desc = _U("ShovelHay_desc") },
         { label = _U("WaterAnimalChore"), value = 'wateranimal', desc = _U("WaterAnimalChore_desc") },
@@ -11,7 +11,7 @@ function CareTakingMenu()
         { label = _U("ScoopPoopChore"), value = 'scooppoop', desc = _U("ScoopPoopChore_desc") }
     }
 
-    MenuData.Open('default', GetCurrentResourceName(), 'menuapi',
+    VORPMenu.Open('default', GetCurrentResourceName(), 'vorp_menu',
         {
             title = _U("Caretaking"),
             align = 'top-left',
@@ -44,7 +44,7 @@ function CareTakingMenu()
 end
 
 function ChoreMenu(choreType)
-    MenuData.CloseAll()
+    VORPMenu.CloseAll()
     local elements, title
     local selectedElements = {
         ['shovelhay'] = function()
@@ -81,7 +81,7 @@ function ChoreMenu(choreType)
         selectedElements[choreType]()
     end
 
-    MenuData.Open('default', GetCurrentResourceName(), 'menuapi',
+    VORPMenu.Open('default', GetCurrentResourceName(), 'vorp_menu',
         {
             title = title,
             align = 'top-left',
@@ -136,7 +136,7 @@ function ChoreMenu(choreType)
                                 VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
                             else
                                 TriggerServerEvent('bcc-ranch:ChoreCheckRanchCondition', RanchId, 'shovelhay')
-                                MenuData.CloseAll()
+                                VORPMenu.CloseAll()
                             end
                         end,
                         ['wateranimal'] = function()
@@ -144,7 +144,7 @@ function ChoreMenu(choreType)
                                 VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
                             else
                                 TriggerServerEvent('bcc-ranch:ChoreCheckRanchCondition', RanchId, 'wateranimals')
-                                MenuData.CloseAll()
+                                VORPMenu.CloseAll()
                             end
                         end,
                         ['repairfeedtrough'] = function()
@@ -152,7 +152,7 @@ function ChoreMenu(choreType)
                                 VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
                             else
                                 TriggerServerEvent('bcc-ranch:ChoreCheckRanchCondition', RanchId, 'repairfeedtrough')
-                                MenuData.CloseAll()
+                                VORPMenu.CloseAll()
                             end
                         end,
                         ['scooppoop'] = function()
@@ -160,7 +160,7 @@ function ChoreMenu(choreType)
                                 VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
                             else
                                 TriggerServerEvent('bcc-ranch:ChoreCheckRanchCondition', RanchId, 'scooppoop')
-                                MenuData.CloseAll()
+                                VORPMenu.CloseAll()
                             end
                         end
                     }
