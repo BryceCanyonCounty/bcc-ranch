@@ -9,7 +9,7 @@
 - VORP Inputs
 - bcc-utils
 - VORP Character
-- Menuapi
+- VORP Menu
 - bcc-minigames
 
 # Features
