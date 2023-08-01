@@ -2,7 +2,7 @@
 RegisterNetEvent('bcc-ranch:LedgerMenu', function(ledger)
     Inmenu = false
     TriggerEvent('bcc-ranch:MenuClose')
-    MenuData.CloseAll()
+    VORPMenu.CloseAll()
     local elements = {
         { label = _U("LedgerAmount") .. ledger },
         { label = _U("Deposit"),               value = 'deposit' },
@@ -24,7 +24,7 @@ RegisterNetEvent('bcc-ranch:LedgerMenu', function(ledger)
         }
     }
 
-    MenuData.Open('default', GetCurrentResourceName(), 'menuapi',
+    VORPMenu.Open('default', GetCurrentResourceName(), 'vorp_menu',
         {
             title = _U("RanchMenuName"),
             align = 'top-left',

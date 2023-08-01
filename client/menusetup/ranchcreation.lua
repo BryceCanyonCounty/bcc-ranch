@@ -7,7 +7,7 @@ AddEventHandler('bcc-ranch:MenuClose', function()
         Wait(10)
         if IsControlJustReleased(0, 0x156F7119) then
             Inmenu = false
-            MenuData.CloseAll() break
+            VORPMenu.CloseAll() break
         end
     end
 end)
@@ -22,7 +22,7 @@ function CreateRanchMen()
     local coords = GetEntityCoords(PlayerPedId())
     Inmenu = true
     TriggerEvent('bcc-ranch:MenuClose')
-    MenuData.CloseAll()
+    VORPMenu.CloseAll()
 
     local elements = {
         { label = _U("StaticId"),         value = 'staticid',    desc = _U("StaticId_desc") },
@@ -31,7 +31,7 @@ function CreateRanchMen()
         { label = _U("Confirm"),          value = 'confirm',     desc = _U("Confirm_desc") }
     }
 
-    MenuData.Open('default', GetCurrentResourceName(), 'menuapi',
+    VORPMenu.Open('default', GetCurrentResourceName(), 'vorp_menu',
         {
             title = _U("CreateRanchTitle"),
             align = 'top-left',
@@ -96,7 +96,7 @@ function CreateRanchMen()
                 ['confirm'] = function()
                     TriggerServerEvent('bcc-ranch:InsertCreatedRanchIntoDB', ranchName, ranchRadius, charid, coords)
                     charid = nil
-                    MenuData.CloseAll()
+                    VORPMenu.CloseAll()
                 end
             }
 
@@ -108,7 +108,7 @@ end
 
 --------- Show the player list credit to vorp admin for this
 function PlayerList()
-    MenuData.CloseAll()
+    VORPMenu.CloseAll()
     local elements = {}
     local players = GetPlayers()
 
@@ -125,23 +125,23 @@ function PlayerList()
         }
     end
 
-    MenuData.Open('default', GetCurrentResourceName(), 'menuapi',
-        {
-            title      = _U("StaticId"),
-            subtext    = _U("StaticId_desc"),
-            align      = 'top-left',
-            elements   = elements,
-            lastmenu   = 'CreateRanchMen',
-            itemHeight = "4vh",
-        },
-        function(data)
-            if data.current == 'backup' then
-                _G[data.trigger]()
-            end
-            if data.current.value then
-                charid = data.current.info.staticid
-                VORPcore.NotifyRightTip(_U("OwnerSet"), 4000)
-                CreateRanchMen()
-            end
-        end)
+    VORPMenu.Open('default', GetCurrentResourceName(), 'vorp_menu',
+    {
+        title      = _U("StaticId"),
+        subtext    = _U("StaticId_desc"),
+        align      = 'top-left',
+        elements   = elements,
+        lastmenu   = 'CreateRanchMen',
+        itemHeight = "4vh",
+    },
+    function(data)
+        if data.current == 'backup' then
+            _G[data.trigger]()
+        end
+        if data.current.value then
+            charid = data.current.info.staticid
+            VORPcore.NotifyRightTip(_U("OwnerSet"), 4000)
+            CreateRanchMen()
+        end
+    end)
 end

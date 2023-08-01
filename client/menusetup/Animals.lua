@@ -4,7 +4,7 @@ Cowcoords, Chickencoords, Goatcoords, Pigcoords, Herdlocation, FeedWagonLocation
 ------ Buy Animals Menu --------
 function BuyAnimalMenu()
     Inmenu = false
-    MenuData.CloseAll()
+    VORPMenu.CloseAll()
     local elements = {
         { label = _U("BuyCows") .. ' ' .. tostring(Config.RanchSetup.RanchAnimalSetup.Cows.Cost), value = 'buycows', desc = _U("BuyAnimals_desc") },
         { label = _U("BuyPigs") .. ' ' .. tostring(Config.RanchSetup.RanchAnimalSetup.Pigs.Cost), value = 'buypigs', desc = _U("BuyPigs_desc") },
@@ -12,7 +12,7 @@ function BuyAnimalMenu()
         { label = _U("BuyChickens") .. ' ' .. tostring(Config.RanchSetup.RanchAnimalSetup.Chickens.Cost), value = 'buychickens', desc = _U("BuyChickens_desc") },
     }
 
-    MenuData.Open('default', GetCurrentResourceName(), 'menuapi',
+    VORPMenu.Open('default', GetCurrentResourceName(), 'vorp_menu',
         {
             title = _U("Caretaking"),
             align = 'top-left',
@@ -62,7 +62,7 @@ end
 --------- Manage Animals Menu ------
 function ManageOwnedAnimalsMenu()
     Inmenu = false
-    MenuData.CloseAll()
+    VORPMenu.CloseAll()
 
     -- added / changed by Little Creek
     local set_or_change_herd, set_or_change_herd_desc, set_or_change_feed_wagon, set_or_change_feed_wagon_desc = '', '', '', ''
@@ -93,7 +93,7 @@ function ManageOwnedAnimalsMenu()
     }
     -- end added / changed by Little Creek
 
-    MenuData.Open('default', GetCurrentResourceName(), 'menuapi',
+    VORPMenu.Open('default', GetCurrentResourceName(), 'vorp_menu',
         {
             title = _U("ManageAnimals"),
             align = 'top-left',
@@ -111,7 +111,7 @@ function ManageOwnedAnimalsMenu()
                 ['setherdlocation'] = function()
                     if dist > Config.RanchSetup.HerdingMinDistance then
                         TriggerServerEvent("bcc-ranch:AnimalLocationDbInserts", pl, RanchId, 'herdcoords')
-                        MenuData.CloseAll()
+                        VORPMenu.CloseAll()
                         Wait(2000)
                         TriggerServerEvent("bcc-ranch:getHerdlocation", RanchId)
                     else
@@ -146,7 +146,7 @@ end
 RegisterNetEvent('bcc-ranch:OwnedAnimalManagerMenu', function(animalCond, animalType, ranchCond)
     local elements, title, maxCond, herdType
     local set_or_change, set_or_change_desc -- added by Little Creek
-    MenuData.CloseAll()
+    VORPMenu.CloseAll()
     local selectedElements = {
         ['pigs'] = function()
             herdType = 'pigs'
@@ -255,7 +255,7 @@ RegisterNetEvent('bcc-ranch:OwnedAnimalManagerMenu', function(animalCond, animal
         selectedElements[animalType]()
     end
 
-    MenuData.Open('default', GetCurrentResourceName(), 'menuapi',
+    VORPMenu.Open('default', GetCurrentResourceName(), 'vorp_menu',
         {
             title = title,
             align = 'top-left',
@@ -300,7 +300,7 @@ RegisterNetEvent('bcc-ranch:OwnedAnimalManagerMenu', function(animalCond, animal
                 end,
                 ['herdanimal'] = function()
                     if Herdlocation ~= nil and Herdlocation ~= 'none' then
-                        MenuData.CloseAll()
+                        VORPMenu.CloseAll()
                         herdanimals(herdType, ranchCond)
                     else
                         VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
@@ -310,7 +310,7 @@ RegisterNetEvent('bcc-ranch:OwnedAnimalManagerMenu', function(animalCond, animal
                     local sellAnimalSelected = {
                         ['pigs'] = function()
                             if Pigcoords and Pigcoords ~= 'none' then
-                                MenuData.CloseAll()
+                                VORPMenu.CloseAll()
                                 SellAnimals('pigs', animalCond)
                             else
                                 VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
@@ -318,7 +318,7 @@ RegisterNetEvent('bcc-ranch:OwnedAnimalManagerMenu', function(animalCond, animal
                         end,
                         ['goats'] = function()
                             if Goatcoords and Goatcoords ~= 'none' then
-                                MenuData.CloseAll()
+                                VORPMenu.CloseAll()
                                 SellAnimals('goats', animalCond)
                             else
                                 VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
@@ -326,7 +326,7 @@ RegisterNetEvent('bcc-ranch:OwnedAnimalManagerMenu', function(animalCond, animal
                         end,
                         ['chickens'] = function()
                             if Chickencoords and Chickencoords ~= 'none' then
-                                MenuData.CloseAll()
+                                VORPMenu.CloseAll()
                                 SellAnimals('chickens', animalCond)
                             else
                                 VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
@@ -334,7 +334,7 @@ RegisterNetEvent('bcc-ranch:OwnedAnimalManagerMenu', function(animalCond, animal
                         end,
                         ['cows'] = function()
                             if Cowcoords and Cowcoords ~= 'none' then
-                                MenuData.CloseAll()
+                                VORPMenu.CloseAll()
                                 SellAnimals('cows', animalCond)
                             else
                                 VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
@@ -349,7 +349,7 @@ RegisterNetEvent('bcc-ranch:OwnedAnimalManagerMenu', function(animalCond, animal
                     local butcherSelectedOption = {
                         ['pigs'] = function()
                             if Pigcoords ~= nil and Pigcoords ~= 'none' then
-                                MenuData.CloseAll()
+                                VORPMenu.CloseAll()
                                 ButcherAnimals('pigs')
                             else
                                 VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
@@ -357,7 +357,7 @@ RegisterNetEvent('bcc-ranch:OwnedAnimalManagerMenu', function(animalCond, animal
                         end,
                         ['goats'] = function()
                             if Goatcoords ~= nil and Goatcoords ~= 'none' then
-                                MenuData.CloseAll()
+                                VORPMenu.CloseAll()
                                 ButcherAnimals('goats')
                             else
                                 VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
@@ -365,7 +365,7 @@ RegisterNetEvent('bcc-ranch:OwnedAnimalManagerMenu', function(animalCond, animal
                         end,
                         ['chickens'] = function()
                             if Chickencoords and Chickencoords ~= 'none' then
-                                MenuData.CloseAll()
+                                VORPMenu.CloseAll()
                                 ButcherAnimals('chickens')
                             else
                                 VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
@@ -373,7 +373,7 @@ RegisterNetEvent('bcc-ranch:OwnedAnimalManagerMenu', function(animalCond, animal
                         end,
                         ['cows'] = function()
                             if Cowcoords and Cowcoords ~= 'none' then
-                                MenuData.CloseAll()
+                                VORPMenu.CloseAll()
                                 ButcherAnimals('cows')
                             else
                                 VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
@@ -389,7 +389,7 @@ RegisterNetEvent('bcc-ranch:OwnedAnimalManagerMenu', function(animalCond, animal
                         local feedAnimalSelected = {
                             ['pigs'] = function()
                                 if Pigcoords ~= nil and Pigcoords ~= 'none' then
-                                    MenuData.CloseAll()
+                                    VORPMenu.CloseAll()
                                     FeedAnimals('pigs')
                                 else
                                     VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
@@ -397,7 +397,7 @@ RegisterNetEvent('bcc-ranch:OwnedAnimalManagerMenu', function(animalCond, animal
                             end,
                             ['goats'] = function()
                                 if Goatcoords ~= nil and Goatcoords ~= 'none' then
-                                    MenuData.CloseAll()
+                                    VORPMenu.CloseAll()
                                     FeedAnimals('goats')
                                 else
                                     VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
@@ -405,7 +405,7 @@ RegisterNetEvent('bcc-ranch:OwnedAnimalManagerMenu', function(animalCond, animal
                             end,
                             ['chickens'] = function()
                                 if Chickencoords and Chickencoords ~= 'none' then
-                                    MenuData.CloseAll()
+                                    VORPMenu.CloseAll()
                                     FeedAnimals('chickens')
                                 else
                                     VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
@@ -413,7 +413,7 @@ RegisterNetEvent('bcc-ranch:OwnedAnimalManagerMenu', function(animalCond, animal
                             end,
                             ['cows'] = function()
                                 if Cowcoords and Cowcoords ~= 'none' then
-                                    MenuData.CloseAll()
+                                    VORPMenu.CloseAll()
                                     FeedAnimals('cows')
                                 else
                                     VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)

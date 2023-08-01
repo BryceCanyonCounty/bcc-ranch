@@ -81,7 +81,7 @@ RegisterNetEvent('bcc-ranch:HasRanchHandler', function(ranch)
             Wait(2000)
         end
         if Inmenu and dist > RanchRadius + 20 then
-            MenuData.CloseAll()
+            VORPMenu.CloseAll()
         end
     end
 end)
