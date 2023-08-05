@@ -111,17 +111,14 @@ function ManageOwnedAnimalsMenu()
                 ['setherdlocation'] = function()
                     if dist > Config.RanchSetup.HerdingMinDistance then
                         TriggerServerEvent("bcc-ranch:AnimalLocationDbInserts", pl, RanchId, 'herdcoords')
-                        VORPMenu.CloseAll()
-                        Wait(2000)
-                        TriggerServerEvent("bcc-ranch:getHerdlocation", RanchId)
+                        Herdlocation = pl
                     else
                         VORPcore.NotifyRightTip(_U("TooCloseToRanch"), 4000)
                     end
                 end,
                 ['setfeedwagonlocation'] = function()
                     TriggerServerEvent("bcc-ranch:AnimalLocationDbInserts", pl, RanchId, 'feedwagoncoords')
-                    Wait(2000)
-                    TriggerServerEvent("bcc-ranch:getWagonFeedCoords", RanchId)
+                    FeedWagonLocation = pl
                 end,
                 ['managecows'] = function()
                     TriggerServerEvent('bcc-ranch:CheckIfAnimalsAreOwned', RanchId, 'cows')
@@ -275,23 +272,19 @@ RegisterNetEvent('bcc-ranch:OwnedAnimalManagerMenu', function(animalCond, animal
                     local setAnimalSelected = {
                         ['pigs'] = function()
                             TriggerServerEvent("bcc-ranch:AnimalLocationDbInserts", pl, RanchId, 'pigcoords')
-                            Wait(500)
-                            TriggerServerEvent("bcc-ranch:getPigCoords", RanchId)
+                            Pigcoords = pl
                         end,
                         ['goats'] = function()
                             TriggerServerEvent("bcc-ranch:AnimalLocationDbInserts", pl, RanchId, 'goatcoords')
-                            Wait(500)
-                            TriggerServerEvent("bcc-ranch:getGoatCoords", RanchId)
+                            Goatcoords = pl
                         end,
                         ['chickens'] = function()
                             TriggerServerEvent("bcc-ranch:AnimalLocationDbInserts", pl, RanchId, 'chickencoords')
-                            Wait(500)
-                            TriggerServerEvent("bcc-ranch:getChickenCoords", RanchId)
+                            Chickencoords = pl
                         end,
                         ['cows'] = function()
                             TriggerServerEvent("bcc-ranch:AnimalLocationDbInserts", pl, RanchId, 'cowcoords')
-                            Wait(500)
-                            TriggerServerEvent("bcc-ranch:getCowCoords", RanchId)
+                            Cowcoords = pl
                         end
                     }
                     if setAnimalSelected[animalType] then

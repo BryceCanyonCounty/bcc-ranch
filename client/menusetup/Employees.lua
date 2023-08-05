@@ -1,5 +1,4 @@
 Employees = {}
-
 ----- Employee Menu Setup -----
 function EmployeeMenu()
     Inmenu = false
@@ -98,7 +97,7 @@ function HireEmployees()
                 _G[data.trigger]()
             end
             if data.current.value then
-                TriggerServerEvent('bcc-ranch:HireEmployee', RanchId, data.current.info.staticid)
+                TriggerServerEvent('bcc-ranch:HireEmployee', RanchId, data.current.info.staticid, data.current.info.serverId)
                 VORPcore.NotifyRightTip(_U("Hired"), 4000)
             end
         end)

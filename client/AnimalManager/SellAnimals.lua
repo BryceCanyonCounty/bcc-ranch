@@ -7,41 +7,46 @@ function SellAnimals(animalType, animalCond)
     local selectAnimalFuncts = {
         ['cows'] = function()
             if Cowsage < Config.RanchSetup.AnimalGrownAge then
-                VORPcore.NotifyRightTip(_U("TooYoung"), 4000) return
+                VORPcore.NotifyRightTip(_U("TooYoung"), 4000)
+            else
+                tables = Config.RanchSetup.RanchAnimalSetup.Cows
+                model = 'a_c_cow'
+                spawnCoords = Cowcoords
             end
-            tables = Config.RanchSetup.RanchAnimalSetup.Cows
-            model = 'a_c_cow'
-            spawnCoords = Cowcoords
         end,
         ['chickens'] = function()
             if Chickensage < Config.RanchSetup.AnimalGrownAge then
-                VORPcore.NotifyRightTip(_U("TooYoung"), 4000) return
+                VORPcore.NotifyRightTip(_U("TooYoung"), 4000)
+            else
+                tables = Config.RanchSetup.RanchAnimalSetup.Chickens
+                model = 'a_c_chicken_01'
+                spawnCoords = Chickencoords
             end
-            tables = Config.RanchSetup.RanchAnimalSetup.Chickens
-            model = 'a_c_chicken_01'
-            spawnCoords = Chickencoords
         end,
         ['goats'] = function()
             if Goatsage < Config.RanchSetup.AnimalGrownAge then
-                VORPcore.NotifyRightTip(_U("TooYoung"), 4000) return
+                VORPcore.NotifyRightTip(_U("TooYoung"), 4000)
+            else
+                tables = Config.RanchSetup.RanchAnimalSetup.Goats
+                model = 'a_c_goat_01'
+                spawnCoords = Goatcoords
             end
-            tables = Config.RanchSetup.RanchAnimalSetup.Goats
-            model = 'a_c_goat_01'
-            spawnCoords = Goatcoords
         end,
         ['pigs'] = function()
             if Pigsage < Config.RanchSetup.AnimalGrownAge then
-                VORPcore.NotifyRightTip(_U("TooYoung"), 4000) return
+                VORPcore.NotifyRightTip(_U("TooYoung"), 4000)
+            else
+                tables = Config.RanchSetup.RanchAnimalSetup.Pigs
+                model = 'a_c_pig_01'
+                spawnCoords = Pigcoords
             end
-            tables = Config.RanchSetup.RanchAnimalSetup.Pigs
-            model = 'a_c_pig_01'
-            spawnCoords = Pigcoords
         end
     }
 
     if selectAnimalFuncts[animalType] then
         selectAnimalFuncts[animalType]()
     end
+    if spawnCoords == nil then return end --used to end the sell here if the age is below the needed amount
     InMission = true
 
     --Detecting Closest Sale Barn Setup Credit to vorp_core for this bit of code, and jannings for pointing this out to me

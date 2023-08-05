@@ -45,6 +45,7 @@ RegisterNetEvent('bcc-ranch:HasRanchHandler', function(ranch)
     RepairTroughCoords = json.decode(ranch.repairtroughcoords)
     ScoopPoopCoords = json.decode(ranch.scooppoopcoords)
 	-- end added by Little Creek
+    Wait(200)
     local blip = VORPutils.Blips:SetBlip(ranch.ranchname, Config.RanchSetup.BlipHash, 0.2, RanchCoords.x, RanchCoords.y, RanchCoords.z)
     local PromptGroup = VORPutils.Prompts:SetupPromptGroup()
     local firstprompt = PromptGroup:RegisterPrompt(_U("OpenRanchMenu"), 0x760A9C6F, 1, 1, true, 'hold', { timedeventhash = "MEDIUM_TIMED_EVENT" })
@@ -80,7 +81,7 @@ RegisterNetEvent('bcc-ranch:HasRanchHandler', function(ranch)
         elseif dist > 200 then
             Wait(2000)
         end
-        if Inmenu and dist > RanchRadius + 20 then
+        if Inmenu and dist > RanchRadius + 20 and not CreationMenu then
             VORPMenu.CloseAll()
         end
     end

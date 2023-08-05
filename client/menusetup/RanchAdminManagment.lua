@@ -10,7 +10,6 @@ function ShowAllRanchesMenu()
     local elements = {}
     VORPMenu.CloseAll()
     Inmenu = true
-    TriggerEvent('bcc-ranch:MenuClose')
     for k, v in pairs(ranches) do
         elements[#elements+1] = {
             label = _U('Ranchid') .. ' ' .. v.ranchid,
@@ -35,6 +34,10 @@ function ShowAllRanchesMenu()
             if data.current.value then
                 RanchSelected(data.current.info)
             end
+        end,
+        function(data, menu)
+            Inmenu = false
+            VORPMenu.CloseAll()
         end)
 end
 

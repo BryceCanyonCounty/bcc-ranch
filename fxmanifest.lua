@@ -8,14 +8,14 @@ author 'Jake2k4'
 shared_scripts {
     'config.lua',
     'locale.lua',
-    'languages/*.lua',
+    'languages/*.lua'
 }
 
 server_scripts {
+    '@oxmysql/lib/MySQL.lua',
     'server/server.lua',
     'server/exports.lua',
-    'server/AdminMenu.lua',
-    '@oxmysql/lib/MySQL.lua',
+    'server/AdminMenu.lua'
 }
 
 client_scripts {
@@ -23,7 +23,7 @@ client_scripts {
     'client/menusetup/*.lua',
     'client/MainRanch.lua',
     'client/chores.lua',
-    'client/AnimalManager/*.lua',
+    'client/AnimalManager/*.lua'
 }
 
 dependency {
@@ -33,8 +33,8 @@ dependency {
     'bcc-utils',
     'vorp_character',
     'vorp_inputs',
-    'bcc-minigames',
+    'bcc-minigames'
 }
 
 
-version '1.2.1'
+version '1.2.2'
