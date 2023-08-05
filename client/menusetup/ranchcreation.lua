@@ -1,16 +1,6 @@
------ Close Menu When Backspaced Out -----
-Inmenu = false
-local charid = nil
-
-AddEventHandler('bcc-ranch:MenuClose', function()
-    while Inmenu do
-        Wait(10)
-        if IsControlJustReleased(0, 0x156F7119) then
-            Inmenu = false
-            VORPMenu.CloseAll() break
-        end
-    end
-end)
+----- Close Menu When Backspaced Out(Creation menu needed to seperate them if you owna  ranch dont close via distance check while making a ranch) -----
+Inmenu, CreationMenu = false, false
+local charid, ownerSource = nil, nil
 
 ------ Creating Ranch Menu ------
 RegisterNetEvent('bcc-ranch:CreateRanchmenu', function()
@@ -21,8 +11,7 @@ function CreateRanchMen()
     local ranchName, ranchRadius
     local coords = GetEntityCoords(PlayerPedId())
     Inmenu = true
-    TriggerEvent('bcc-ranch:MenuClose')
-    VORPMenu.CloseAll()
+    CreationMenu = true
 
     local elements = {
         { label = _U("StaticId"),         value = 'staticid',    desc = _U("StaticId_desc") },
@@ -37,12 +26,13 @@ function CreateRanchMen()
             align = 'top-left',
             elements = elements,
         },
-        function(data)
+        function(data, menu)
             if data.current == 'backup' then
                 _G[data.trigger]()
             end
             local selectedOption = {
                 ['staticid'] = function()
+                    menu.close()
                     PlayerList()
                 end,
                 ['nameranch'] = function()
@@ -94,8 +84,10 @@ function CreateRanchMen()
                     end)
                 end,
                 ['confirm'] = function()
-                    TriggerServerEvent('bcc-ranch:InsertCreatedRanchIntoDB', ranchName, ranchRadius, charid, coords)
+                    TriggerServerEvent('bcc-ranch:InsertCreatedRanchIntoDB', ranchName, ranchRadius, charid, coords, ownerSource)
                     charid = nil
+                    Inmenu = false
+                    CreationMenu = false
                     VORPMenu.CloseAll()
                 end
             }
@@ -103,6 +95,11 @@ function CreateRanchMen()
             if selectedOption[data.current.value] then
                 selectedOption[data.current.value]()
             end
+        end,
+        function(data,menu)
+            CreationMenu = false
+            Inmenu = false
+            menu.close()
         end)
 end
 
@@ -134,14 +131,20 @@ function PlayerList()
         lastmenu   = 'CreateRanchMen',
         itemHeight = "4vh",
     },
-    function(data)
+    function(data, menu)
         if data.current == 'backup' then
             _G[data.trigger]()
         end
         if data.current.value then
             charid = data.current.info.staticid
+            ownerSource = data.current.info.serverId
             VORPcore.NotifyRightTip(_U("OwnerSet"), 4000)
+            menu.close() --if this is not here this will cause an error dunno why vorp_menu sucks menuapi is better end of discussion
             CreateRanchMen()
         end
+    end,
+    function(data, menu)
+        menu.close()
+        CreateRanchMen()
     end)
 end

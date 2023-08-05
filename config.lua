@@ -86,6 +86,11 @@ Config.RanchSetup = {
         enabled = true, --if enabled players will be able to use command
         commandName = 'manageMyRanch', --name of the command (this command will allow players to open thier ranch menu using the command aslong as they are within thier ranch's set radius)
     },
+    animalFollowSettings = { --set the offset that the ranch animals will follow the player around while herding or selling test around to find whatt you like
+        offsetX = 5,
+        offsetY = 5,
+        offsetZ = 0 --Recommended to leave at 0 this is the height variable
+    },
     AnimalGrownAge = 100, -- the age the animals will have to be reach before they are grown(animals below this age will be considered babies, and you can not sell or butcher them the age increase while the player is online)
     AnimalsRoamRanch = true, --if you want your animals to roam your ranch set this true
     WolfAttacks = true, --if true there is a chance 2 wolves will spawn while herding or selling animals and attack you!(50 50 chance)

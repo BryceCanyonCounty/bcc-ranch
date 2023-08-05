@@ -1,7 +1,6 @@
 ----- Main Ranch Menu -----
 function MainMenu()
     Inmenu = true
-    TriggerEvent('bcc-ranch:MenuClose')
     VORPMenu.CloseAll()
     TriggerEvent('bcc-ranch:loadAll')
     local elements = {
@@ -57,5 +56,9 @@ function MainMenu()
             if selectedOption[data.current.value] then
                 selectedOption[data.current.value]()
             end
+        end,
+        function(data, menu)
+            Inmenu = false
+            VORPMenu.CloseAll()
         end)
 end

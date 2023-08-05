@@ -35,17 +35,18 @@ RegisterServerEvent('bcc-ranch:AddItem', function(item, amount)
 end)
 
 ------ Create Ranch Db Handler -----
-RegisterServerEvent('bcc-ranch:InsertCreatedRanchIntoDB', function(ranchName, ranchRadius, ownerStaticId, coords)
+RegisterServerEvent('bcc-ranch:InsertCreatedRanchIntoDB', function(ranchName, ranchRadius, ownerStaticId, coords, ownerSource)
     local _source = source
     local param = { ['ranchname'] = ranchName, ['ranch_radius_limit'] = ranchRadius, ['charidentifier'] = ownerStaticId, ['ranchcoords'] = json.encode(coords) }
     local result = MySQL.query.await("SELECT * FROM ranch WHERE charidentifier=@charidentifier", param)
     if #result >= 1 then
         VORPcore.NotifyRightTip(_source, _U("AlreadyOwnRanch"), 4000)
     else
-        exports.oxmysql:execute("INSERT INTO ranch ( `charidentifier`,`ranchcoords`,`ranchname`,`ranch_radius_limit` ) VALUES ( @charidentifier,@ranchcoords,@ranchname,@ranch_radius_limit )", param)
+        MySQL.query.await("INSERT INTO ranch ( `charidentifier`,`ranchcoords`,`ranchname`,`ranch_radius_limit` ) VALUES ( @charidentifier,@ranchcoords,@ranchname,@ranch_radius_limit )", param)
         local character = VORPcore.getUser(_source).getUsedCharacter
         VORPcore.NotifyRightTip(_source, _U("RanchMade"), 4000)
         BccUtils.Discord.sendMessage(Config.Webhooks.RanchCreation.WebhookLink, 'BCC Ranch', 'https://gamespot.com/a/uploads/original/1179/11799911/3383938-duck.jpg', Config.Webhooks.RanchCreation.TitleText .. tostring(character.charIdentifier), Config.Webhooks.RanchCreation.Text .. tostring(ownerStaticId))
+        TriggerEvent('bcc-ranch:CheckIfRanchIsOwned', ownerSource)
     end
 end)
 
@@ -164,8 +165,14 @@ RegisterServerEvent('bcc-ranch:AffectLedger', function(ranchid, type, amount)
 end)
 
 ----- Checking If Character Owns a ranch -----
-RegisterServerEvent('bcc-ranch:CheckIfRanchIsOwned', function()
-    local _source = source
+RegisterServerEvent('bcc-ranch:CheckIfRanchIsOwned')
+AddEventHandler('bcc-ranch:CheckIfRanchIsOwned', function(ownerSource) --Done this way so can be called server or client side
+    local _source = nil
+    if ownerSource ~= nil or false then
+        _source = ownerSource
+    else
+        _source = source
+    end
     local character = VORPcore.getUser(_source).getUsedCharacter
     local param = { ['charidentifier'] = character.charIdentifier }
     local result = MySQL.query.await("SELECT * FROM ranch WHERE charidentifier=@charidentifier", param)
@@ -178,8 +185,14 @@ RegisterServerEvent('bcc-ranch:CheckIfRanchIsOwned', function()
 end)
 
 --------- Employee Area -----------
-RegisterServerEvent('bcc-ranch:CheckIfInRanch', function()
-    local _source = source
+RegisterServerEvent('bcc-ranch:CheckIfInRanch')
+AddEventHandler('bcc-ranch:CheckIfInRanch', function(employeeSource)
+    local _source = nil
+    if employeeSource ~= nil or false then
+        _source = employeeSource
+    else
+        _source = source
+    end
     local character = VORPcore.getUser(_source).getUsedCharacter
     local param = { ['charidentifier'] = character.charIdentifier }
     local result = MySQL.query.await("SELECT ranchid FROM characters WHERE charidentifier=@charidentifier", param)
@@ -201,9 +214,10 @@ RegisterServerEvent('bcc-ranch:CheckIfInRanch', function()
     end
 end)
 
-RegisterServerEvent('bcc-ranch:HireEmployee', function(ranchId, charid)
+RegisterServerEvent('bcc-ranch:HireEmployee', function(ranchId, charid, employeeSource)
     local param = { ['charidentifier'] = charid, ['ranchid'] = ranchId }
-    exports.oxmysql:execute('UPDATE characters SET ranchid=@ranchid WHERE charidentifier=@charidentifier', param)
+    MySQL.query.await('UPDATE characters SET ranchid=@ranchid WHERE charidentifier=@charidentifier', param)
+    TriggerEvent('bcc-ranch:CheckIfInRanch', employeeSource)
     BccUtils.Discord.sendMessage(Config.Webhooks.RanchCreation.WebhookLink, 'BCC Ranch', 'https://gamespot.com/a/uploads/original/1179/11799911/3383938-duck.jpg', Config.Webhooks.RanchCreation.TitleText .. tostring(charid), Config.Webhooks.RanchCreation.Text .. tostring(charid))
 end)
 
