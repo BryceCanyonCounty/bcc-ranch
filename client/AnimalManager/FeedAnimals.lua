@@ -237,6 +237,7 @@ function FeedAnimals(animalType)
     DeleteEntity(crate3)
     feedPeds = nil
     InMission = false
+    TriggerServerEvent('bcc-ranch:PutAnimalsBack',RanchId)
 end
 
 --Function for making player carry hay

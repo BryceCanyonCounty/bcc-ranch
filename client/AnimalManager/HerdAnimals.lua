@@ -136,6 +136,7 @@ function herdanimals(animalType, ranchCond)
     if catch == 0 or PlayerDead == true then
         VORPcore.NotifyRightTip(_U("PlayerDead"), 4000)
     end
+    TriggerServerEvent('bcc-ranch:PutAnimalsBack',RanchId)
 
     DelPedsForTable(peds)
     InMission = false

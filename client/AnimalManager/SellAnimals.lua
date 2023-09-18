@@ -130,7 +130,7 @@ function SellAnimals(animalType, animalCond)
         end
         VORPcore.NotifyRightTip(_U("PlayerDead"), 4000)
     end
-
+    TriggerServerEvent('bcc-ranch:PutAnimalsBack',RanchId)
     DelPedsForTable(peds)
     InMission = false
 end
