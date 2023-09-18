@@ -22,6 +22,27 @@ RegisterServerEvent('bcc-ranch:AdminCheck', function(nextEvent, servEvent)
     end
 end)
 
+--------- Check is herding --------------
+RegisterServerEvent('bcc-ranch:CheckAnimalsOut', function(RanchId)
+    local _source = source
+    local param = { ['RanchId'] = RanchId }
+
+    local result = MySQL.query.await("SELECT isherding FROM ranch WHERE ranchid=@RanchId", param)
+    local isherding = result[1].isherding
+    if isherding > 0 then
+        TriggerClientEvent('bcc-ranch:AnimalsOutCl',_source,isherding)
+    else
+        exports.oxmysql:execute("UPDATE ranch SET isherding = 1 WHERE ranchid=@RanchId", param)
+        TriggerClientEvent('bcc-ranch:AnimalsOutCl',_source, isherding)
+    end
+end)
+
+--------- Put Animals Back --------------
+RegisterServerEvent('bcc-ranch:PutAnimalsBack', function(RanchId)
+    local param = { ['RanchId'] = RanchId }
+    exports.oxmysql:execute("UPDATE ranch SET isherding = 0 WHERE ranchid=@RanchId", param)
+end)
+
 --------- Open Inv Handler --------------
 RegisterServerEvent('bcc-ranch:OpenInv', function(ranchid)
     local _source = source
