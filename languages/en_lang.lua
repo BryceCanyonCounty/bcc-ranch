@@ -186,5 +186,13 @@ Locales["en_lang"] = {
     -- end added by Little Creek
     nameSet = 'Name Set',
     radiusSet = 'Radius Set',
-    toFar = 'To far from ranch'
+    toFar = 'To far from ranch',
+
+        --Added by Jannings
+    AnimalsOut = "Your animals are already out",
+   ranchIdWebhook = 'Ranch Id: ',
+    taxPaidWebhook = 'Tax paid!',
+    taxPaidFailedWebhook = 'Not enough money for taxes, Ranch has been deleted!',
+    TaxAmount = "Amount of Taxes",
+    taxesSet = "Taxes set",
 }
