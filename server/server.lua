@@ -22,6 +22,33 @@ RegisterServerEvent('bcc-ranch:AdminCheck', function(nextEvent, servEvent)
     end
 end)
 
+CreateThread(function() --Tax handling
+    local date = os.date("%d")
+    local result = MySQL.query.await("SELECT * FROM ranch")
+    if tonumber(date) == tonumber(Config.TaxDay) then --for some reason these have to be tonumbered
+      if #result > 0 then
+        for k, v in pairs(result) do
+          local param = { ['ranchid'] = v.ranchid, ['taxamount'] = tonumber(v.taxamount) }
+          if v.taxescollected == 'false' then
+            if tonumber(v.ledger) < tonumber(v.taxamount) then
+            exports.oxmysql:execute("UPDATE ranch SET charidentifier=0 WHERE ranchid=@ranchid", param)
+              BccUtils.Discord.sendMessage(Config.Webhooks.Taxes.WebhookLink,_U("ranchIdWebhook") .. tostring(v.ranchid), _U("taxPaidFailedWebhook"))
+            else
+              exports.oxmysql:execute("UPDATE ranch SET ledger=ledger-@taxamount, taxescollected='true' WHERE ranchid=@ranchid", param)
+              BccUtils.Discord.sendMessage(Config.Webhooks.Taxes.WebhookLink,_U("ranchIdWebhook") .. tostring(v.ranchid), _U("taxPaidWebhook"))
+            end
+          end
+        end
+      end
+    elseif tonumber(date) == tonumber(Config.TaxResetDay) then
+      if #result > 0 then
+        for k, v in pairs(result) do
+          local param = { ['ranchid'] = v.ranchid }
+          exports.oxmysql:execute("UPDATE ranch SET taxes_collected='false' WHERE ranchid=@ranchid", param)
+        end
+      end
+    end
+
 --------- Check is herding --------------
 RegisterServerEvent('bcc-ranch:CheckAnimalsOut', function(RanchId)
     local _source = source
