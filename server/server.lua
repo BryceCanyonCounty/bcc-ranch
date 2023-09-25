@@ -83,14 +83,14 @@ RegisterServerEvent('bcc-ranch:AddItem', function(item, amount)
 end)
 
 ------ Create Ranch Db Handler -----
-RegisterServerEvent('bcc-ranch:InsertCreatedRanchIntoDB', function(ranchName, ranchRadius, ownerStaticId, coords, ownerSource)
+RegisterServerEvent('bcc-ranch:InsertCreatedRanchIntoDB', function(ranchName, ranchRadius, ownerStaticId, coords,taxes, ownerSource)
     local _source = source
-    local param = { ['ranchname'] = ranchName, ['ranch_radius_limit'] = ranchRadius, ['charidentifier'] = ownerStaticId, ['ranchcoords'] = json.encode(coords) }
+    local param = { ['ranchname'] = ranchName, ['ranch_radius_limit'] = ranchRadius, ['charidentifier'] = ownerStaticId, ['ranchcoords'] = json.encode(coords),['taxamount'] = taxes }
     local result = MySQL.query.await("SELECT * FROM ranch WHERE charidentifier=@charidentifier", param)
     if #result >= 1 then
         VORPcore.NotifyRightTip(_source, _U("AlreadyOwnRanch"), 4000)
     else
-        MySQL.query.await("INSERT INTO ranch ( `charidentifier`,`ranchcoords`,`ranchname`,`ranch_radius_limit` ) VALUES ( @charidentifier,@ranchcoords,@ranchname,@ranch_radius_limit )", param)
+        MySQL.query.await("INSERT INTO ranch ( `charidentifier`,`ranchcoords`,`ranchname`,`ranch_radius_limit` ,`taxamount`) VALUES ( @charidentifier,@ranchcoords,@ranchname,@ranch_radius_limit,@taxamount )", param)
         local character = VORPcore.getUser(_source).getUsedCharacter
         VORPcore.NotifyRightTip(_source, _U("RanchMade"), 4000)
         BccUtils.Discord.sendMessage(Config.Webhooks.RanchCreation.WebhookLink, 'BCC Ranch', 'https://gamespot.com/a/uploads/original/1179/11799911/3383938-duck.jpg', Config.Webhooks.RanchCreation.TitleText .. tostring(character.charIdentifier), Config.Webhooks.RanchCreation.Text .. tostring(ownerStaticId))
