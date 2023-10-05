@@ -1,12 +1,12 @@
 --Feed animals function
 local animalsDead, feedPeds = false, {}
 local amount
-function FeedAnimals(animalType)
+RegisterNetEvent('bcc-ranch:FeedAnimals', function(animalType)
     InMission = true
     local tables, model, spawnCoords, eatAnim
     local scale = nil
     feedPeds = {} --Feedpeds is set to nil when the mission is over or player dies to empty the table, this sets it from nil to table allowing this to work again (if it is not set nil when the mission is over or failed it will fail the mission the next time you do one)
-    
+
     local selectAnimalFuncts = {
         ['cows'] = function()
             tables = Config.RanchSetup.RanchAnimalSetup.Cows
@@ -53,7 +53,8 @@ function FeedAnimals(animalType)
 
     local catch = 0
     repeat
-        local createdPed = BccUtils.Ped.CreatePed(model, spawnCoords.x + math.random(1, 5), spawnCoords.y + math.random(1, 5), spawnCoords.z, true, true, false)
+        local createdPed = BccUtils.Ped.CreatePed(model, spawnCoords.x + math.random(1, 5),
+            spawnCoords.y + math.random(1, 5), spawnCoords.z, true, true, false)
         if scale ~= nil then
             SetPedScale(createdPed, scale)
         end
@@ -71,7 +72,8 @@ function FeedAnimals(animalType)
     while not HasModelLoaded(car) do
         Wait(100)
     end
-    local vehicle = Citizen.InvokeNative(0x214651FB1DFEBA89, car, FeedWagonLocation.x, FeedWagonLocation.y, FeedWagonLocation.z, 100.0, true, false, 0, 1)
+    local vehicle = Citizen.InvokeNative(0x214651FB1DFEBA89, car, FeedWagonLocation.x, FeedWagonLocation.y,
+        FeedWagonLocation.z, 100.0, true, false, 0, 1)
     while not DoesEntityExist(vehicle) do
         Wait(5)
     end
@@ -80,13 +82,16 @@ function FeedAnimals(animalType)
     for i = 1, 3 do --credit to jannings for this amazing work here
         if i == 1 then
             crate = CreateObject('p_haybale01x', 0, 0, 0 + 1, false, false, false)
-            Citizen.InvokeNative(0x6B9BBD38AB0796DF, crate, vehicle, 0, 0.1, 0.2, 0.60, 0.0, 0.0, 0.0, 0, 0, 0, 0, 2, true)
+            Citizen.InvokeNative(0x6B9BBD38AB0796DF, crate, vehicle, 0, 0.1, 0.2, 0.60, 0.0, 0.0, 0.0, 0, 0, 0, 0, 2,
+                true)
         elseif i == 2 then
             crate2 = CreateObject('p_haybale01x', 0, 0, 0 + 1, false, false, false)
-            Citizen.InvokeNative(0x6B9BBD38AB0796DF, crate2, vehicle, 0, 0.1, -0.5, 0.09, 0.0, 0.0, 0.0, 0, 0, 0, 0, 2, true)
+            Citizen.InvokeNative(0x6B9BBD38AB0796DF, crate2, vehicle, 0, 0.1, -0.5, 0.09, 0.0, 0.0, 0.0, 0, 0, 0, 0, 2,
+                true)
         elseif i == 3 then
             crate3 = CreateObject('p_haybale01x', 0, 0, 0 + 1, false, false, false)
-            Citizen.InvokeNative(0x6B9BBD38AB0796DF, crate3, vehicle, 0, 0.1, 0.5, 0.09, 0.0, 0.0, 0.0, 0, 0, 0, 0, 2, true)
+            Citizen.InvokeNative(0x6B9BBD38AB0796DF, crate3, vehicle, 0, 0.1, 0.5, 0.09, 0.0, 0.0, 0.0, 0, 0, 0, 0, 2,
+                true)
         end
     end
 
@@ -98,7 +103,6 @@ function FeedAnimals(animalType)
         local pl = GetEntityCoords(vehicle)
         local dist = GetDistanceBetweenCoords(pl.x, pl.y, pl.z, RanchCoords.x, RanchCoords.y, RanchCoords.z, true)
         if dist > 50 then
-
             for k, v in pairs(feedPeds) do
                 local cp = GetEntityCoords(v)
                 if GetDistanceBetweenCoords(cp.x, cp.y, cp.z, pl.x, pl.y, pl.z, true) < 35 then
@@ -109,7 +113,8 @@ function FeedAnimals(animalType)
                 if IsEntityDead(v) then
                     catch = catch - 1
                     if catch == 0 then
-                        animalsDead = true break
+                        animalsDead = true
+                        break
                     end
                 end
             end
@@ -129,7 +134,8 @@ function FeedAnimals(animalType)
             TriggerServerEvent('bcc-ranch:RemoveAnimalFromDB', RanchId, animalType)
         end
         InMission = false
-        VORPcore.NotifyRightTip(_U("PlayerDead"), 4000) return
+        VORPcore.NotifyRightTip(_U("PlayerDead"), 4000)
+        return
     end
     FreezeEntityPosition(vehicle, true)
     TaskLeaveAnyVehicle(PlayerPedId(), 0, 0)
@@ -139,7 +145,8 @@ function FeedAnimals(animalType)
 
     local repAmount = 0
     local PromptGroup2 = VORPutils.Prompts:SetupPromptGroup()
-    local firstprompt2 = PromptGroup2:RegisterPrompt(_U("PickUpHay"), 0x760A9C6F, 1, 1, true, 'hold', {timedeventhash = "MEDIUM_TIMED_EVENT"})
+    local firstprompt2 = PromptGroup2:RegisterPrompt(_U("PickUpHay"), 0x760A9C6F, 1, 1, true, 'hold',
+        { timedeventhash = "MEDIUM_TIMED_EVENT" })
     repeat
         while true do
             Wait(5)
@@ -150,7 +157,8 @@ function FeedAnimals(animalType)
                 if IsEntityDead(v) then
                     catch = catch - 1
                     if catch == 0 then
-                        animalsDead = true break
+                        animalsDead = true
+                        break
                     end
                 end
             end
@@ -163,19 +171,22 @@ function FeedAnimals(animalType)
                         VORPcore.NotifyRightTip(_U("WalkAwayAndPlacehay"), 4000)
                         PlayerCarryBox(crate)
                         PickUpAndDropHay(crate, vehicle)
-                        VORPcore.NotifyRightTip(_U("FeedAnimalsAfterLocation"), 4000) break
+                        VORPcore.NotifyRightTip(_U("FeedAnimalsAfterLocation"), 4000)
+                        break
                     elseif repAmount == 1 then
                         repAmount = repAmount + 1
                         VORPcore.NotifyRightTip(_U("WalkAwayAndPlacehay"), 4000)
                         PlayerCarryBox(crate2)
                         PickUpAndDropHay(crate2, vehicle)
-                        VORPcore.NotifyRightTip(_U("FeedAnimalsAfterLocation"), 4000) break
+                        VORPcore.NotifyRightTip(_U("FeedAnimalsAfterLocation"), 4000)
+                        break
                     elseif repAmount == 2 then
                         repAmount = repAmount + 1
                         VORPcore.NotifyRightTip(_U("WalkAwayAndPlacehay"), 4000)
                         PlayerCarryBox(crate3)
                         PickUpAndDropHay(crate3, vehicle)
-                        VORPcore.NotifyRightTip(_U("FeedAnimalsAfterLocation"), 4000) break
+                        VORPcore.NotifyRightTip(_U("FeedAnimalsAfterLocation"), 4000)
+                        break
                     end
                 end
             end
@@ -192,7 +203,8 @@ function FeedAnimals(animalType)
             TriggerServerEvent('bcc-ranch:RemoveAnimalFromDB', RanchId, animalType)
         end
         InMission = false
-        VORPcore.NotifyRightTip(_U("PlayerDead"), 4000) return
+        VORPcore.NotifyRightTip(_U("PlayerDead"), 4000)
+        return
     end
     FreezeEntityPosition(vehicle, false)
     for k, v in pairs(feedPeds) do
@@ -222,7 +234,8 @@ function FeedAnimals(animalType)
         DeleteEntity(crate3)
         feedPeds = nil
         InMission = false
-        VORPcore.NotifyRightTip(_U("PlayerDead"), 4000) return
+        VORPcore.NotifyRightTip(_U("PlayerDead"), 4000)
+        return
     end
     FreezeEntityPosition(vehicle, true)
     TaskLeaveAnyVehicle(PlayerPedId(), 0, 0)
@@ -237,24 +250,26 @@ function FeedAnimals(animalType)
     DeleteEntity(crate3)
     feedPeds = nil
     InMission = false
-    TriggerServerEvent('bcc-ranch:PutAnimalsBack',RanchId)
-end
+    TriggerServerEvent('bcc-ranch:PutAnimalsBack', RanchId)
+end)
 
 --Function for making player carry hay
-function PlayerCarryBox(props) --catches var from wherever it is called
-    RequestAnimDict("mech_carry_box") --loads the anim
+function PlayerCarryBox(props)                       --catches var from wherever it is called
+    RequestAnimDict("mech_carry_box")                --loads the anim
     while not HasAnimDictLoaded("mech_carry_box") do --while the anim hasnt loaded do
         Wait(100)
     end
     local pl = PlayerPedId()
-    Citizen.InvokeNative(0xEA47FE3719165B94, pl ,"mech_carry_box", "idle", 1.0, 8.0, -1, 31, 0, 0, 0, 0) --plays animation
-    Citizen.InvokeNative(0x6B9BBD38AB0796DF, props, pl ,GetEntityBoneIndexByName(pl,"SKEL_R_Finger12"), 0.20, 0.028, -0.55, 210.0, 170.0, 100.0, true, true, false, true, 1, true) --puts object in your hand
+    Citizen.InvokeNative(0xEA47FE3719165B94, pl, "mech_carry_box", "idle", 1.0, 8.0, -1, 31, 0, 0, 0, 0)                                                                           --plays animation
+    Citizen.InvokeNative(0x6B9BBD38AB0796DF, props, pl, GetEntityBoneIndexByName(pl, "SKEL_R_Finger12"), 0.20, 0.028,
+        -0.55, 210.0, 170.0, 100.0, true, true, false, true, 1, true)                                                                                                              --puts object in your hand
 end
 
 -- function for getting the hay off the wagon and placing on the ground
 function PickUpAndDropHay(crate, vehicle)
     local PromptGroup2 = VORPutils.Prompts:SetupPromptGroup()
-    local firstprompt2 = PromptGroup2:RegisterPrompt(_U("DropHay"), 0x760A9C6F, 1, 1, true, 'hold', {timedeventhash = "MEDIUM_TIMED_EVENT"})
+    local firstprompt2 = PromptGroup2:RegisterPrompt(_U("DropHay"), 0x760A9C6F, 1, 1, true, 'hold',
+        { timedeventhash = "MEDIUM_TIMED_EVENT" })
     while true do
         Wait(5)
         local pl2 = GetEntityCoords(PlayerPedId())
@@ -264,7 +279,8 @@ function PickUpAndDropHay(crate, vehicle)
             if IsEntityDead(v) then
                 amount = amount - 1
                 if amount == 0 then
-                    animalsDead = true break
+                    animalsDead = true
+                    break
                 end
             end
         end
@@ -273,7 +289,8 @@ function PickUpAndDropHay(crate, vehicle)
             if firstprompt2:HasCompleted() then
                 DetachEntity(crate, true, true)
                 ClearPedTasksImmediately(PlayerPedId())
-                Citizen.InvokeNative(0x9587913B9E772D29, crate, true) break
+                Citizen.InvokeNative(0x9587913B9E772D29, crate, true)
+                break
             end
         end
     end

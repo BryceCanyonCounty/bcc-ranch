@@ -2,6 +2,9 @@ Config = {}
 
 Config.Debug = true --false on live server
 
+Config.TaxDay = 23 --This is the number day of each month that taxes will be collected on
+Config.TaxResetDay = 24 --This MUST be the day after TaxDay set above!!! (do not change either of these dates if the current date is one of the 2 for ex if its the 22 or 23rd day do not change these dates it will break the code)
+
 -- Set Language (Current Languages: "en_lang" English, "fr_lang" French, "de_lang" German, "pt_lang" Portuguese-Brazilian)
 Config.defaultlang = "en_lang"
 
@@ -32,7 +35,13 @@ Config.Webhooks = {
         Pigs = 'Pigs for: ',
         Goats = 'Goats for: ',
         Chickens = 'Chickens for: ',
-    }
+    },
+    Taxes = { --ranch creation webhook
+    WebhookLink = '', --insert your webhook link here(leave blank for no webhooks)
+    --- Dont Change Just Translate ----
+    TitleText = 'Admin Character Static id ',
+    Text = 'Has Created A Ranch and given it too Character Static ID '
+    },
 }
 
 ---- Thise is the chore config
@@ -102,6 +111,8 @@ Config.RanchSetup = {
     MaxRanchCondition = 100, --This is the maximum ranch condition possible. This can only be set upto 999
     BlipHash = 'blip_mp_roundup', --ranch blip hash
     HerdingMinDistance = 300, --this is the minimum distance a player will have to be from there ranch to set thier herd location
+    ChoreCooldown = 900, --seconds in between being able to do chores
+    FeedCooldown = 900 -- seconds in between being able to feed animals
     RanchAnimalSetup = { --ranch animal setup
         Cows = {
             Health = 200, --How much health the cows will have while being herded or sold 

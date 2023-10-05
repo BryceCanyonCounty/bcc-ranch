@@ -8,7 +8,7 @@ RegisterNetEvent('bcc-ranch:CreateRanchmenu', function()
 end)
 
 function CreateRanchMen()
-    local ranchName, ranchRadius
+    local ranchName, ranchRadius, taxes
     local coords = GetEntityCoords(PlayerPedId())
     Inmenu = true
     CreationMenu = true
@@ -17,10 +17,11 @@ function CreateRanchMen()
         { label = _U("StaticId"),         value = 'staticid',    desc = _U("StaticId_desc") },
         { label = _U("NameRanch"),        value = 'nameranch',   desc = _U("NameRanch_desc") },
         { label = _U("RanchRadiusLimit"), value = 'radiuslimit', desc = _U("RanchRadiusLimit_desc") },
+        { label = _U("TaxAmount"),        value = 'taxes',       desc = _U("TaxAmount") },
         { label = _U("Confirm"),          value = 'confirm',     desc = _U("Confirm_desc") }
     }
 
-    VORPMenu.Open('default', GetCurrentResourceName(), 'vorp_menu',
+    MenuData.Open('default', GetCurrentResourceName(), 'menuapi',
         {
             title = _U("CreateRanchTitle"),
             align = 'top-left',
@@ -59,6 +60,30 @@ function CreateRanchMen()
                         end
                     end)
                 end,
+                ['taxes'] = function()
+                    local myInput = {
+                        type = "enableinput",                                               -- don't touch
+                        inputType = "textarea",                                             -- input type
+                        button = _U("Confirm"),                                             -- button name
+                        placeholder = _U("TaxAmount"),                                      -- placeholder name
+                        style = "block",                                                    -- don't touch
+                        attributes = {
+                            inputHeader = "",                                               -- header
+                            type = "number",                                                -- inputype text, number,date,textarea ETC
+                            pattern = "[0-9]",                                              --  only numbers "[0-9]" | for letters only "[A-Za-z]+"
+                            title = _U("InvalidInput"),                                     -- if input doesnt match show this message
+                            style = "border-radius: 10px; background-color: ; border:none;" -- style
+                        }
+                    }
+                    TriggerEvent("vorpinputs:advancedInput", json.encode(myInput), function(result)
+                        if result ~= '' and result then
+                            taxes = result
+                            VORPcore.NotifyRightTip(_U("taxesSet"), 4000)
+                        else
+                            VORPcore.NotifyRightTip(_U("InvalidInput"), 4000)
+                        end
+                    end)
+                end,
                 ['radiuslimit'] = function()
                     local myInput = {
                         type = "enableinput",                                               -- don't touch
@@ -84,11 +109,12 @@ function CreateRanchMen()
                     end)
                 end,
                 ['confirm'] = function()
-                    TriggerServerEvent('bcc-ranch:InsertCreatedRanchIntoDB', ranchName, ranchRadius, charid, coords, ownerSource)
+                    TriggerServerEvent('bcc-ranch:InsertCreatedRanchIntoDB', ranchName, ranchRadius, charid, coords,
+                        taxes, ownerSource)
                     charid = nil
                     Inmenu = false
                     CreationMenu = false
-                    VORPMenu.CloseAll()
+                    MenuData.CloseAll()
                 end
             }
 
@@ -96,7 +122,7 @@ function CreateRanchMen()
                 selectedOption[data.current.value]()
             end
         end,
-        function(data,menu)
+        function(data, menu)
             CreationMenu = false
             Inmenu = false
             menu.close()
@@ -105,7 +131,7 @@ end
 
 --------- Show the player list credit to vorp admin for this
 function PlayerList()
-    VORPMenu.CloseAll()
+    MenuData.CloseAll()
     local elements = {}
     local players = GetPlayers()
 
@@ -122,29 +148,29 @@ function PlayerList()
         }
     end
 
-    VORPMenu.Open('default', GetCurrentResourceName(), 'vorp_menu',
-    {
-        title      = _U("StaticId"),
-        subtext    = _U("StaticId_desc"),
-        align      = 'top-left',
-        elements   = elements,
-        lastmenu   = 'CreateRanchMen',
-        itemHeight = "4vh",
-    },
-    function(data, menu)
-        if data.current == 'backup' then
-            _G[data.trigger]()
-        end
-        if data.current.value then
-            charid = data.current.info.staticid
-            ownerSource = data.current.info.serverId
-            VORPcore.NotifyRightTip(_U("OwnerSet"), 4000)
-            menu.close() --if this is not here this will cause an error dunno why vorp_menu sucks menuapi is better end of discussion
+    MenuData.Open('default', GetCurrentResourceName(), 'menuapi',
+        {
+            title      = _U("StaticId"),
+            subtext    = _U("StaticId_desc"),
+            align      = 'top-left',
+            elements   = elements,
+            lastmenu   = 'CreateRanchMen',
+            itemHeight = "4vh",
+        },
+        function(data, menu)
+            if data.current == 'backup' then
+                _G[data.trigger]()
+            end
+            if data.current.value then
+                charid = data.current.info.staticid
+                ownerSource = data.current.info.serverId
+                VORPcore.NotifyRightTip(_U("OwnerSet"), 4000)
+                menu.close() --if this is not here this will cause an error dunno why menuapi sucks menuapi is better end of discussion
+                CreateRanchMen()
+            end
+        end,
+        function(data, menu)
+            menu.close()
             CreateRanchMen()
-        end
-    end,
-    function(data, menu)
-        menu.close()
-        CreateRanchMen()
-    end)
+        end)
 end

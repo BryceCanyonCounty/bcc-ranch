@@ -23,6 +23,7 @@ CreateThread(function()
     end
 end)
 
+
 ---- This will handle opening ranch menu -----
 RegisterNetEvent('bcc-ranch:HasRanchHandler', function(ranch)
     RanchCoords = json.decode(ranch.ranchcoords)
@@ -32,23 +33,25 @@ RegisterNetEvent('bcc-ranch:HasRanchHandler', function(ranch)
     ChickenCoop_coords = json.decode(ranch.chicken_coop_coords)
     TriggerEvent('bcc-ranch:StartCondDec')
     TriggerServerEvent('bcc-ranch:AgeCheck', RanchId)
-	-- added by Little Creek
-	-- coords needed for Wandering.lua
-	Cowcoords = json.decode(ranch.cowcoords)
-	Pigcoords = json.decode(ranch.pigcoords)
-	Chickencoords = json.decode(ranch.chickencoords)
-	Goatcoords = json.decode(ranch.goatcoords)
+    -- added by Little Creek
+    -- coords needed for Wandering.lua
+    Cowcoords = json.decode(ranch.cowcoords)
+    Pigcoords = json.decode(ranch.pigcoords)
+    Chickencoords = json.decode(ranch.chickencoords)
+    Goatcoords = json.decode(ranch.goatcoords)
     Herdlocation = json.decode(ranch.herdlocation)
     FeedWagonLocation = json.decode(ranch.wagonfeedcoords)
     Haycoords = json.decode(ranch.shovehaycoords)
     WaterAnimalCoords = json.decode(ranch.wateranimalcoords)
     RepairTroughCoords = json.decode(ranch.repairtroughcoords)
     ScoopPoopCoords = json.decode(ranch.scooppoopcoords)
-	-- end added by Little Creek
+    -- end added by Little Creek
     Wait(200)
-    local blip = VORPutils.Blips:SetBlip(ranch.ranchname, Config.RanchSetup.BlipHash, 0.2, RanchCoords.x, RanchCoords.y, RanchCoords.z)
+    local blip = VORPutils.Blips:SetBlip(ranch.ranchname, Config.RanchSetup.BlipHash, 0.2, RanchCoords.x, RanchCoords.y,
+        RanchCoords.z)
     local PromptGroup = VORPutils.Prompts:SetupPromptGroup()
-    local firstprompt = PromptGroup:RegisterPrompt(_U("OpenRanchMenu"), 0x760A9C6F, 1, 1, true, 'hold', { timedeventhash = "MEDIUM_TIMED_EVENT" })
+    local firstprompt = PromptGroup:RegisterPrompt(_U("OpenRanchMenu"), 0x760A9C6F, 1, 1, true, 'hold',
+        { timedeventhash = "MEDIUM_TIMED_EVENT" })
     if Config.RanchSetup.AnimalsRoamRanch then
         TriggerServerEvent('bcc-ranch:WanderingSetup', RanchId)
     end
@@ -82,7 +85,7 @@ RegisterNetEvent('bcc-ranch:HasRanchHandler', function(ranch)
             Wait(2000)
         end
         if Inmenu and dist > RanchRadius + 20 and not CreationMenu then
-            VORPMenu.CloseAll()
+            MenuData.CloseAll()
         end
     end
 end)
@@ -114,6 +117,16 @@ RegisterNetEvent('bcc-ranch:Openranchmanagerment', function()
 end)
 
 RegisterNetEvent('bcc-ranch:IsOwned', function(result)
+    IsOwner = result
+end)
+
+--------------------------- Set Animals out State----------------------------------
+RegisterNetEvent('bcc-ranch:AnimalsOutCl', function(outstate)
+    IsAnimalOut = outstate
+end)
+
+--------------------------- Checks if the current player ----------------------------------
+RegisterNetEvent('bcc-ranch:CheckPlayerHerding', function(result)
     IsOwner = result
 end)
 

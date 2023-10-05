@@ -8,17 +8,17 @@ end)
 ------ RanchAdminManagment Menu Setup --------------
 function ShowAllRanchesMenu()
     local elements = {}
-    VORPMenu.CloseAll()
+    MenuData.CloseAll()
     Inmenu = true
     for k, v in pairs(ranches) do
-        elements[#elements+1] = {
+        elements[#elements + 1] = {
             label = _U('Ranchid') .. ' ' .. v.ranchid,
             value = 'ranch' .. k,
             desc = _U("ManageRanches"),
             info = v
         }
     end
-    VORPMenu.Open('default', GetCurrentResourceName(), 'vorp_menu',
+    MenuData.Open('default', GetCurrentResourceName(), 'menuapi',
         {
             title      = _U("ManageRanches"),
             subtext    = _U("ManageRanches_desc"),
@@ -37,23 +37,23 @@ function ShowAllRanchesMenu()
         end,
         function(data, menu)
             Inmenu = false
-            VORPMenu.CloseAll()
+            MenuData.CloseAll()
         end)
 end
 
 ------------ Ranch Selected Menu --------------
 function RanchSelected(ranchTable)
     Inmenu = false
-    VORPMenu.CloseAll()
+    MenuData.CloseAll()
     local elements = {
-        { label = _U("DeleteRanch"), value = 'delranch', desc = _U('DeleteRanch_desc') },
-        { label = _U("ChangeRanchRadius"), value = 'changeradius', desc = _U("ChangeRanchRadius_desc") },
-        { label = _U("ChangeRanchName"), value = 'changename', desc = _U("ChangeRanchName_desc") },
-        { label = _U("ChangeRanchCond"), value = 'changecond', desc = _U("ChangeRanchCond_desc") },
-        { label = _U("OpenRanchInventory"), value = 'openinv', desc = _U("OpenRanchInventory_desc") },
+        { label = _U("DeleteRanch"),        value = 'delranch',     desc = _U('DeleteRanch_desc') },
+        { label = _U("ChangeRanchRadius"),  value = 'changeradius', desc = _U("ChangeRanchRadius_desc") },
+        { label = _U("ChangeRanchName"),    value = 'changename',   desc = _U("ChangeRanchName_desc") },
+        { label = _U("ChangeRanchCond"),    value = 'changecond',   desc = _U("ChangeRanchCond_desc") },
+        { label = _U("OpenRanchInventory"), value = 'openinv',      desc = _U("OpenRanchInventory_desc") },
     }
 
-    VORPMenu.Open('default', GetCurrentResourceName(), 'vorp_menu',
+    MenuData.Open('default', GetCurrentResourceName(), 'menuapi',
         {
             title = _U("ManageRanches"),
             align = 'top-left',
@@ -68,21 +68,21 @@ function RanchSelected(ranchTable)
                 ['delranch'] = function()
                     TriggerServerEvent('bcc-ranch:DeleteRanchFromDB', ranchTable.ranchid)
                     VORPcore.NotifyRightTip(_U('RanchDeleted'), 4000)
-                    VORPMenu.CloseAll()
+                    MenuData.CloseAll()
                 end,
                 ['changeradius'] = function()
                     local myInput = {
-                        type = "enableinput", -- don't touch
-                        inputType = "input", -- input type
-                        button = _U("Confirm"), -- button name
-                        placeholder = _U("RanchRadiusLimit"), -- placeholder name
-                        style = "block", -- don't touch
+                        type = "enableinput",                                               -- don't touch
+                        inputType = "input",                                                -- input type
+                        button = _U("Confirm"),                                             -- button name
+                        placeholder = _U("RanchRadiusLimit"),                               -- placeholder name
+                        style = "block",                                                    -- don't touch
                         attributes = {
-                            inputHeader = "", -- header
-                            type = "number", -- inputype text, number,date,textarea ETC
-                            pattern = "[0-9]", --  only numbers "[0-9]" | for letters only "[A-Za-z]+" 
-                            title = _U("InvalidInput"), -- if input doesnt match show this message
-                            style = "border-radius: 10px; background-color: ; border:none;"-- style 
+                            inputHeader = "",                                               -- header
+                            type = "number",                                                -- inputype text, number,date,textarea ETC
+                            pattern = "[0-9]",                                              --  only numbers "[0-9]" | for letters only "[A-Za-z]+"
+                            title = _U("InvalidInput"),                                     -- if input doesnt match show this message
+                            style = "border-radius: 10px; background-color: ; border:none;" -- style
                         }
                     }
                     TriggerEvent("vorpinputs:advancedInput", json.encode(myInput), function(result)
@@ -96,17 +96,17 @@ function RanchSelected(ranchTable)
                 end,
                 ['changename'] = function()
                     local myInput = {
-                        type = "enableinput", -- don't touch
-                        inputType = "input", -- input type
-                        button = _U("Confirm"), -- button name
-                        placeholder = _U("NameRanch"), -- placeholder name
-                        style = "block", -- don't touch
+                        type = "enableinput",                                               -- don't touch
+                        inputType = "input",                                                -- input type
+                        button = _U("Confirm"),                                             -- button name
+                        placeholder = _U("NameRanch"),                                      -- placeholder name
+                        style = "block",                                                    -- don't touch
                         attributes = {
-                            inputHeader = "", -- header
-                            type = "text", -- inputype text, number,date,textarea ETC
-                            pattern = "[A-Za-z]+", --  only numbers "[0-9]" | for letters only "[A-Za-z]+" 
-                            title = _U("InvalidInput"), -- if input doesnt match show this message
-                            style = "border-radius: 10px; background-color: ; border:none;"-- style 
+                            inputHeader = "",                                               -- header
+                            type = "text",                                                  -- inputype text, number,date,textarea ETC
+                            pattern = "[A-Za-z]+",                                          --  only numbers "[0-9]" | for letters only "[A-Za-z]+"
+                            title = _U("InvalidInput"),                                     -- if input doesnt match show this message
+                            style = "border-radius: 10px; background-color: ; border:none;" -- style
                         }
                     }
                     TriggerEvent("vorpinputs:advancedInput", json.encode(myInput), function(result)
@@ -120,17 +120,17 @@ function RanchSelected(ranchTable)
                 end,
                 ['changecond'] = function()
                     local myInput = {
-                        type = "enableinput", -- don't touch
-                        inputType = "input", -- input type
-                        button = _U("Confirm"), -- button name
-                        placeholder = _U("InsertRanchCond"), -- placeholder name
-                        style = "block", -- don't touch
+                        type = "enableinput",                                               -- don't touch
+                        inputType = "input",                                                -- input type
+                        button = _U("Confirm"),                                             -- button name
+                        placeholder = _U("InsertRanchCond"),                                -- placeholder name
+                        style = "block",                                                    -- don't touch
                         attributes = {
-                            inputHeader = "", -- header
-                            type = "number", -- inputype text, number,date,textarea ETC
-                            pattern = "[0-9]", --  only numbers "[0-9]" | for letters only "[A-Za-z]+" 
-                            title = _U("InvalidInput"), -- if input doesnt match show this message
-                            style = "border-radius: 10px; background-color: ; border:none;"-- style 
+                            inputHeader = "",                                               -- header
+                            type = "number",                                                -- inputype text, number,date,textarea ETC
+                            pattern = "[0-9]",                                              --  only numbers "[0-9]" | for letters only "[A-Za-z]+"
+                            title = _U("InvalidInput"),                                     -- if input doesnt match show this message
+                            style = "border-radius: 10px; background-color: ; border:none;" -- style
                         }
                     }
                     TriggerEvent("vorpinputs:advancedInput", json.encode(myInput), function(result)
@@ -144,7 +144,7 @@ function RanchSelected(ranchTable)
                 end,
                 ['openinv'] = function()
                     TriggerServerEvent('bcc-ranch:OpenInv', ranchTable.ranchid)
-                    VORPMenu.CloseAll()
+                    MenuData.CloseAll()
                 end
             }
 
