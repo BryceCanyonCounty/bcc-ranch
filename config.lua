@@ -112,6 +112,7 @@ Config.RanchSetup = {
     BlipHash = 'blip_mp_roundup', --ranch blip hash
     HerdingMinDistance = 300, --this is the minimum distance a player will have to be from there ranch to set thier herd location
     ChoreCooldown = 900, --seconds in between being able to do chores
+    FeedCooldown = 900 -- seconds in between being able to feed animals
     RanchAnimalSetup = { --ranch animal setup
         Cows = {
             Health = 200, --How much health the cows will have while being herded or sold 
