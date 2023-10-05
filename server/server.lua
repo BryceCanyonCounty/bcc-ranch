@@ -753,5 +753,24 @@ RegisterServerEvent('bcc-ranch:CowMilkingCooldown', function(ranchId)
   end
 end)
 
+        local choreCooldowns = {} --Sale Cooldown
+RegisterServerEvent('bcc-ranch:ChoreCooldownSV', function(source, ranchId, chore)
+    print('got to here')
+    local _source = source
+    local shopid = ranchId
+    if choreCooldowns[shopid] then
+        if os.difftime(os.time(), choreCooldowns[shopid]) >= Config.RanchSetup.ChoreCooldown then
+            choreCooldowns[shopid] = os.time()
+            TriggerClientEvent('bcc-ranch:ShovelHay', _source, chore)
+        else
+            print('too soon ')
+            VORPcore.NotifyRightTip(_source, _U("TooSoon"), 4000)
+        end
+    else
+        choreCooldowns[shopid] = os.time() --Store the current time
+        TriggerClientEvent('bcc-ranch:ShovelHay', _source, chore)
+    end
+end)
+
 ----- Version Check ----
 BccUtils.Versioner.checkRelease(GetCurrentResourceName(), 'https://github.com/BryceCanyonCounty/bcc-ranch')
