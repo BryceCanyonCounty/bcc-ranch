@@ -443,6 +443,7 @@ RegisterNetEvent('bcc-ranch:OwnedAnimalManagerMenu', function(animalCond, animal
                 ['feedanimal'] = function()
                     if FeedWagonLocation then
                         TriggerServerEvent('bcc-ranch:CheckAnimalsOut', RanchId)
+
                         Wait(250)
                         if IsAnimalOut == 0 then
                             MenuData.CloseAll()
@@ -453,7 +454,7 @@ RegisterNetEvent('bcc-ranch:OwnedAnimalManagerMenu', function(animalCond, animal
                                 if Pigcoords ~= nil and Pigcoords ~= 'none' then
                                     if CanFeed then
                                         MenuData.CloseAll()
-                                        FeedAnimals('pigs')
+                                        TriggerServerEvent('bcc-ranch:ChoreCooldownSV', RanchId, true, nil, 'pigs')
                                     else
                                         VORPcore.NotifyRightTip(_U("AnimalsOut"), 4000)
                                     end
@@ -465,7 +466,7 @@ RegisterNetEvent('bcc-ranch:OwnedAnimalManagerMenu', function(animalCond, animal
                                 if Goatcoords ~= nil and Goatcoords ~= 'none' then
                                     if CanFeed then
                                         MenuData.CloseAll()
-                                        FeedAnimals('goats')
+                                        TriggerServerEvent('bcc-ranch:ChoreCooldownSV', RanchId, true, nil, 'goats')
                                     else
                                         VORPcore.NotifyRightTip(_U("AnimalsOut"), 4000)
                                     end
@@ -477,7 +478,7 @@ RegisterNetEvent('bcc-ranch:OwnedAnimalManagerMenu', function(animalCond, animal
                                 if Chickencoords and Chickencoords ~= 'none' then
                                     if CanFeed then
                                         MenuData.CloseAll()
-                                        FeedAnimals('chickens')
+                                        TriggerServerEvent('bcc-ranch:ChoreCooldownSV', RanchId, true, nil, 'chickens')
                                     else
                                         VORPcore.NotifyRightTip(_U("AnimalsOut"), 4000)
                                     end
@@ -489,7 +490,7 @@ RegisterNetEvent('bcc-ranch:OwnedAnimalManagerMenu', function(animalCond, animal
                                 if Cowcoords and Cowcoords ~= 'none' then
                                     if CanFeed then
                                         MenuData.CloseAll()
-                                        FeedAnimals('cows')
+                                        TriggerServerEvent('bcc-ranch:ChoreCooldownSV', RanchId, true, nil, 'cows')
                                     else
                                         VORPcore.NotifyRightTip(_U("AnimalsOut"), 4000)
                                     end

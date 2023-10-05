@@ -324,7 +324,7 @@ RegisterServerEvent('bcc-ranch:ChoreCheckRanchCondition', function(ranchid, chor
         if result[1].ranchCondition >= 100 then
             VORPcore.NotifyRightTip(_source, _U("ConditionMax"), 4000)
         else
-            TriggerEvent('bcc-ranch:ChoreCooldownSV', _source, ranchid, chore)
+            TriggerEvent('bcc-ranch:ChoreCooldownSV', ranchid, nil, chore, nil)
         end
     end
 end)
@@ -840,22 +840,67 @@ RegisterServerEvent('bcc-ranch:CowMilkingCooldown', function(ranchId)
     end
 end)
 
-local choreCooldowns = {} --Sale Cooldown
-RegisterServerEvent('bcc-ranch:ChoreCooldownSV', function(source, ranchId, chore)
-    print('got to here')
+local herdingCooldowns = {} --Herding Cooldown
+RegisterServerEvent('bcc-ranch:HerdingCooldown', function(ranchId)
     local _source = source
     local shopid = ranchId
-    if choreCooldowns[shopid] then
-        if os.difftime(os.time(), choreCooldowns[shopid]) >= Config.RanchSetup.ChoreCooldown then
-            choreCooldowns[shopid] = os.time()
-            TriggerClientEvent('bcc-ranch:ShovelHay', _source, chore)
+    if herdingCooldowns[shopid] then
+        if os.difftime(os.time(), herdingCooldowns[shopid]) >= Config.RanchSetup.HerdingCooldown then
+            herdingCooldowns[shopid] = os.time()
+            TriggerClientEvent('bcc-ranch:Set', _source)
         else
-            print('too soon ')
+            VORPcore.NotifyRightTip(_source, _U("TooSoon"), 4000)
+        end
+    else
+        herdingCooldowns[shopid] = os.time()              --Store the current time
+        TriggerClientEvent('bcc-ranch:MilkCows', _source) --Robbery is not on cooldown
+    end
+end)
+local saleCooldowns = {} --Sale Cooldown
+RegisterServerEvent('bcc-ranch:SaleCooldown', function(ranchId)
+    local _source = source
+    local shopid = ranchId
+    if saleCooldowns[shopid] then
+        if os.difftime(os.time(), saleCooldowns[shopid]) >= Config.RanchSetup.SaleCooldown then
+            saleCooldowns[shopid] = os.time()
+            TriggerClientEvent('bcc-ranch:MilkCows', _source)
+        else
+            VORPcore.NotifyRightTip(_source, _U("TooSoon"), 4000)
+        end
+    else
+        saleCooldowns[shopid] = os.time()                 --Store the current time
+        TriggerClientEvent('bcc-ranch:MilkCows', _source) --Robbery is not on cooldown
+    end
+end)
+
+local choreCooldowns = {} --Sale Cooldown
+RegisterServerEvent('bcc-ranch:ChoreCooldownSV', function(ranchId, feed, chore, animal)
+    local _source = source
+    local shopid = ranchId
+    local cooldown
+    if feed then
+        cooldown = Config.RanchSetup.FeedCooldown
+    else
+        cooldown = Config.RanchSetup.ChoreCooldown
+    end
+    if choreCooldowns[shopid] then
+        if os.difftime(os.time(), choreCooldowns[shopid]) >= cooldown then
+            choreCooldowns[shopid] = os.time()
+            if feed then
+                TriggerClientEvent('bcc-ranch:FeedAnimals', _source, animal)
+            else
+                TriggerClientEvent('bcc-ranch:ShovelHay', _source, chore)
+            end
+        else
             VORPcore.NotifyRightTip(_source, _U("TooSoon"), 4000)
         end
     else
         choreCooldowns[shopid] = os.time() --Store the current time
-        TriggerClientEvent('bcc-ranch:ShovelHay', _source, chore)
+        if feed then
+            TriggerClientEvent('bcc-ranch:FeedAnimals', _source, animal)
+        else
+            TriggerClientEvent('bcc-ranch:ShovelHay', _source, chore)
+        end
     end
 end)
 
@@ -868,8 +913,7 @@ AddEventHandler('playerDropped', function()
         local ranchid = ranch[1].ranchid
         local herdcheck = MySQL.query.await("SELECT isherding FROM ranch WHERE ?=?", ranchid)
         if herdcheck[1].isherding then
-            TriggerClientEvent('bcc-ranch:CheckPlayerHerding', source)
-            --exports.oxmysql:execute("UPDATE ranch SET `isherding`=0 WHERE ranchid=@ranchid", param)
+            exports.oxmysql:execute("UPDATE ranch SET `isherding`=0 WHERE ?=?", ranchid)
         end
     end
 end)
