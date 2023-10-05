@@ -1,11 +1,11 @@
 ----- Variabless -----
-Cowcoords, Chickencoords, Goatcoords, Pigcoords, Herdlocation, FeedWagonLocation, BoughtCows, BoughtChickens, BoughtGoats, BoughtPigs, IsAnimalOut, CanFeed,CanSell =
-    nil, nil, nil, nil, nil, nil, true, true, true, true, nil, false,false
+Cowcoords, Chickencoords, Goatcoords, Pigcoords, Herdlocation, FeedWagonLocation, BoughtCows, BoughtChickens, BoughtGoats, BoughtPigs, IsAnimalOut, CanFeed, CanSell =
+    nil, nil, nil, nil, nil, nil, true, true, true, true, nil, false, false
 
 ------ Buy Animals Menu --------
 function BuyAnimalMenu()
     Inmenu = false
-    VORPMenu.CloseAll()
+    MenuData.CloseAll()
     local elements = {
         {
             label = _U("BuyCows") .. ' ' .. tostring(Config.RanchSetup.RanchAnimalSetup.Cows.Cost),
@@ -37,7 +37,7 @@ function BuyAnimalMenu()
         },
     }
 
-    VORPMenu.Open('default', GetCurrentResourceName(), 'vorp_menu',
+    MenuData.Open('default', GetCurrentResourceName(), 'menuapi',
         {
             title = _U("Caretaking"),
             align = 'top-left',
@@ -87,7 +87,7 @@ end
 --------- Manage Animals Menu ------
 function ManageOwnedAnimalsMenu()
     Inmenu = false
-    VORPMenu.CloseAll()
+    MenuData.CloseAll()
 
     -- added / changed by Little Creek
     local set_or_change_herd, set_or_change_herd_desc, set_or_change_feed_wagon, set_or_change_feed_wagon_desc = '', '',
@@ -119,7 +119,7 @@ function ManageOwnedAnimalsMenu()
     }
     -- end added / changed by Little Creek
 
-    VORPMenu.Open('default', GetCurrentResourceName(), 'vorp_menu',
+    MenuData.Open('default', GetCurrentResourceName(), 'menuapi',
         {
             title = _U("ManageAnimals"),
             align = 'top-left',
@@ -169,7 +169,7 @@ end
 RegisterNetEvent('bcc-ranch:OwnedAnimalManagerMenu', function(animalCond, animalType, ranchCond, ownerStaticId)
     local elements, title, maxCond, herdType
     local set_or_change, set_or_change_desc -- added by Little Creek
-    VORPMenu.CloseAll()
+    MenuData.CloseAll()
     local selectedElements = {
         ['pigs'] = function()
             herdType = 'pigs'
@@ -285,7 +285,7 @@ RegisterNetEvent('bcc-ranch:OwnedAnimalManagerMenu', function(animalCond, animal
         selectedElements[animalType]()
     end
 
-    VORPMenu.Open('default', GetCurrentResourceName(), 'vorp_menu',
+    MenuData.Open('default', GetCurrentResourceName(), 'menuapi',
         {
             title = title,
             align = 'top-left',
@@ -328,8 +328,8 @@ RegisterNetEvent('bcc-ranch:OwnedAnimalManagerMenu', function(animalCond, animal
                     if Herdlocation ~= nil and Herdlocation ~= 'none' then
                         TriggerServerEvent('bcc-ranch:CheckAnimalsOut', RanchId)
                         Wait(250)
-                        if IsAnimalOut == 0 then
-                            VORPMenu.CloseAll()
+                        if IsAnimalOut == 0 and not HerdingCooldown then
+                            MenuData.CloseAll()
                             herdanimals(herdType, ranchCond)
                         else
                             VORPcore.NotifyRightTip(_U("AnimalsOut"), 4000)
@@ -342,19 +342,19 @@ RegisterNetEvent('bcc-ranch:OwnedAnimalManagerMenu', function(animalCond, animal
                     TriggerServerEvent('bcc-ranch:CheckAnimalsOut', RanchId)
                     Wait(250)
                     if IsAnimalOut == 0 then
-                        VORPMenu.CloseAll()
+                        MenuData.CloseAll()
                         CanSell = true
                     end
                     local sellAnimalSelected = {
                         ['pigs'] = function()
                             if Pigcoords and Pigcoords ~= 'none' then
                                 if CanSell then
-                                    VORPMenu.CloseAll()
+                                    MenuData.CloseAll()
                                     SellAnimals('pigs')
                                 else
                                     VORPcore.NotifyRightTip(_U("AnimalsOut"), 4000)
                                 end
-                                VORPMenu.CloseAll()
+                                MenuData.CloseAll()
                                 SellAnimals('pigs', animalCond)
                             else
                                 VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
@@ -363,7 +363,7 @@ RegisterNetEvent('bcc-ranch:OwnedAnimalManagerMenu', function(animalCond, animal
                         ['goats'] = function()
                             if Goatcoords and Goatcoords ~= 'none' then
                                 if CanSell then
-                                    VORPMenu.CloseAll()
+                                    MenuData.CloseAll()
                                     SellAnimals('goats')
                                 else
                                     VORPcore.NotifyRightTip(_U("AnimalsOut"), 4000)
@@ -375,7 +375,7 @@ RegisterNetEvent('bcc-ranch:OwnedAnimalManagerMenu', function(animalCond, animal
                         ['chickens'] = function()
                             if Chickencoords and Chickencoords ~= 'none' then
                                 if CanSell then
-                                    VORPMenu.CloseAll()
+                                    MenuData.CloseAll()
                                     SellAnimals('chickens')
                                 else
                                     VORPcore.NotifyRightTip(_U("AnimalsOut"), 4000)
@@ -387,7 +387,7 @@ RegisterNetEvent('bcc-ranch:OwnedAnimalManagerMenu', function(animalCond, animal
                         ['cows'] = function()
                             if Cowcoords and Cowcoords ~= 'none' then
                                 if CanSell then
-                                    VORPMenu.CloseAll()
+                                    MenuData.CloseAll()
                                     SellAnimals('cows')
                                 else
                                     VORPcore.NotifyRightTip(_U("AnimalsOut"), 4000)
@@ -405,7 +405,7 @@ RegisterNetEvent('bcc-ranch:OwnedAnimalManagerMenu', function(animalCond, animal
                     local butcherSelectedOption = {
                         ['pigs'] = function()
                             if Pigcoords ~= nil and Pigcoords ~= 'none' then
-                                VORPMenu.CloseAll()
+                                MenuData.CloseAll()
                                 ButcherAnimals('pigs')
                             else
                                 VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
@@ -413,7 +413,7 @@ RegisterNetEvent('bcc-ranch:OwnedAnimalManagerMenu', function(animalCond, animal
                         end,
                         ['goats'] = function()
                             if Goatcoords ~= nil and Goatcoords ~= 'none' then
-                                VORPMenu.CloseAll()
+                                MenuData.CloseAll()
                                 ButcherAnimals('goats')
                             else
                                 VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
@@ -421,7 +421,7 @@ RegisterNetEvent('bcc-ranch:OwnedAnimalManagerMenu', function(animalCond, animal
                         end,
                         ['chickens'] = function()
                             if Chickencoords and Chickencoords ~= 'none' then
-                                VORPMenu.CloseAll()
+                                MenuData.CloseAll()
                                 ButcherAnimals('chickens')
                             else
                                 VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
@@ -429,7 +429,7 @@ RegisterNetEvent('bcc-ranch:OwnedAnimalManagerMenu', function(animalCond, animal
                         end,
                         ['cows'] = function()
                             if Cowcoords and Cowcoords ~= 'none' then
-                                VORPMenu.CloseAll()
+                                MenuData.CloseAll()
                                 ButcherAnimals('cows')
                             else
                                 VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
@@ -445,14 +445,14 @@ RegisterNetEvent('bcc-ranch:OwnedAnimalManagerMenu', function(animalCond, animal
                         TriggerServerEvent('bcc-ranch:CheckAnimalsOut', RanchId)
                         Wait(250)
                         if IsAnimalOut == 0 then
-                            VORPMenu.CloseAll()
+                            MenuData.CloseAll()
                             CanFeed = true
                         end
                         local feedAnimalSelected = {
                             ['pigs'] = function()
                                 if Pigcoords ~= nil and Pigcoords ~= 'none' then
                                     if CanFeed then
-                                        VORPMenu.CloseAll()
+                                        MenuData.CloseAll()
                                         FeedAnimals('pigs')
                                     else
                                         VORPcore.NotifyRightTip(_U("AnimalsOut"), 4000)
@@ -464,7 +464,7 @@ RegisterNetEvent('bcc-ranch:OwnedAnimalManagerMenu', function(animalCond, animal
                             ['goats'] = function()
                                 if Goatcoords ~= nil and Goatcoords ~= 'none' then
                                     if CanFeed then
-                                        VORPMenu.CloseAll()
+                                        MenuData.CloseAll()
                                         FeedAnimals('goats')
                                     else
                                         VORPcore.NotifyRightTip(_U("AnimalsOut"), 4000)
@@ -476,7 +476,7 @@ RegisterNetEvent('bcc-ranch:OwnedAnimalManagerMenu', function(animalCond, animal
                             ['chickens'] = function()
                                 if Chickencoords and Chickencoords ~= 'none' then
                                     if CanFeed then
-                                        VORPMenu.CloseAll()
+                                        MenuData.CloseAll()
                                         FeedAnimals('chickens')
                                     else
                                         VORPcore.NotifyRightTip(_U("AnimalsOut"), 4000)
@@ -488,7 +488,7 @@ RegisterNetEvent('bcc-ranch:OwnedAnimalManagerMenu', function(animalCond, animal
                             ['cows'] = function()
                                 if Cowcoords and Cowcoords ~= 'none' then
                                     if CanFeed then
-                                        VORPMenu.CloseAll()
+                                        MenuData.CloseAll()
                                         FeedAnimals('cows')
                                     else
                                         VORPcore.NotifyRightTip(_U("AnimalsOut"), 4000)
@@ -531,9 +531,4 @@ RegisterNetEvent('bcc-ranch:OwnedAnimalManagerMenu', function(animalCond, animal
                 selectedOption[data.current.value]()
             end
         end)
-end)
-
---------------------------- Checked Animals out ----------------------------------
-RegisterNetEvent('bcc-ranch:AnimalsOutCl', function(outstate)
-    IsAnimalOut = outstate
 end)

@@ -7,9 +7,9 @@ VORPutils = {}
 TriggerEvent("getUtils", function(utils)
   VORPutils = utils
 end)
-VORPMenu = {}
-TriggerEvent("vorp_menu:getData", function(cb)
-  VORPMenu = cb
+MenuData = {}
+TriggerEvent("menuapi:getData", function(cb)
+  MenuData = cb
 end)
 BccUtils = exports['bcc-utils'].initiate()
 MiniGame = exports['bcc-minigames'].initiate()
@@ -41,7 +41,9 @@ end
 function SetRelAndFollowPlayer(table) --will set the peds relation with player and then have ped follow player
   for k, v in pairs(table) do
     relationshipsetup(v, 1)
-    TaskFollowToOffsetOfEntity(v, PlayerPedId(), Config.RanchSetup.animalFollowSettings.offsetX, Config.RanchSetup.animalFollowSettings.offsetY, Config.RanchSetup.animalFollowSettings.offsetZ, 1, -1, 5, true, true, Config.RanchSetup.AnimalsWalkOnly, true, true, true)
+    TaskFollowToOffsetOfEntity(v, PlayerPedId(), Config.RanchSetup.animalFollowSettings.offsetX,
+      Config.RanchSetup.animalFollowSettings.offsetY, Config.RanchSetup.animalFollowSettings.offsetZ, 1, -1, 5, true,
+      true, Config.RanchSetup.AnimalsWalkOnly, true, true, true)
   end
 end
 

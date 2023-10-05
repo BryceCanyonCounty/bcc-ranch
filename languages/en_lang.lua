@@ -188,11 +188,13 @@ Locales["en_lang"] = {
     radiusSet = 'Radius Set',
     toFar = 'To far from ranch',
 
-        --Added by Jannings
+    --Added by Jannings
     AnimalsOut = "Your animals are already out",
    ranchIdWebhook = 'Ranch Id: ',
     taxPaidWebhook = 'Tax paid!',
     taxPaidFailedWebhook = 'Not enough money for taxes, Ranch has been deleted!',
     TaxAmount = "Amount of Taxes",
     taxesSet = "Taxes set",
+    TooSoon = 'Cooldown still active, wait!',
+
 }

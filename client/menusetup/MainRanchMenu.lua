@@ -1,7 +1,7 @@
 ----- Main Ranch Menu -----
 function MainMenu()
     Inmenu = true
-    VORPMenu.CloseAll()
+    MenuData.CloseAll()
     TriggerEvent('bcc-ranch:loadAll')
     local elements = {
         { label = _U("CheckRanchCond"), value = 'checkranchcond', desc = _U("CheckRanchCond_desc") },
@@ -10,13 +10,13 @@ function MainMenu()
         { label = _U("Inventory"),      value = 'openinv',        desc = _U("Inventory_desc") },
     }
     if IsOwner then
-        table.insert(elements, { label = _U("BuyAnimals"),     value = 'buyanimals',      desc = _U("BuyAnimals_desc") })
-        table.insert(elements, { label = _U("ManageEmployee"), value = 'manageemployees', desc = _U("ManageEmployee_desc") })
-        table.insert(elements, { label = _U("Ledger"),         value = 'ledger',          desc = _U("Ledger") })
-
+        table.insert(elements, { label = _U("BuyAnimals"), value = 'buyanimals', desc = _U("BuyAnimals_desc") })
+        table.insert(elements,
+            { label = _U("ManageEmployee"), value = 'manageemployees', desc = _U("ManageEmployee_desc") })
+        table.insert(elements, { label = _U("Ledger"), value = 'ledger', desc = _U("Ledger") })
     end
 
-    VORPMenu.Open('default', GetCurrentResourceName(), 'vorp_menu',
+    MenuData.Open('default', GetCurrentResourceName(), 'menuapi',
         {
             title = _U("RanchMenuName"),
             align = 'top-left',
@@ -44,7 +44,7 @@ function MainMenu()
                 end,
                 ['ledger'] = function()
                     Inmenu = false
-                    VORPMenu.CloseAll()
+                    MenuData.CloseAll()
                     TriggerServerEvent('bcc-ranch:GetLedger', RanchId)
                     Wait(100)
                 end,
@@ -59,6 +59,6 @@ function MainMenu()
         end,
         function(data, menu)
             Inmenu = false
-            VORPMenu.CloseAll()
+            MenuData.CloseAll()
         end)
 end

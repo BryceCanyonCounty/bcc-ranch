@@ -22,32 +22,41 @@ RegisterServerEvent('bcc-ranch:AdminCheck', function(nextEvent, servEvent)
     end
 end)
 
+RegisterCommand('tax', function()
+    TriggerEvent('bcc-ranch:TakeTaxes')
+end)
+
 CreateThread(function() --Tax handling
     local date = os.date("%d")
     local result = MySQL.query.await("SELECT * FROM ranch")
     if tonumber(date) == tonumber(Config.TaxDay) then --for some reason these have to be tonumbered
-      if #result > 0 then
-        for k, v in pairs(result) do
-          local param = { ['ranchid'] = v.ranchid, ['taxamount'] = tonumber(v.taxamount) }
-          if v.taxescollected == 'false' then
-            if tonumber(v.ledger) < tonumber(v.taxamount) then
-            exports.oxmysql:execute("UPDATE ranch SET charidentifier=0 WHERE ranchid=@ranchid", param)
-              BccUtils.Discord.sendMessage(Config.Webhooks.Taxes.WebhookLink,_U("ranchIdWebhook") .. tostring(v.ranchid), _U("taxPaidFailedWebhook"))
-            else
-              exports.oxmysql:execute("UPDATE ranch SET ledger=ledger-@taxamount, taxescollected='true' WHERE ranchid=@ranchid", param)
-              BccUtils.Discord.sendMessage(Config.Webhooks.Taxes.WebhookLink,_U("ranchIdWebhook") .. tostring(v.ranchid), _U("taxPaidWebhook"))
+        if #result > 0 then
+            for k, v in pairs(result) do
+                local param = { ['ranchid'] = v.ranchid, ['taxamount'] = tonumber(v.taxamount) }
+                if v.taxescollected == 'false' then
+                    if tonumber(v.ledger) < tonumber(v.taxamount) then
+                        exports.oxmysql:execute("UPDATE ranch SET charidentifier=0 WHERE ranchid=@ranchid", param)
+                        BccUtils.Discord.sendMessage(Config.Webhooks.Taxes.WebhookLink,
+                            _U("ranchIdWebhook") .. tostring(v.ranchid), _U("taxPaidFailedWebhook"))
+                    else
+                        exports.oxmysql:execute(
+                            "UPDATE ranch SET ledger=ledger-@taxamount, taxescollected='true' WHERE ranchid=@ranchid",
+                            param)
+                        BccUtils.Discord.sendMessage(Config.Webhooks.Taxes.WebhookLink,
+                            _U("ranchIdWebhook") .. tostring(v.ranchid), _U("taxPaidWebhook"))
+                    end
+                end
             end
-          end
         end
-      end
     elseif tonumber(date) == tonumber(Config.TaxResetDay) then
-      if #result > 0 then
-        for k, v in pairs(result) do
-          local param = { ['ranchid'] = v.ranchid }
-          exports.oxmysql:execute("UPDATE ranch SET taxes_collected='false' WHERE ranchid=@ranchid", param)
+        if #result > 0 then
+            for k, v in pairs(result) do
+                local param = { ['ranchid'] = v.ranchid }
+                exports.oxmysql:execute("UPDATE ranch SET taxes_collected='false' WHERE ranchid=@ranchid", param)
+            end
         end
-      end
     end
+end)
 
 --------- Check is herding --------------
 RegisterServerEvent('bcc-ranch:CheckAnimalsOut', function(RanchId)
@@ -57,10 +66,10 @@ RegisterServerEvent('bcc-ranch:CheckAnimalsOut', function(RanchId)
     local result = MySQL.query.await("SELECT isherding FROM ranch WHERE ranchid=@RanchId", param)
     local isherding = result[1].isherding
     if isherding > 0 then
-        TriggerClientEvent('bcc-ranch:AnimalsOutCl',_source,isherding)
+        TriggerClientEvent('bcc-ranch:AnimalsOutCl', _source, isherding)
     else
         exports.oxmysql:execute("UPDATE ranch SET isherding = 1 WHERE ranchid=@RanchId", param)
-        TriggerClientEvent('bcc-ranch:AnimalsOutCl',_source, isherding)
+        TriggerClientEvent('bcc-ranch:AnimalsOutCl', _source, isherding)
     end
 end)
 
@@ -83,20 +92,32 @@ RegisterServerEvent('bcc-ranch:AddItem', function(item, amount)
 end)
 
 ------ Create Ranch Db Handler -----
-RegisterServerEvent('bcc-ranch:InsertCreatedRanchIntoDB', function(ranchName, ranchRadius, ownerStaticId, coords,taxes, ownerSource)
-    local _source = source
-    local param = { ['ranchname'] = ranchName, ['ranch_radius_limit'] = ranchRadius, ['charidentifier'] = ownerStaticId, ['ranchcoords'] = json.encode(coords),['taxamount'] = taxes }
-    local result = MySQL.query.await("SELECT * FROM ranch WHERE charidentifier=@charidentifier", param)
-    if #result >= 1 then
-        VORPcore.NotifyRightTip(_source, _U("AlreadyOwnRanch"), 4000)
-    else
-        MySQL.query.await("INSERT INTO ranch ( `charidentifier`,`ranchcoords`,`ranchname`,`ranch_radius_limit` ,`taxamount`) VALUES ( @charidentifier,@ranchcoords,@ranchname,@ranch_radius_limit,@taxamount )", param)
-        local character = VORPcore.getUser(_source).getUsedCharacter
-        VORPcore.NotifyRightTip(_source, _U("RanchMade"), 4000)
-        BccUtils.Discord.sendMessage(Config.Webhooks.RanchCreation.WebhookLink, 'BCC Ranch', 'https://gamespot.com/a/uploads/original/1179/11799911/3383938-duck.jpg', Config.Webhooks.RanchCreation.TitleText .. tostring(character.charIdentifier), Config.Webhooks.RanchCreation.Text .. tostring(ownerStaticId))
-        TriggerEvent('bcc-ranch:CheckIfRanchIsOwned', ownerSource)
-    end
-end)
+RegisterServerEvent('bcc-ranch:InsertCreatedRanchIntoDB',
+    function(ranchName, ranchRadius, ownerStaticId, coords, taxes, ownerSource)
+        local _source = source
+        local param = {
+            ['ranchname'] = ranchName,
+            ['ranch_radius_limit'] = ranchRadius,
+            ['charidentifier'] = ownerStaticId,
+            ['ranchcoords'] = json.encode(coords),
+            ['taxamount'] = taxes
+        }
+        local result = MySQL.query.await("SELECT * FROM ranch WHERE charidentifier=@charidentifier", param)
+        if #result >= 1 then
+            VORPcore.NotifyRightTip(_source, _U("AlreadyOwnRanch"), 4000)
+        else
+            MySQL.query.await(
+                "INSERT INTO ranch ( `charidentifier`,`ranchcoords`,`ranchname`,`ranch_radius_limit` ,`taxamount`) VALUES ( @charidentifier,@ranchcoords,@ranchname,@ranch_radius_limit,@taxamount )",
+                param)
+            local character = VORPcore.getUser(_source).getUsedCharacter
+            VORPcore.NotifyRightTip(_source, _U("RanchMade"), 4000)
+            BccUtils.Discord.sendMessage(Config.Webhooks.RanchCreation.WebhookLink, 'BCC Ranch',
+                'https://gamespot.com/a/uploads/original/1179/11799911/3383938-duck.jpg',
+                Config.Webhooks.RanchCreation.TitleText .. tostring(character.charIdentifier),
+                Config.Webhooks.RanchCreation.Text .. tostring(ownerStaticId))
+            TriggerEvent('bcc-ranch:CheckIfRanchIsOwned', ownerSource)
+        end
+    end)
 
 -------- Chore Coord Insertion(Citas pr) -------
 RegisterServerEvent('bcc-ranch:ChoreInsertIntoDB', function(coords, RanchId, type)
@@ -110,12 +131,14 @@ RegisterServerEvent('bcc-ranch:ChoreInsertIntoDB', function(coords, RanchId, typ
         end,
         ['wateranimalcoords'] = function()
             local param = { ['wateranimalcoords'] = json.encode(coords), ['ranchid'] = RanchId }
-            exports.oxmysql:execute("UPDATE ranch SET wateranimalcoords = @wateranimalcoords WHERE ranchid=@ranchid", param)
+            exports.oxmysql:execute("UPDATE ranch SET wateranimalcoords = @wateranimalcoords WHERE ranchid=@ranchid",
+                param)
             VORPcore.NotifyRightTip(_source, _U("WaterAnimalSave"), 4000)
         end,
         ['repairtroughcoords'] = function()
             local param = { ['repairtroughcoords'] = json.encode(coords), ['ranchid'] = RanchId }
-            exports.oxmysql:execute("UPDATE ranch SET repairtroughcoords = @repairtroughcoords WHERE ranchid=@ranchid", param)
+            exports.oxmysql:execute("UPDATE ranch SET repairtroughcoords = @repairtroughcoords WHERE ranchid=@ranchid",
+                param)
             VORPcore.NotifyRightTip(_source, _U("RepairTroughSave"), 4000)
         end,
         ['scooppoopcoords'] = function()
@@ -206,31 +229,33 @@ RegisterServerEvent('bcc-ranch:AffectLedger', function(ranchid, type, amount)
             end
         else
             exports.oxmysql:execute("UPDATE ranch SET ledger= ledger+@amount WHERE ranchid=@ranchid", param)
-           character.removeCurrency(0, amount)
-           VORPcore.NotifyRightTip(_source, _U("PutLedger") .. amount .. _U("IntheLedger"), 4000)
+            character.removeCurrency(0, amount)
+            VORPcore.NotifyRightTip(_source, _U("PutLedger") .. amount .. _U("IntheLedger"), 4000)
         end
     end
 end)
 
 ----- Checking If Character Owns a ranch -----
 RegisterServerEvent('bcc-ranch:CheckIfRanchIsOwned')
-AddEventHandler('bcc-ranch:CheckIfRanchIsOwned', function(ownerSource) --Done this way so can be called server or client side
-    local _source = nil
-    if ownerSource ~= nil or false then
-        _source = ownerSource
-    else
-        _source = source
-    end
-    local character = VORPcore.getUser(_source).getUsedCharacter
-    local param = { ['charidentifier'] = character.charIdentifier }
-    local result = MySQL.query.await("SELECT * FROM ranch WHERE charidentifier=@charidentifier", param)
-    if #result > 0 then
-        VORPInv.removeInventory('Player_' .. result[1].ranchid .. '_bcc-ranchinv')
-        Wait(50)
-        VORPInv.registerInventory('Player_' .. result[1].ranchid .. '_bcc-ranchinv', Config.RanchSetup.InvName, Config.RanchSetup.InvLimit, true, true, true)
-        TriggerClientEvent('bcc-ranch:HasRanchHandler', _source, result[1])
-    end
-end)
+AddEventHandler('bcc-ranch:CheckIfRanchIsOwned',
+    function(ownerSource) --Done this way so can be called server or client side
+        local _source = nil
+        if ownerSource ~= nil or false then
+            _source = ownerSource
+        else
+            _source = source
+        end
+        local character = VORPcore.getUser(_source).getUsedCharacter
+        local param = { ['charidentifier'] = character.charIdentifier }
+        local result = MySQL.query.await("SELECT * FROM ranch WHERE charidentifier=@charidentifier", param)
+        if #result > 0 then
+            VORPInv.removeInventory('Player_' .. result[1].ranchid .. '_bcc-ranchinv')
+            Wait(50)
+            VORPInv.registerInventory('Player_' .. result[1].ranchid .. '_bcc-ranchinv', Config.RanchSetup.InvName,
+                Config.RanchSetup.InvLimit, true, true, true)
+            TriggerClientEvent('bcc-ranch:HasRanchHandler', _source, result[1])
+        end
+    end)
 
 --------- Employee Area -----------
 RegisterServerEvent('bcc-ranch:CheckIfInRanch')
@@ -247,13 +272,14 @@ AddEventHandler('bcc-ranch:CheckIfInRanch', function(employeeSource)
     if #result > 0 then
         if result[1].ranchid ~= nil and 0 then
             local ranchid = result[1].ranchid
-            local param2 = { ["ranchid"] = ranchid}
+            local param2 = { ["ranchid"] = ranchid }
             exports.oxmysql:execute("SELECT * FROM ranch WHERE ranchid=@ranchid", param2, function(result2)
                 if result2[1] then
                     if result2[1].ranchid == ranchid then
                         VORPInv.removeInventory('Player_' .. result[1].ranchid .. '_bcc-ranchinv')
                         Wait(50)
-                        VORPInv.registerInventory('Player_' .. result[1].ranchid .. '_bcc-ranchinv', Config.RanchSetup.InvName, Config.RanchSetup.InvLimit, true, true, true)
+                        VORPInv.registerInventory('Player_' .. result[1].ranchid .. '_bcc-ranchinv',
+                            Config.RanchSetup.InvName, Config.RanchSetup.InvLimit, true, true, true)
                         TriggerClientEvent('bcc-ranch:HasRanchHandler', _source, result2[1])
                     end
                 end
@@ -266,19 +292,26 @@ RegisterServerEvent('bcc-ranch:HireEmployee', function(ranchId, charid, employee
     local param = { ['charidentifier'] = charid, ['ranchid'] = ranchId }
     MySQL.query.await('UPDATE characters SET ranchid=@ranchid WHERE charidentifier=@charidentifier', param)
     TriggerEvent('bcc-ranch:CheckIfInRanch', employeeSource)
-    BccUtils.Discord.sendMessage(Config.Webhooks.RanchCreation.WebhookLink, 'BCC Ranch', 'https://gamespot.com/a/uploads/original/1179/11799911/3383938-duck.jpg', Config.Webhooks.RanchCreation.TitleText .. tostring(charid), Config.Webhooks.RanchCreation.Text .. tostring(charid))
+    BccUtils.Discord.sendMessage(Config.Webhooks.RanchCreation.WebhookLink, 'BCC Ranch',
+        'https://gamespot.com/a/uploads/original/1179/11799911/3383938-duck.jpg',
+        Config.Webhooks.RanchCreation.TitleText .. tostring(charid),
+        Config.Webhooks.RanchCreation.Text .. tostring(charid))
 end)
 
 RegisterServerEvent('bcc-ranch:FireEmployee', function(charid)
     local param = { ['charidentifier'] = charid }
     exports.oxmysql:execute('UPDATE characters SET ranchid=0 WHERE charidentifier=@charidentifier', param)
-    BccUtils.Discord.sendMessage(Config.Webhooks.RanchCreation.WebhookLink, 'BCC Ranch', 'https://gamespot.com/a/uploads/original/1179/11799911/3383938-duck.jpg', Config.Webhooks.RanchCreation.TitleText .. tostring(charid), Config.Webhooks.RanchCreation.Text .. tostring(charid))
+    BccUtils.Discord.sendMessage(Config.Webhooks.RanchCreation.WebhookLink, 'BCC Ranch',
+        'https://gamespot.com/a/uploads/original/1179/11799911/3383938-duck.jpg',
+        Config.Webhooks.RanchCreation.TitleText .. tostring(charid),
+        Config.Webhooks.RanchCreation.Text .. tostring(charid))
 end)
 
 RegisterServerEvent("bcc-ranch:GetEmployeeList")
 AddEventHandler("bcc-ranch:GetEmployeeList", function(ranchid)
     local _source = source
-    local result = MySQL.query.await("SELECT firstname, lastname, charidentifier FROM characters WHERE ranchid = @ranchid", { ["ranchid"] = ranchid })
+    local result = MySQL.query.await(
+        "SELECT firstname, lastname, charidentifier FROM characters WHERE ranchid = @ranchid", { ["ranchid"] = ranchid })
     TriggerClientEvent('bcc-ranch:ViewEmployeeMenu', _source, result)
 end)
 
@@ -291,7 +324,7 @@ RegisterServerEvent('bcc-ranch:ChoreCheckRanchCondition', function(ranchid, chor
         if result[1].ranchCondition >= 100 then
             VORPcore.NotifyRightTip(_source, _U("ConditionMax"), 4000)
         else
-            TriggerClientEvent('bcc-ranch:ShovelHay', _source, chore)
+            TriggerEvent('bcc-ranch:ChoreCooldownSV', _source, ranchid, chore)
         end
     end
 end)
@@ -299,7 +332,8 @@ end)
 ---- Event To Increase Ranch Condition Upon Chore Completion -----
 RegisterServerEvent('bcc-ranch:RanchConditionIncrease', function(increaseAmount, ranchid)
     local param = { ['ranchid'] = ranchid, ['ConditionIncrease'] = increaseAmount }
-    exports.oxmysql:execute("UPDATE ranch SET `ranchCondition`=ranchCondition+@ConditionIncrease WHERE ranchid=@ranchid", param)
+    exports.oxmysql:execute("UPDATE ranch SET `ranchCondition`=ranchCondition+@ConditionIncrease WHERE ranchid=@ranchid",
+        param)
 end)
 
 ---- Event To Display Ranch Condition To Player -----
@@ -314,7 +348,8 @@ end)
 
 ---- Buy Animals Event ----
 RegisterServerEvent('bcc-ranch:BuyAnimals', function(ranchid, animalType)
-    local discord = BccUtils.Discord.setup(Config.Webhooks.AnimalBought.WebhookLink, 'BCC Ranch', 'https://gamespot.com/a/uploads/original/1179/11799911/3383938-duck.jpg')
+    local discord = BccUtils.Discord.setup(Config.Webhooks.AnimalBought.WebhookLink, 'BCC Ranch',
+        'https://gamespot.com/a/uploads/original/1179/11799911/3383938-duck.jpg')
     local _source = source
     local character = VORPcore.getUser(_source).getUsedCharacter
     local param = { ['ranchid'] = ranchid }
@@ -327,7 +362,9 @@ RegisterServerEvent('bcc-ranch:BuyAnimals', function(ranchid, animalType)
                     if result[1].cows == 'false' then
                         TriggerEvent('bcc-ranch:IndAnimalAgeStart', 'cows', _source)
                         exports.oxmysql:execute('UPDATE ranch SET `cows`="true" WHERE ranchid=@ranchid', param)
-                        AnimalBoughtHandle(Config.RanchSetup.RanchAnimalSetup.Cows.Cost, Config.Webhooks.AnimalBought.TitleText, Config.Webhooks.AnimalBought.DescText, Config.Webhooks.AnimalBought.Cows, _source, ranchid, discord, character)
+                        AnimalBoughtHandle(Config.RanchSetup.RanchAnimalSetup.Cows.Cost,
+                            Config.Webhooks.AnimalBought.TitleText, Config.Webhooks.AnimalBought.DescText,
+                            Config.Webhooks.AnimalBought.Cows, _source, ranchid, discord, character)
                     else
                         VORPcore.NotifyRightTip(_source, _U("AlreadyOwnAnimal"), 4000)
                     end
@@ -343,7 +380,9 @@ RegisterServerEvent('bcc-ranch:BuyAnimals', function(ranchid, animalType)
                     if result[1].pigs == 'false' then
                         TriggerEvent('bcc-ranch:IndAnimalAgeStart', 'pigs', _source)
                         exports.oxmysql:execute('UPDATE ranch SET `pigs`="true" WHERE ranchid=@ranchid', param)
-                        AnimalBoughtHandle(Config.RanchSetup.RanchAnimalSetup.Pigs.Cost, Config.Webhooks.AnimalBought.TitleText, Config.Webhooks.AnimalBought.DescText, Config.Webhooks.AnimalBought.Pigs, _source, ranchid, discord, character)
+                        AnimalBoughtHandle(Config.RanchSetup.RanchAnimalSetup.Pigs.Cost,
+                            Config.Webhooks.AnimalBought.TitleText, Config.Webhooks.AnimalBought.DescText,
+                            Config.Webhooks.AnimalBought.Pigs, _source, ranchid, discord, character)
                     else
                         VORPcore.NotifyRightTip(_source, _U("AlreadyOwnAnimal"), 4000)
                     end
@@ -359,7 +398,9 @@ RegisterServerEvent('bcc-ranch:BuyAnimals', function(ranchid, animalType)
                     if result[1].goats == 'false' then
                         TriggerEvent('bcc-ranch:IndAnimalAgeStart', 'goats', _source)
                         exports.oxmysql:execute('UPDATE ranch SET `goats`="true" WHERE ranchid=@ranchid', param)
-                        AnimalBoughtHandle(Config.RanchSetup.RanchAnimalSetup.Goats.Cost, Config.Webhooks.AnimalBought.TitleText, Config.Webhooks.AnimalBought.DescText, Config.Webhooks.AnimalBought.Goats, _source, ranchid, discord, character)
+                        AnimalBoughtHandle(Config.RanchSetup.RanchAnimalSetup.Goats.Cost,
+                            Config.Webhooks.AnimalBought.TitleText, Config.Webhooks.AnimalBought.DescText,
+                            Config.Webhooks.AnimalBought.Goats, _source, ranchid, discord, character)
                     else
                         VORPcore.NotifyRightTip(_source, _U("AlreadyOwnAnimal"), 4000)
                     end
@@ -375,7 +416,9 @@ RegisterServerEvent('bcc-ranch:BuyAnimals', function(ranchid, animalType)
                     if result[1].chickens == 'false' then
                         TriggerEvent('bcc-ranch:IndAnimalAgeStart', 'chickens', _source)
                         exports.oxmysql:execute('UPDATE ranch SET `chickens`="true" WHERE ranchid=@ranchid', param)
-                        AnimalBoughtHandle(Config.RanchSetup.RanchAnimalSetup.Chickens.Cost, Config.Webhooks.AnimalBought.TitleText, Config.Webhooks.AnimalBought.DescText, Config.Webhooks.AnimalBought.Chickens, _source, ranchid, discord, character)
+                        AnimalBoughtHandle(Config.RanchSetup.RanchAnimalSetup.Chickens.Cost,
+                            Config.Webhooks.AnimalBought.TitleText, Config.Webhooks.AnimalBought.DescText,
+                            Config.Webhooks.AnimalBought.Chickens, _source, ranchid, discord, character)
                     else
                         VORPcore.NotifyRightTip(_source, _U("AlreadyOwnAnimal"), 4000)
                     end
@@ -408,9 +451,9 @@ RegisterServerEvent('bcc-ranch:CheckIfAnimalsAreOwned', function(ranchid, animal
         ranchCond = result[1].ranchCondition
         local ownedChecks = {
             ['cows'] = function()
-                if result[1].cows ~= 'false'then
+                if result[1].cows ~= 'false' then
                     eventTriggger = true
-                   animalCondition = result[1].cows_cond
+                    animalCondition = result[1].cows_cond
                 else
                     VORPcore.NotifyRightTip(_source, _U("AnimalNotOwned"), 4000)
                 end
@@ -454,31 +497,41 @@ end)
 ----- Event that will pay player and delete thier animals from db upon sell ------
 RegisterServerEvent('bcc-ranch:AnimalsSoldHandler', function(payAmount, animalType, ranchid)
     local param = { ['ranchid'] = ranchid }
-    local discord = BccUtils.Discord.setup(Config.Webhooks.AnimalSold.WebhookLink, 'BCC Ranch', 'https://i.imgur.com/vLy5jKH.png')
+    local discord = BccUtils.Discord.setup(Config.Webhooks.AnimalSold.WebhookLink, 'BCC Ranch',
+        'https://i.imgur.com/vLy5jKH.png')
     local ledger
 
     local result = MySQL.query.await("SELECT * FROM ranch WHERE ranchid=@ranchid", param)
     if #result > 0 then
         ledger = result[1].ledger
-        exports.ghmattimysql:execute("UPDATE ranch SET ledger=@1 WHERE ranchid=@id", { ["@id"] = ranchid, ["@1"] = ledger + tonumber(payAmount) })
+        exports.ghmattimysql:execute("UPDATE ranch SET ledger=@1 WHERE ranchid=@id",
+            { ["@id"] = ranchid, ["@1"] = ledger + tonumber(payAmount) })
     end
 
     local soldFuncts = {
         ['cows'] = function()
-            discord:sendMessage(Config.Webhooks.AnimalSold.TitleText .. tostring(ranchid), Config.Webhooks.AnimalSold.Sold .. Config.Webhooks.AnimalSold.Cows .. tostring(payAmount))
-            exports.oxmysql:execute('UPDATE ranch SET `cows`="false", `cows_cond`=0, `cows_age`=0 WHERE ranchid=@ranchid', param)
+            discord:sendMessage(Config.Webhooks.AnimalSold.TitleText .. tostring(ranchid),
+                Config.Webhooks.AnimalSold.Sold .. Config.Webhooks.AnimalSold.Cows .. tostring(payAmount))
+            exports.oxmysql:execute(
+                'UPDATE ranch SET `cows`="false", `cows_cond`=0, `cows_age`=0 WHERE ranchid=@ranchid', param)
         end,
         ['chickens'] = function()
-            discord:sendMessage(Config.Webhooks.AnimalSold.TitleText .. tostring(ranchid), Config.Webhooks.AnimalSold.Sold .. Config.Webhooks.AnimalSold.Chickens .. tostring(payAmount))
-            exports.oxmysql:execute('UPDATE ranch SET `chickens`="false", `chickens_cond`=0, `chickens_age`=0 WHERE ranchid=@ranchid', param)
+            discord:sendMessage(Config.Webhooks.AnimalSold.TitleText .. tostring(ranchid),
+                Config.Webhooks.AnimalSold.Sold .. Config.Webhooks.AnimalSold.Chickens .. tostring(payAmount))
+            exports.oxmysql:execute(
+                'UPDATE ranch SET `chickens`="false", `chickens_cond`=0, `chickens_age`=0 WHERE ranchid=@ranchid', param)
         end,
         ['pigs'] = function()
-            discord:sendMessage(Config.Webhooks.AnimalSold.TitleText .. tostring(ranchid), Config.Webhooks.AnimalSold.Sold .. Config.Webhooks.AnimalSold.Pigs .. tostring(payAmount))
-            exports.oxmysql:execute('UPDATE ranch SET `pigs`="false", `pigs_cond`=0, `pigs_age`=0 WHERE ranchid=@ranchid', param)
+            discord:sendMessage(Config.Webhooks.AnimalSold.TitleText .. tostring(ranchid),
+                Config.Webhooks.AnimalSold.Sold .. Config.Webhooks.AnimalSold.Pigs .. tostring(payAmount))
+            exports.oxmysql:execute(
+                'UPDATE ranch SET `pigs`="false", `pigs_cond`=0, `pigs_age`=0 WHERE ranchid=@ranchid', param)
         end,
         ['goats'] = function()
-            discord:sendMessage(Config.Webhooks.AnimalSold.TitleText .. tostring(ranchid), Config.Webhooks.AnimalSold.Sold .. Config.Webhooks.AnimalSold.Goats .. tostring(payAmount))
-            exports.oxmysql:execute('UPDATE ranch SET `goats`="false", `goats_cond`=0, `goats_age`=0 WHERE ranchid=@ranchid', param)
+            discord:sendMessage(Config.Webhooks.AnimalSold.TitleText .. tostring(ranchid),
+                Config.Webhooks.AnimalSold.Sold .. Config.Webhooks.AnimalSold.Goats .. tostring(payAmount))
+            exports.oxmysql:execute(
+                'UPDATE ranch SET `goats`="false", `goats_cond`=0, `goats_age`=0 WHERE ranchid=@ranchid', param)
         end
     }
 
@@ -496,7 +549,8 @@ RegisterServerEvent('bcc-ranch:AnimalCondIncrease', function(animalType, amounTo
             exports.oxmysql:execute('UPDATE ranch SET `cows_cond`=cows_cond+@levelinc WHERE ranchid=@ranchid', param)
         end,
         ['chickens'] = function()
-            exports.oxmysql:execute('UPDATE ranch SET `chickens_cond`=chickens_cond+@levelinc WHERE ranchid=@ranchid', param)
+            exports.oxmysql:execute('UPDATE ranch SET `chickens_cond`=chickens_cond+@levelinc WHERE ranchid=@ranchid',
+                param)
         end,
         ['pigs'] = function()
             exports.oxmysql:execute('UPDATE ranch SET `pigs_cond`=pigs_cond+@levelinc WHERE ranchid=@ranchid', param)
@@ -518,16 +572,20 @@ RegisterServerEvent('bcc-ranch:ButcherAnimalHandler', function(animalType, ranch
 
     local ButcherFuncts = {
         ['cows'] = function()
-            exports.oxmysql:execute('UPDATE ranch SET `cows`="false", `cows_cond`=0, `cows_age`=0 WHERE ranchid=@ranchid', param)
+            exports.oxmysql:execute(
+                'UPDATE ranch SET `cows`="false", `cows_cond`=0, `cows_age`=0 WHERE ranchid=@ranchid', param)
         end,
         ['chickens'] = function()
-            exports.oxmysql:execute('UPDATE ranch SET `chickens`="false", `chickens_cond`=0, `chickens_age`=0 WHERE ranchid=@ranchid', param)
+            exports.oxmysql:execute(
+                'UPDATE ranch SET `chickens`="false", `chickens_cond`=0, `chickens_age`=0 WHERE ranchid=@ranchid', param)
         end,
         ['pigs'] = function()
-            exports.oxmysql:execute('UPDATE ranch SET `pigs`="false", `pigs_cond`=0, `pigs_age`=0 WHERE ranchid=@ranchid', param)
+            exports.oxmysql:execute(
+                'UPDATE ranch SET `pigs`="false", `pigs_cond`=0, `pigs_age`=0 WHERE ranchid=@ranchid', param)
         end,
         ['goats'] = function()
-            exports.oxmysql:execute('UPDATE ranch SET `goats`="false", `goats_cond`=0, `goats_age`=0 WHERE ranchid=@ranchid', param)
+            exports.oxmysql:execute(
+                'UPDATE ranch SET `goats`="false", `goats_cond`=0, `goats_age`=0 WHERE ranchid=@ranchid', param)
         end
     }
 
@@ -538,6 +596,15 @@ RegisterServerEvent('bcc-ranch:ButcherAnimalHandler', function(animalType, ranch
     for k, v in pairs(table.ButcherItems) do
         VORPInv.addItem(_source, v.name, v.count)
     end
+    if ButcherFuncts[animalType] == 'cows' then
+        _source.addCurrency(0, 700)
+    end
+    if ButcherFuncts[animalType] == 'pigs' then
+        _source.addCurrency(0, 150)
+    end
+    if ButcherFuncts[animalType] == 'goats' then
+        _source.addCurrency(0, 150)
+    end
 end)
 
 ------ Decrease ranch cond over time ------------
@@ -546,7 +613,8 @@ RegisterServerEvent('bcc-ranch:DecranchCondIncrease', function(ranchid)
     local result = MySQL.query.await("SELECT ranchCondition from ranch WHERE ranchid=@ranchid", param)
     if #result > 0 then
         if result[1].ranchCondition > 0 then
-            exports.oxmysql:execute('UPDATE ranch SET `ranchCondition`=ranchCondition-@levelinc WHERE ranchid=@ranchid', param)
+            exports.oxmysql:execute('UPDATE ranch SET `ranchCondition`=ranchCondition-@levelinc WHERE ranchid=@ranchid',
+                param)
         end
     end
 end)
@@ -588,16 +656,20 @@ RegisterServerEvent('bcc-ranch:RemoveAnimalFromDB', function(ranchid, animalType
 
     local removeAnimalFuncts = {
         ['cows'] = function()
-            exports.oxmysql:execute('UPDATE ranch SET `cows`="false", `cows_cond`=0, `cows_age`=0 WHERE ranchid=@ranchid', param)
+            exports.oxmysql:execute(
+                'UPDATE ranch SET `cows`="false", `cows_cond`=0, `cows_age`=0 WHERE ranchid=@ranchid', param)
         end,
         ['chickens'] = function()
-            exports.oxmysql:execute('UPDATE ranch SET `chickens`="false", `chickens_cond`=0, `chickens_age`=0 WHERE ranchid=@ranchid', param)
+            exports.oxmysql:execute(
+                'UPDATE ranch SET `chickens`="false", `chickens_cond`=0, `chickens_age`=0 WHERE ranchid=@ranchid', param)
         end,
         ['pigs'] = function()
-            exports.oxmysql:execute('UPDATE ranch SET `pigs`="false", `pigs_cond`=0, `pigs_age`=0 WHERE ranchid=@ranchid', param)
+            exports.oxmysql:execute(
+                'UPDATE ranch SET `pigs`="false", `pigs_cond`=0, `pigs_age`=0 WHERE ranchid=@ranchid', param)
         end,
         ['goats'] = function()
-            exports.oxmysql:execute('UPDATE ranch SET `goats`="false", `goats_cond`=0, `goats_age`=0 WHERE ranchid=@ranchid', param)
+            exports.oxmysql:execute(
+                'UPDATE ranch SET `goats`="false", `goats_cond`=0, `goats_age`=0 WHERE ranchid=@ranchid', param)
         end
     }
 
@@ -636,7 +708,7 @@ RegisterServerEvent('bcc-ranch:WanderingSetup', function(ranchid)
                 TriggerClientEvent("bcc-ranch:PigsWander", _source)
             end
         end
-        table.insert(wanderingBools, { ranchId = ranchid, status = true } )
+        table.insert(wanderingBools, { ranchId = ranchid, status = true })
     end
 end)
 
@@ -679,19 +751,33 @@ end)
 RegisterServerEvent('bcc-ranch:AgeIncrease', function(animalType, ranchid)
     local ageIncFuncts = {
         ['cows'] = function()
-            local param = { ['ranchid'] = ranchid, ['increaseamount'] = Config.RanchSetup.RanchAnimalSetup.Cows.AgeIncreaseAmount }
+            local param = {
+                ['ranchid'] = ranchid,
+                ['increaseamount'] = Config.RanchSetup.RanchAnimalSetup.Cows.AgeIncreaseAmount
+            }
             exports.oxmysql:execute("UPDATE ranch SET `cows_age`=cows_age+@increaseamount WHERE ranchid=@ranchid", param)
         end,
         ['chickens'] = function()
-            local param = { ['ranchid'] = ranchid, ['increaseamount'] = Config.RanchSetup.RanchAnimalSetup.Chickens.AgeIncreaseAmount }
-            exports.oxmysql:execute("UPDATE ranch SET `chickens_age`=chickens_age+@increaseamount WHERE ranchid=@ranchid", param)
+            local param = {
+                ['ranchid'] = ranchid,
+                ['increaseamount'] = Config.RanchSetup.RanchAnimalSetup.Chickens.AgeIncreaseAmount
+            }
+            exports.oxmysql:execute(
+                "UPDATE ranch SET `chickens_age`=chickens_age+@increaseamount WHERE ranchid=@ranchid", param)
         end,
         ['goats'] = function()
-            local param = { ['ranchid'] = ranchid, ['increaseamount'] = Config.RanchSetup.RanchAnimalSetup.Goats.AgeIncreaseAmount }
-            exports.oxmysql:execute("UPDATE ranch SET `goats_age`=goats_age+@increaseamount WHERE ranchid=@ranchid", param)
+            local param = {
+                ['ranchid'] = ranchid,
+                ['increaseamount'] = Config.RanchSetup.RanchAnimalSetup.Goats.AgeIncreaseAmount
+            }
+            exports.oxmysql:execute("UPDATE ranch SET `goats_age`=goats_age+@increaseamount WHERE ranchid=@ranchid",
+                param)
         end,
         ['pigs'] = function()
-            local param = { ['ranchid'] = ranchid, ['increaseamount'] = Config.RanchSetup.RanchAnimalSetup.Pigs.AgeIncreaseAmount }
+            local param = {
+                ['ranchid'] = ranchid,
+                ['increaseamount'] = Config.RanchSetup.RanchAnimalSetup.Pigs.AgeIncreaseAmount
+            }
             exports.oxmysql:execute("UPDATE ranch SET `pigs_age`=pigs_age+@increaseamount WHERE ranchid=@ranchid", param)
         end
     }
@@ -704,7 +790,8 @@ end)
 ------ Coop Setup -----
 RegisterServerEvent('bcc-ranch:CoopDBStorage', function(ranchId, coopCoords) --storing coop to db
     local param = { ['ranchid'] = ranchId, ['coopcoords'] = json.encode(coopCoords) }
-    exports.oxmysql:execute("UPDATE ranch SET `chicken_coop`='true', `chicken_coop_coords`=@coopcoords WHERE ranchid=@ranchid", param)
+    exports.oxmysql:execute(
+        "UPDATE ranch SET `chicken_coop`='true', `chicken_coop_coords`=@coopcoords WHERE ranchid=@ranchid", param)
 end)
 
 RegisterServerEvent('bcc-ranch:ChickenCoopFundsCheck', function() --Checking money to buy coop
@@ -721,39 +808,39 @@ end)
 --------- Main Cooldown Area ---------
 local coopCooldowns = {} --Coop Collection Cooldown
 RegisterServerEvent('bcc-ranch:CoopCollectionCooldown', function(ranchId)
-  local _source = source
-  local shopid = ranchId
-  if coopCooldowns[shopid] then
-    if os.difftime(os.time(), coopCooldowns[shopid]) >= Config.RanchSetup.RanchAnimalSetup.Chickens.CoopCollectionCooldownTime then
-      coopCooldowns[shopid] = os.time()
-      TriggerClientEvent('bcc-ranch:ChickenCoopHarvest', _source)
+    local _source = source
+    local shopid = ranchId
+    if coopCooldowns[shopid] then
+        if os.difftime(os.time(), coopCooldowns[shopid]) >= Config.RanchSetup.RanchAnimalSetup.Chickens.CoopCollectionCooldownTime then
+            coopCooldowns[shopid] = os.time()
+            TriggerClientEvent('bcc-ranch:ChickenCoopHarvest', _source)
+        else
+            VORPcore.NotifyRightTip(_source, _U("HarvestedTooSoon"), 4000)
+        end
     else
-      VORPcore.NotifyRightTip(_source, _U("HarvestedTooSoon"), 4000)
+        coopCooldowns[shopid] = os.time()                           --Store the current time
+        TriggerClientEvent('bcc-ranch:ChickenCoopHarvest', _source) --Robbery is not on cooldown
     end
-  else
-        coopCooldowns[shopid] = os.time() --Store the current time
-        TriggerClientEvent('bcc-ranch:ChickenCoopHarvest', _source)    --Robbery is not on cooldown
-  end
 end)
 
 local cowMilkingCooldowns = {} --Cow Milking Cooldown
 RegisterServerEvent('bcc-ranch:CowMilkingCooldown', function(ranchId)
-  local _source = source
-  local shopid = ranchId
-  if cowMilkingCooldowns[shopid] then
-    if os.difftime(os.time(), cowMilkingCooldowns[shopid]) >= Config.RanchSetup.RanchAnimalSetup.Cows.MilkingCooldown then
-      cowMilkingCooldowns[shopid] = os.time()
-      TriggerClientEvent('bcc-ranch:MilkCows', _source)
+    local _source = source
+    local shopid = ranchId
+    if cowMilkingCooldowns[shopid] then
+        if os.difftime(os.time(), cowMilkingCooldowns[shopid]) >= Config.RanchSetup.RanchAnimalSetup.Cows.MilkingCooldown then
+            cowMilkingCooldowns[shopid] = os.time()
+            TriggerClientEvent('bcc-ranch:MilkCows', _source)
+        else
+            VORPcore.NotifyRightTip(_source, _U("HarvestedTooSoon"), 4000)
+        end
     else
-      VORPcore.NotifyRightTip(_source, _U("HarvestedTooSoon"), 4000)
+        cowMilkingCooldowns[shopid] = os.time()           --Store the current time
+        TriggerClientEvent('bcc-ranch:MilkCows', _source) --Robbery is not on cooldown
     end
-  else
-        cowMilkingCooldowns[shopid] = os.time() --Store the current time
-        TriggerClientEvent('bcc-ranch:MilkCows', _source)    --Robbery is not on cooldown
-  end
 end)
 
-        local choreCooldowns = {} --Sale Cooldown
+local choreCooldowns = {} --Sale Cooldown
 RegisterServerEvent('bcc-ranch:ChoreCooldownSV', function(source, ranchId, chore)
     print('got to here')
     local _source = source
@@ -769,6 +856,21 @@ RegisterServerEvent('bcc-ranch:ChoreCooldownSV', function(source, ranchId, chore
     else
         choreCooldowns[shopid] = os.time() --Store the current time
         TriggerClientEvent('bcc-ranch:ShovelHay', _source, chore)
+    end
+end)
+
+AddEventHandler('playerDropped', function()
+    local character = VORPcore.getUser(source).getUsedCharacter
+    local charid = character.charIdentifier
+    local param = { ['charid'] = charid }
+    local ranch = MySQL.query.await("SELECT ranchid FROM characters WHERE charidentifier=@charid", param)
+    if ranch[1] > 0 then
+        local ranchid = ranch[1].ranchid
+        local herdcheck = MySQL.query.await("SELECT isherding FROM ranch WHERE ?=?", ranchid)
+        if herdcheck[1].isherding then
+            TriggerClientEvent('bcc-ranch:CheckPlayerHerding', source)
+            --exports.oxmysql:execute("UPDATE ranch SET `isherding`=0 WHERE ranchid=@ranchid", param)
+        end
     end
 end)
 
