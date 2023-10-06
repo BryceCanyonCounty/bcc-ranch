@@ -162,6 +162,7 @@ Locales["en_lang"] = {
     HarvestFromCoop_desc = 'Harvest Eggs from your chicken coop?',
     NoCoop = 'You do not own a coop!',
     HarvestedTooSoon = 'Has been harvested already wait!',
+    HarvestedTooSoonCow = 'The cow doesnt have enough milk yet!',
     HarvestEggs = 'Go To your coop and harvest the eggs!',
     HarvestEggs_blip = 'Harvest Eggs',
     HarvestedEggs = 'You harvested eggs!',
