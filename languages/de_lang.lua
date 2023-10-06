@@ -161,8 +161,35 @@ Locales["de_lang"] = {
     HarvestFromCoop_desc = 'Sammle Eier aus dem Hühnerstall',
     NoCoop = 'Du hast keinen Hühnerstall!',
     HarvestedTooSoon = 'Es wurden noch keine Eier gelegt!',
+    HarvestedTooSoonCow = 'Die Kuh hat noch nicht genug Milch!',
     HarvestEggs = 'Gehe zum Hühnerstall und sammle die Eier!',
     HarvestEggs_blip = 'Eier sammeln',
     HarvestedEggs = 'Du hast Eier gesammelt!'
+    cowMilked = 'Kuh erfolgreich gemolken!',
+--- Speicherorte speichern
+    ShoveHaySave = 'Speicherort für das Schaufeln von Heu wurde gespeichert',
+    WaterAnimalSave = 'Speicherort für das Bewässern der Tiere wurde gespeichert',
+    RepairTroughSave = 'Speicherort für die Reparatur der Futterrinne wurde gespeichert',
+    ScoopPoopSave = 'Speicherort für das Aufsammeln von Kot wurde gespeichert',
 
+    -- hinzugefügt von Little Creek
+    ChangeCoords = 'Ort ändern',
+    ChangeCoords_desc = 'Gehe zum Ort, an dem du dies geändert haben möchtest, und wähle dann diese Option aus!',
+    ChangeHerdLocation = 'Herden Standort ändern',
+    ChangeHerdLocation_desc = 'Ändere den Ort, an den du deine Tiere hin treiben willst',
+    ChangeFeedWagonLocation = 'Futterwagen Standort ändern',
+    ChangeFeedWagonLocation_desc = 'Ändere den Futterwagen spawn Standort(Erst nach Restart aktiv)', -- kein Komma nach dem letzten Eintrag!
+    -- Ende Hinzugefügt von Little Creek
+    nameSet = 'Name festgelegt',
+    radiusSet = 'Radius festgelegt',
+    toFar = 'Zu weit weg von der Ranch',
+
+    --Added by Jannings
+    AnimalsOut = "Deine Tiere sind bereits draußen",
+    ranchIdWebhook = 'Ranch ID: ',
+    taxPaidWebhook = 'Steuern wurden bezahlt!',
+    taxPaidFailedWebhook = 'Nicht genug Geld für Steuern, Ranch wurde gelöscht!',
+    TaxAmount = "Höhe der Steuern",
+    taxesSet = "Steuern festgelegt",
+    TooSoon = 'Abklingzeit ist noch aktiv, bitte warten!',
 }
