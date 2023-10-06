@@ -106,9 +106,19 @@ RegisterServerEvent('bcc-ranch:InsertCreatedRanchIntoDB',
         if #result >= 1 then
             VORPcore.NotifyRightTip(_source, _U("AlreadyOwnRanch"), 4000)
         else
-            MySQL.query.await(
-                "INSERT INTO ranch ( `charidentifier`,`ranchcoords`,`ranchname`,`ranch_radius_limit` ,`taxamount`) VALUES ( @charidentifier,@ranchcoords,@ranchname,@ranch_radius_limit,@taxamount )",
-                param)
+            -- Create ranch and get created ranchid
+            local create_ranch_query = "INSERT INTO ranch ( `charidentifier`,`ranchcoords`,`ranchname`,`ranch_radius_limit` ,`taxamount`) VALUES ( @charidentifier,@ranchcoords,@ranchname,@ranch_radius_limit,@taxamount )"
+            local ranchid = MySQL.insert.await(create_ranch_query, param)
+                
+            -- Update owners ranchid in characters
+            local update_characters_query = "UPDATE characters SET ranchid=@ranchid WHERE charidentifier=@charidentifier"
+            local update_characters_param = {
+              ranchid = ranchid,
+              charidentifier = ownerStaticId
+            }
+            
+            MySQL.query.await(update_characters_query, update_characters_param)
+            
             local character = VORPcore.getUser(_source).getUsedCharacter
             VORPcore.NotifyRightTip(_source, _U("RanchMade"), 4000)
             BccUtils.Discord.sendMessage(Config.Webhooks.RanchCreation.WebhookLink, 'BCC Ranch',
@@ -832,7 +842,7 @@ RegisterServerEvent('bcc-ranch:CowMilkingCooldown', function(ranchId)
             cowMilkingCooldowns[shopid] = os.time()
             TriggerClientEvent('bcc-ranch:MilkCows', _source)
         else
-            VORPcore.NotifyRightTip(_source, _U("HarvestedTooSoon"), 4000)
+            VORPcore.NotifyRightTip(_source, _U("HarvestedTooSoonCow"), 4000)
         end
     else
         cowMilkingCooldowns[shopid] = os.time()           --Store the current time
@@ -874,14 +884,13 @@ end)
 AddEventHandler('playerDropped', function()
     local character = VORPcore.getUser(source).getUsedCharacter
     local charid = character.charIdentifier
-    local param = { ['charid'] = charid }
-    local ranch = MySQL.query.await("SELECT ranchid FROM characters WHERE charidentifier=@charid", param)
-    if ranch[1] > 0 then
-        local ranchid = ranch[1].ranchid
-        local herdcheck = MySQL.query.await("SELECT isherding FROM ranch WHERE ?=?", ranchid)
-        if herdcheck[1].isherding then
-            exports.oxmysql:execute("UPDATE ranch SET `isherding`=0 WHERE ?=?", ranchid)
-        end
+
+    local select_ranchid_param = { ['charid'] = charid }
+    local ranch = MySQL.query.await("SELECT ranchid FROM characters WHERE charidentifier=@charid", select_ranchid_param )
+
+    if ranch and #ranch > 0 and tonumber(ranch[1].ranchid) > 0 then
+        local update_ranch_param = { ranchid = ranch[1].ranchid }
+        MySQL.query.await("UPDATE ranch SET `isherding`=0 WHERE ranchid=@ranchid", update_ranch_param )
     end
 end)
 
