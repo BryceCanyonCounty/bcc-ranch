@@ -164,7 +164,7 @@ Locales["de_lang"] = {
     HarvestedTooSoonCow = 'Die Kuh hat noch nicht genug Milch!',
     HarvestEggs = 'Gehe zum Hühnerstall und sammle die Eier!',
     HarvestEggs_blip = 'Eier sammeln',
-    HarvestedEggs = 'Du hast Eier gesammelt!'
+    HarvestedEggs = 'Du hast Eier gesammelt!',
     cowMilked = 'Kuh erfolgreich gemolken!',
 --- Speicherorte speichern
     ShoveHaySave = 'Speicherort für das Schaufeln von Heu wurde gespeichert',
