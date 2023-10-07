@@ -22,10 +22,6 @@ RegisterServerEvent('bcc-ranch:AdminCheck', function(nextEvent, servEvent)
     end
 end)
 
-RegisterCommand('tax', function()
-    TriggerEvent('bcc-ranch:TakeTaxes')
-end)
-
 CreateThread(function() --Tax handling
     local date = os.date("%d")
     local result = MySQL.query.await("SELECT * FROM ranch")
@@ -334,7 +330,7 @@ RegisterServerEvent('bcc-ranch:ChoreCheckRanchCondition', function(ranchid, chor
         if result[1].ranchCondition >= 100 then
             VORPcore.NotifyRightTip(_source, _U("ConditionMax"), 4000)
         else
-            TriggerEvent('bcc-ranch:ChoreCooldownSV', ranchid, nil, chore, nil)
+            TriggerEvent('bcc-ranch:ChoreCooldownSV',_source, ranchid, nil, chore, nil)
         end
     end
 end)
@@ -606,15 +602,7 @@ RegisterServerEvent('bcc-ranch:ButcherAnimalHandler', function(animalType, ranch
     for k, v in pairs(table.ButcherItems) do
         VORPInv.addItem(_source, v.name, v.count)
     end
-    if ButcherFuncts[animalType] == 'cows' then
-        _source.addCurrency(0, 700)
-    end
-    if ButcherFuncts[animalType] == 'pigs' then
-        _source.addCurrency(0, 150)
-    end
-    if ButcherFuncts[animalType] == 'goats' then
-        _source.addCurrency(0, 150)
-    end
+
 end)
 
 ------ Decrease ranch cond over time ------------
@@ -851,7 +839,7 @@ RegisterServerEvent('bcc-ranch:CowMilkingCooldown', function(ranchId)
 end)
 
 local choreCooldowns = {} --Chore and feeding Cooldown
-RegisterServerEvent('bcc-ranch:ChoreCooldownSV', function(ranchId, feed, chore, animal)
+RegisterServerEvent('bcc-ranch:ChoreCooldownSV', function(source,ranchId, feed, chore, animal)
     local _source = source
     local shopid = ranchId
     local cooldown
