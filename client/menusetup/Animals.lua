@@ -328,7 +328,7 @@ RegisterNetEvent('bcc-ranch:OwnedAnimalManagerMenu', function(animalCond, animal
                     if Herdlocation ~= nil and Herdlocation ~= 'none' then
                         TriggerServerEvent('bcc-ranch:CheckAnimalsOut', RanchId)
                         Wait(250)
-                        if IsAnimalOut == 0 and not HerdingCooldown then
+                        if IsAnimalOut == 0 then
                             MenuData.CloseAll()
                             herdanimals(herdType, ranchCond)
                         else
