@@ -125,11 +125,10 @@ RegisterNetEvent('bcc-ranch:MilkCows', function()
     end
 
     if Config.ChoreMinigames then
+        playAnim('script_rc@rch1@ig@ig_1_milkingthecow', 'milkingloop_john', -1) 
+        VORPcore.NotifyRightTip(_U("milkingCow"), 4000)
         MiniGame.Start('cowmilker', Config.MilkingMinigameConfig, function(result)
             if result.collected >= Config.RanchSetup.RanchAnimalSetup.Cows.AmountToCollect then
-                VORPcore.NotifyRightTip(_U("milkingCow"), 4000)
-                playAnim('script_rc@rch1@ig@ig_1_milkingthecow', 'milkingloop_john', 15000)
-                Wait(16500)
                 VORPcore.NotifyRightTip(_U("cowMilked"), 4000)
                 TriggerServerEvent('bcc-ranch:AddItem', Config.RanchSetup.RanchAnimalSetup.Cows.MilkingItem,
                     Config.RanchSetup.RanchAnimalSetup.Cows.MilkingItemAmount)
@@ -140,6 +139,7 @@ RegisterNetEvent('bcc-ranch:MilkCows', function()
                 DeletePed(createdPed)
                 VORPcore.NotifyRightTip(_U("Failed"), 4000)
             end
+            StopAnimTask(PlayerPedId(), 'script_rc@rch1@ig@ig_1_milkingthecow', 'milkingloop_john', 1.0)
         end)
     else
         VORPcore.NotifyRightTip(_U("milkingCow"), 4000)
