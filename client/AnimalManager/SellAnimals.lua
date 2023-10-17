@@ -1,3 +1,5 @@
+local peds = {}
+
 -------- Function to sell animals -----------
 function SellAnimals(animalType, animalCond)
     TriggerEvent('bcc-ranch:ChoreDeadCheck')
@@ -63,7 +65,7 @@ function SellAnimals(animalType, animalCond)
     end
 
 
-    local catch, peds = 0, {}
+    local catch = 0
     repeat
         local createdPed = BccUtils.Ped.CreatePed(model, spawnCoords.x + math.random(1, 5), spawnCoords.y + math.random(1, 5), spawnCoords.z, true, true, false)
         SetBlockingOfNonTemporaryEvents(createdPed, true)
@@ -134,3 +136,10 @@ function SellAnimals(animalType, animalCond)
     DelPedsForTable(peds)
     InMission = false
 end
+
+AddEventHandler('onResourceStop', function(resource)
+    if resource == GetCurrentResourceName() then
+        DelPedsForTable(peds)
+        peds = {}
+    end
+end)

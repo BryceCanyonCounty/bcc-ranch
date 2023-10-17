@@ -884,3 +884,11 @@ end)
 
 ----- Version Check ----
 BccUtils.Versioner.checkRelease(GetCurrentResourceName(), 'https://github.com/BryceCanyonCounty/bcc-ranch')
+
+
+AddEventHandler('onResourceStop', function(resourceName)
+    if (GetCurrentResourceName() ~= resourceName) then
+      return
+    end
+    exports.oxmysql:execute("UPDATE ranch SET isherding = 0")
+end)

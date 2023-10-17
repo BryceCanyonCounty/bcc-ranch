@@ -1,3 +1,4 @@
+local createdPed = nil
 function ButcherAnimals(animalType)
     local model, tables, spawnCoords
     TriggerEvent('bcc-ranch:ChoreDeadCheck')
@@ -41,7 +42,7 @@ function ButcherAnimals(animalType)
 
     InMission = true
 
-    local createdPed = BccUtils.Ped.CreatePed(model, spawnCoords.x, spawnCoords.y, spawnCoords.z, true, true, false)
+    createdPed = BccUtils.Ped.CreatePed(model, spawnCoords.x, spawnCoords.y, spawnCoords.z, true, true, false)
     SetBlockingOfNonTemporaryEvents(createdPed, true)
     Citizen.InvokeNative(0x9587913B9E772D29, createdPed, true)
     FreezeEntityPosition(createdPed, true)
@@ -77,3 +78,10 @@ function ButcherAnimals(animalType)
     end
     InMission = false
 end
+
+AddEventHandler('onResourceStop', function(resource)
+    if resource == GetCurrentResourceName() then
+        DeletePed(createdPed)
+        createdPed = nil
+    end
+end)

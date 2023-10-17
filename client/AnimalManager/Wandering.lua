@@ -161,3 +161,13 @@ function spawnpedsroam(coords, model, roamDist)
     SetBlockingOfNonTemporaryEvents(createdPed, true)
     return createdPed
 end
+
+AddEventHandler('onResourceStop', function(resourceName)
+    if (GetCurrentResourceName() ~= resourceName) then
+      return
+    end
+    DelPedsForTable(cows)
+    DelPedsForTable(chickens)
+    DelPedsForTable(goats)
+    DelPedsForTable(pigs)
+  end)

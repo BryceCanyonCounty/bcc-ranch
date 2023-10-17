@@ -1,3 +1,5 @@
+local peds = {}
+
 ------ This is the herding function to increase animal cond -----
 function herdanimals(animalType, ranchCond)
     local pl, scale = PlayerPedId(), nil
@@ -39,7 +41,7 @@ function herdanimals(animalType, ranchCond)
         selectAnimalFuncts[animalType]()
     end
 
-    local catch, peds, plc = 0, {}, GetEntityCoords(pl)
+    local catch, plc = 0, GetEntityCoords(pl)
     repeat
         local createdPed = BccUtils.Ped.CreatePed(model, plc.x + math.random(1, 5), plc.y + math.random(1, 5), plc.z, true, true, false)
         SetBlockingOfNonTemporaryEvents(createdPed, true)
@@ -141,3 +143,10 @@ function herdanimals(animalType, ranchCond)
     DelPedsForTable(peds)
     InMission = false
 end
+
+AddEventHandler('onResourceStop', function(resource)
+    if resource == GetCurrentResourceName() then
+        DelPedsForTable(peds)
+        peds = {}
+    end
+end)
