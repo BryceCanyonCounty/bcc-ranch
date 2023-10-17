@@ -302,6 +302,11 @@ RegisterNetEvent('bcc-ranch:OwnedAnimalManagerMenu', function(animalCond, animal
                 end,
                 ['setanimalcoords'] = function()
                     local pl = GetEntityCoords(PlayerPedId())
+                    -- check if player tries to set the takeout spots for the animas outside the ranch
+                    if GetDistanceBetweenCoords(pl.x, pl.y, pl.z, tonumber(RanchCoords.x), tonumber(RanchCoords.y), tonumber(RanchCoords.z), true) > tonumber(RanchRadius) then
+                        VORPcore.NotifyRightTip(_U("TooFarFromRanch"), 4000)
+                        return
+                    end
                     local setAnimalSelected = {
                         ['pigs'] = function()
                             TriggerServerEvent("bcc-ranch:AnimalLocationDbInserts", pl, RanchId, 'pigcoords')
