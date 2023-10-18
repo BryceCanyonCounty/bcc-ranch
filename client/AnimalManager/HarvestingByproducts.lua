@@ -1,3 +1,5 @@
+local createdPed = nil
+
 ----- Event to place the coop -----
 RegisterNetEvent('bcc-ranch:PlaceChickenCoop', function()
     MenuData.CloseAll()
@@ -96,7 +98,7 @@ RegisterNetEvent('bcc-ranch:MilkCows', function()
     end
     TriggerEvent('bcc-ranch:ChoreDeadCheck')
     VORPcore.NotifyRightTip(_U("goMilk"), 4000)
-    local createdPed = BccUtils.Ped.CreatePed(model, Cowcoords.x, Cowcoords.y, Cowcoords.z - 1, true, true, false)
+    createdPed = BccUtils.Ped.CreatePed(model, Cowcoords.x, Cowcoords.y, Cowcoords.z - 1, true, true, false)
     FreezeEntityPosition(createdPed, true)
     local cc = GetEntityCoords(createdPed)
     local PromptGroup = VORPutils.Prompts:SetupPromptGroup()
@@ -149,5 +151,12 @@ RegisterNetEvent('bcc-ranch:MilkCows', function()
         TriggerServerEvent('bcc-ranch:AddItem', Config.RanchSetup.RanchAnimalSetup.Cows.MilkingItem,
             Config.RanchSetup.RanchAnimalSetup.Cows.MilkingItemAmount)
         DeletePed(createdPed)
+    end
+end)
+
+AddEventHandler('onResourceStop', function(resource)
+    if resource == GetCurrentResourceName() then
+        DeletePed(createdPed)
+        createdPed = nil
     end
 end)

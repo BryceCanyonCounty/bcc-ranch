@@ -1,6 +1,8 @@
 --Feed animals function
 local animalsDead, feedPeds = false, {}
+local crate, crate2, crate3
 local amount
+local vehicle
 RegisterNetEvent('bcc-ranch:FeedAnimals', function(animalType)
     InMission = true
     local tables, model, spawnCoords, eatAnim
@@ -70,15 +72,14 @@ RegisterNetEvent('bcc-ranch:FeedAnimals', function(animalType)
     local car = joaat('cart06')
     RequestModel(car)
     while not HasModelLoaded(car) do
+        RequestModel(car)
         Wait(100)
     end
-    local vehicle = Citizen.InvokeNative(0x214651FB1DFEBA89, car, FeedWagonLocation.x, FeedWagonLocation.y,
-        FeedWagonLocation.z, 100.0, true, false, 0, 1)
+    vehicle = CreateVehicle(car, FeedWagonLocation.x, FeedWagonLocation.y, FeedWagonLocation.z, 100.0, true, false)
     while not DoesEntityExist(vehicle) do
         Wait(5)
     end
     SetVehicleOnGroundProperly(vehicle)
-    local crate, crate2, crate3
     for i = 1, 3 do --credit to jannings for this amazing work here
         if i == 1 then
             crate = CreateObject('p_haybale01x', 0, 0, 0 + 1, false, false, false)
@@ -295,3 +296,23 @@ function PickUpAndDropHay(crate, vehicle)
         end
     end
 end
+
+AddEventHandler('onResourceStop', function(resource)
+    if resource == GetCurrentResourceName() then
+        DelPedsForTable(feedPeds)
+        feedPeds = nil
+
+        if DoesEntityExist(vehicle) then
+            DeleteVehicle(vehicle)
+        end
+        if DoesEntityExist(crate) then
+            DeleteEntity(crate)
+        end
+        if DoesEntityExist(crate2) then
+            DeleteEntity(crate2)
+        end
+        if DoesEntityExist(crate3) then
+            DeleteEntity(crate3)
+        end
+    end
+end)
