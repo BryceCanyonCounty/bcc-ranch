@@ -355,12 +355,10 @@ RegisterNetEvent('bcc-ranch:OwnedAnimalManagerMenu', function(animalCond, animal
                             if Pigcoords and Pigcoords ~= 'none' then
                                 if CanSell then
                                     MenuData.CloseAll()
-                                    SellAnimals('pigs')
+                                    SellAnimals('pigs', animalCond)
                                 else
                                     VORPcore.NotifyRightTip(_U("AnimalsOut"), 4000)
                                 end
-                                MenuData.CloseAll()
-                                SellAnimals('pigs', animalCond)
                             else
                                 VORPcore.NotifyRightTip(_U("NoLocationSet"), 4000)
                             end
@@ -369,7 +367,7 @@ RegisterNetEvent('bcc-ranch:OwnedAnimalManagerMenu', function(animalCond, animal
                             if Goatcoords and Goatcoords ~= 'none' then
                                 if CanSell then
                                     MenuData.CloseAll()
-                                    SellAnimals('goats')
+                                    SellAnimals('goats', animalCond)
                                 else
                                     VORPcore.NotifyRightTip(_U("AnimalsOut"), 4000)
                                 end
@@ -381,7 +379,7 @@ RegisterNetEvent('bcc-ranch:OwnedAnimalManagerMenu', function(animalCond, animal
                             if Chickencoords and Chickencoords ~= 'none' then
                                 if CanSell then
                                     MenuData.CloseAll()
-                                    SellAnimals('chickens')
+                                    SellAnimals('chickens', animalCond)
                                 else
                                     VORPcore.NotifyRightTip(_U("AnimalsOut"), 4000)
                                 end
@@ -393,7 +391,7 @@ RegisterNetEvent('bcc-ranch:OwnedAnimalManagerMenu', function(animalCond, animal
                             if Cowcoords and Cowcoords ~= 'none' then
                                 if CanSell then
                                     MenuData.CloseAll()
-                                    SellAnimals('cows')
+                                    SellAnimals('cows', animalCond)
                                 else
                                     VORPcore.NotifyRightTip(_U("AnimalsOut"), 4000)
                                 end
