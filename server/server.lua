@@ -55,16 +55,27 @@ CreateThread(function() --Tax handling
 end)
 
 --------- Check is herding --------------
-RegisterServerEvent('bcc-ranch:CheckAnimalsOut', function(RanchId)
-    local _source = source
+RegisterServerEvent('bcc-ranch:CheckAnimalsOut', function(RanchId, getOnlyCurrentState, otherSource)
+    local _source = otherSource or source
     local param = { ['RanchId'] = RanchId }
 
     local result = MySQL.query.await("SELECT isherding FROM ranch WHERE ranchid=@RanchId", param)
+
+    -- Temporary debug: Just inform about the error, don't stop the script
+    if #result < 1 then
+        print('No ranch found for ranch id: ', RanchId, ' Current source: ', _source)
+    end
+
     local isherding = result[1].isherding
+
     if isherding > 0 then
         TriggerClientEvent('bcc-ranch:AnimalsOutCl', _source, isherding)
     else
-        exports.oxmysql:execute("UPDATE ranch SET isherding = 1 WHERE ranchid=@RanchId", param)
+
+        if getOnlyCurrentState ~= true then
+            exports.oxmysql:execute("UPDATE ranch SET isherding = 1 WHERE ranchid=@RanchId", param)
+        end
+
         TriggerClientEvent('bcc-ranch:AnimalsOutCl', _source, isherding)
     end
 end)
@@ -500,6 +511,50 @@ RegisterServerEvent('bcc-ranch:CheckIfAnimalsAreOwned', function(ranchid, animal
     end
 end)
 
+local sells_by_ranch = {}
+
+---@param ranchid number
+---@param animalType string
+local registerSell = function(ranchid, animalType)
+
+    if not sells_by_ranch[ranchid] then
+        sells_by_ranch[ranchid] = {}
+    end
+
+    if not sells_by_ranch[ranchid][animalType] then
+        sells_by_ranch[ranchid][animalType] = true
+    end
+end
+
+---@param ranchid number
+---@param animalType string
+---@return boolean
+local hasRegisteredSell = function(ranchid, animalType)
+
+    if not sells_by_ranch[ranchid] then
+        return false
+    end
+
+    if not sells_by_ranch[ranchid][animalType] then
+        return false
+    end
+
+    return sells_by_ranch[ranchid][animalType] == true
+end
+
+RegisterServerEvent('bcc-ranch:CheckIfCanSellRequest', function(ranchid, animalType)
+
+    local _source = source
+
+    local can_sell_animals_of_type = true
+
+    if Config.RanchSetup.SellAnimalTypeOnlyOncePerServerStart then
+        can_sell_animals_of_type = hasRegisteredSell(ranchid, animalType) ~= true
+    end
+
+    TriggerClientEvent('bcc-ranch:CheckIfCanSellResponse', _source, can_sell_animals_of_type)
+end)
+
 ----- Event that will pay player and delete thier animals from db upon sell ------
 RegisterServerEvent('bcc-ranch:AnimalsSoldHandler', function(payAmount, animalType, ranchid)
     local param = { ['ranchid'] = ranchid }
@@ -543,6 +598,9 @@ RegisterServerEvent('bcc-ranch:AnimalsSoldHandler', function(payAmount, animalTy
 
     if soldFuncts[animalType] then
         soldFuncts[animalType]()
+
+        registerSell(ranchid, animalType)
+
     end
 end)
 
@@ -839,33 +897,78 @@ RegisterServerEvent('bcc-ranch:CowMilkingCooldown', function(ranchId)
 end)
 
 local choreCooldowns = {} --Chore and feeding Cooldown
-RegisterServerEvent('bcc-ranch:ChoreCooldownSV', function(source,ranchId, feed, chore, animal)
-    local _source = source
-    local shopid = ranchId
+
+---@param shopid number
+---@param _source number
+---@param animal string
+---@param chore string
+---@param feed boolean
+---@param checkAnimalsOut boolean|nil
+local doCooldownAction = function(shopid, _source, animal, chore, feed, checkAnimalsOut)
+
+    choreCooldowns[shopid] = os.time()
+
+    if checkAnimalsOut == true then
+        TriggerEvent('bcc-ranch:CheckAnimalsOut', shopid, false, _source)
+    end
+
+    if feed then
+        TriggerClientEvent('bcc-ranch:FeedAnimals', _source, animal)
+    else
+        TriggerClientEvent('bcc-ranch:ShovelHay', _source, chore)
+    end
+end
+
+---@param shopid number
+---@param cooldown number
+---@return boolean
+local cooldownReached = function(shopid, cooldown)
+
+    if not choreCooldowns[shopid] then
+        return true
+    end
+
+    if cooldown <= 0 then
+        return true
+    end
+
+    if os.difftime(os.time(), choreCooldowns[shopid]) >= cooldown then
+        return true
+    end
+
+    return false
+end
+
+---@param feed boolean
+---@return number
+local getCooldownDuration = function(feed)
+
     local cooldown
+
     if feed then
         cooldown = Config.RanchSetup.FeedCooldown
     else
         cooldown = Config.RanchSetup.ChoreCooldown
     end
-    if choreCooldowns[shopid] then
-        if os.difftime(os.time(), choreCooldowns[shopid]) >= cooldown then
-            choreCooldowns[shopid] = os.time()
-            if feed then
-                TriggerClientEvent('bcc-ranch:FeedAnimals', _source, animal)
-            else
-                TriggerClientEvent('bcc-ranch:ShovelHay', _source, chore)
-            end
-        else
-            VORPcore.NotifyRightTip(_source, _U("TooSoon"), 4000)
-        end
+
+    if type(cooldown) ~= 'number' or cooldown < 0 then
+        cooldown = 0
+    end
+
+    return cooldown
+end
+
+RegisterServerEvent('bcc-ranch:ChoreCooldownSV', function(source, ranchId, feed, chore, animal, checkAnimalsOut)
+
+    local _source = source
+    local shopid = ranchId
+
+    local cooldown = getCooldownDuration(feed)
+
+    if cooldownReached(shopid, cooldown) then
+        doCooldownAction(shopid, _source, animal, chore, feed, checkAnimalsOut)
     else
-        choreCooldowns[shopid] = os.time() --Store the current time
-        if feed then
-            TriggerClientEvent('bcc-ranch:FeedAnimals', _source, animal)
-        else
-            TriggerClientEvent('bcc-ranch:ShovelHay', _source, chore)
-        end
+        VORPcore.NotifyRightTip(_source, _U("TooSoon"), 4000)
     end
 end)
 
