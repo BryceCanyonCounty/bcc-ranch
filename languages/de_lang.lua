@@ -192,4 +192,7 @@ Locales["de_lang"] = {
     TaxAmount = "Höhe der Steuern",
     taxesSet = "Steuern festgelegt",
     TooSoon = 'Abklingzeit ist noch aktiv, bitte warten!',
+
+    -- Add by DerHobbs
+    NoSell = 'Du kannst aktuell keine Tiere dieser Art zum Ankäufer bringen!',
 }
