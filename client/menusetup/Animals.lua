@@ -165,7 +165,6 @@ function ManageOwnedAnimalsMenu()
         end)
 end
 
--- RISING SUN START
 local can_sell_promise = nil
 
 RegisterNetEvent('bcc-ranch:CheckIfCanSellResponse')
@@ -194,7 +193,6 @@ function CanSellAnimalTypeToday(animalType)
 
     return can_sell_result
 end
--- RISING SUN END
 
 --------------------------- Owned Animal Manager Menu ----------------------------------
 RegisterNetEvent('bcc-ranch:OwnedAnimalManagerMenu', function(animalCond, animalType, ranchCond, ownerStaticId)
@@ -376,13 +374,11 @@ RegisterNetEvent('bcc-ranch:OwnedAnimalManagerMenu', function(animalCond, animal
                 end,
                 ['sellanimal'] = function()
 
-                    -- RISING SUN START
                     if not CanSellAnimalTypeToday(animalType) then
                         MenuData.CloseAll()
                         VORPcore.NotifyRightTip(_U("NoSell"), 4000)
                         return
                     end
-                    -- RISING SUN END
 
                     TriggerServerEvent('bcc-ranch:CheckAnimalsOut', RanchId)
                     Wait(250)
@@ -485,11 +481,10 @@ RegisterNetEvent('bcc-ranch:OwnedAnimalManagerMenu', function(animalCond, animal
                 end,
                 ['feedanimal'] = function()
                     if FeedWagonLocation then
-                        -- RISING SUN START
+
                         local checkAnimalsOut = true -- Used later in the code
                         local getOnlyCurrentState = true
                         TriggerServerEvent('bcc-ranch:CheckAnimalsOut', RanchId, getOnlyCurrentState)
-                        -- RISING SUN END
 
                         Wait(250)
                         if IsAnimalOut == 0 then
