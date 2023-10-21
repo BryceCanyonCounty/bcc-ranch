@@ -191,11 +191,14 @@ Locales["en_lang"] = {
 
     --Added by Jannings
     AnimalsOut = "Your animals are already out",
-   ranchIdWebhook = 'Ranch Id: ',
+    ranchIdWebhook = 'Ranch Id: ',
     taxPaidWebhook = 'Tax paid!',
     taxPaidFailedWebhook = 'Not enough money for taxes, Ranch has been deleted!',
     TaxAmount = "Amount of Taxes",
     taxesSet = "Taxes set",
     TooSoon = 'Cooldown still active, wait!',
+
+    -- Add by DerHobbs
+    NoSell = 'You can not sell more animals of this type today!',
 
 }
