@@ -165,6 +165,37 @@ function ManageOwnedAnimalsMenu()
         end)
 end
 
+-- RISING SUN START
+local can_sell_promise = nil
+
+RegisterNetEvent('bcc-ranch:CheckIfCanSellResponse')
+
+---@param result boolean
+---@return nil
+AddEventHandler('bcc-ranch:CheckIfCanSellResponse', function(result)
+
+    if can_sell_promise then
+        can_sell_promise:resolve(result)
+    end
+
+    can_sell_promise = nil
+end)
+
+---@param animalType string
+---@return boolean
+function CanSellAnimalTypeToday(animalType)
+
+    -- Server anfragen, ob das "heute" noch geht
+    TriggerServerEvent('bcc-ranch:CheckIfCanSellRequest', RanchId, animalType)
+
+    can_sell_promise = promise.new()
+
+    local can_sell_result = Citizen.Await(can_sell_promise) == true
+
+    return can_sell_result
+end
+-- RISING SUN END
+
 --------------------------- Owned Animal Manager Menu ----------------------------------
 RegisterNetEvent('bcc-ranch:OwnedAnimalManagerMenu', function(animalCond, animalType, ranchCond, ownerStaticId)
     local elements, title, maxCond, herdType
@@ -344,6 +375,15 @@ RegisterNetEvent('bcc-ranch:OwnedAnimalManagerMenu', function(animalCond, animal
                     end
                 end,
                 ['sellanimal'] = function()
+
+                    -- RISING SUN START
+                    if not CanSellAnimalTypeToday(animalType) then
+                        MenuData.CloseAll()
+                        VORPcore.NotifyRightTip(_U("NoSell"), 4000)
+                        return
+                    end
+                    -- RISING SUN END
+
                     TriggerServerEvent('bcc-ranch:CheckAnimalsOut', RanchId)
                     Wait(250)
                     if IsAnimalOut == 0 then
@@ -445,7 +485,11 @@ RegisterNetEvent('bcc-ranch:OwnedAnimalManagerMenu', function(animalCond, animal
                 end,
                 ['feedanimal'] = function()
                     if FeedWagonLocation then
-                        TriggerServerEvent('bcc-ranch:CheckAnimalsOut', RanchId)
+                        -- RISING SUN START
+                        local checkAnimalsOut = true -- Used later in the code
+                        local getOnlyCurrentState = true
+                        TriggerServerEvent('bcc-ranch:CheckAnimalsOut', RanchId, getOnlyCurrentState)
+                        -- RISING SUN END
 
                         Wait(250)
                         if IsAnimalOut == 0 then
@@ -457,7 +501,7 @@ RegisterNetEvent('bcc-ranch:OwnedAnimalManagerMenu', function(animalCond, animal
                                 if Pigcoords ~= nil and Pigcoords ~= 'none' then
                                     if CanFeed then
                                         MenuData.CloseAll()
-                                        TriggerServerEvent('bcc-ranch:ChoreCooldownSV', GetPlayerServerId(PlayerId()),RanchId, true, nil, 'pigs')
+                                        TriggerServerEvent('bcc-ranch:ChoreCooldownSV', GetPlayerServerId(PlayerId()),RanchId, true, nil, 'pigs', checkAnimalsOut)
                                     else
                                         VORPcore.NotifyRightTip(_U("AnimalsOut"), 4000)
                                     end
@@ -469,7 +513,7 @@ RegisterNetEvent('bcc-ranch:OwnedAnimalManagerMenu', function(animalCond, animal
                                 if Goatcoords ~= nil and Goatcoords ~= 'none' then
                                     if CanFeed then
                                         MenuData.CloseAll()
-                                        TriggerServerEvent('bcc-ranch:ChoreCooldownSV',GetPlayerServerId(PlayerId()), RanchId, true, nil, 'goats')
+                                        TriggerServerEvent('bcc-ranch:ChoreCooldownSV',GetPlayerServerId(PlayerId()), RanchId, true, nil, 'goats', checkAnimalsOut)
                                     else
                                         VORPcore.NotifyRightTip(_U("AnimalsOut"), 4000)
                                     end
@@ -481,7 +525,7 @@ RegisterNetEvent('bcc-ranch:OwnedAnimalManagerMenu', function(animalCond, animal
                                 if Chickencoords and Chickencoords ~= 'none' then
                                     if CanFeed then
                                         MenuData.CloseAll()
-                                        TriggerServerEvent('bcc-ranch:ChoreCooldownSV',GetPlayerServerId(PlayerId()), RanchId, true, nil, 'chickens')
+                                        TriggerServerEvent('bcc-ranch:ChoreCooldownSV',GetPlayerServerId(PlayerId()), RanchId, true, nil, 'chickens', checkAnimalsOut)
                                     else
                                         VORPcore.NotifyRightTip(_U("AnimalsOut"), 4000)
                                     end
@@ -493,7 +537,7 @@ RegisterNetEvent('bcc-ranch:OwnedAnimalManagerMenu', function(animalCond, animal
                                 if Cowcoords and Cowcoords ~= 'none' then
                                     if CanFeed then
                                         MenuData.CloseAll()
-                                        TriggerServerEvent('bcc-ranch:ChoreCooldownSV',GetPlayerServerId(PlayerId()), RanchId, true, nil, 'cows')
+                                        TriggerServerEvent('bcc-ranch:ChoreCooldownSV',GetPlayerServerId(PlayerId()), RanchId, true, nil, 'cows', checkAnimalsOut)
                                     else
                                         VORPcore.NotifyRightTip(_U("AnimalsOut"), 4000)
                                     end
