@@ -50,16 +50,16 @@ RegisterNetEvent('bcc-ranch:ShovelHay', function(chore)
     VORPcore.NotifyRightTip(_U("GoToChoreLocation"), 4000)
     TriggerEvent('bcc-ranch:ChoreDeadCheck')
     BccUtils.Misc.SetGps(choreCoords.x, choreCoords.y, choreCoords.z)
+    local PromptGroup = VORPutils.Prompts:SetupPromptGroup()
+    local firstprompt = PromptGroup:RegisterPrompt(_U("StartChore"), 0x760A9C6F, 1, 1, true, 'hold', {timedeventhash = "MEDIUM_TIMED_EVENT"})
     while true do
         Wait(5)
         if PlayerDead then break end
         local plc = GetEntityCoords(PlayerPedId())
         local dist = GetDistanceBetweenCoords(plc.x, plc.y, plc.z, choreCoords.x, choreCoords.y, choreCoords.z, true)
-        if dist < 15 then
-            BccUtils.Misc.DrawText3D(choreCoords.x, choreCoords.y, choreCoords.z, _U("StartChore"))
-        end
         if dist < 5 then
-            if IsControlJustReleased(0, 0x760A9C6F) then
+            PromptGroup:ShowGroup(_U("OpenRanchMenu_desc"))
+            if firstprompt:HasCompleted() then
                 ClearGpsMultiRoute()
                 if Config.ChoreMinigames then
                     MiniGame.Start(miniGame, miniGameCfg, function(result)
