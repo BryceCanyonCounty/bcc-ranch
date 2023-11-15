@@ -196,7 +196,7 @@ RegisterNetEvent('bcc-ranch:ShearSheeps', function()
     end
 
     if Config.ChoreMinigames then
-        playAnim('mech_inventory@crafting@fallbacks@in_hand@male_a', 'craft_trans_hold', -1)
+        playAnim('mech_inventory@crafting@fallbacks@in_hand@male_a', 'craft_trans_hold', 15000)
         VORPcore.NotifyRightTip(_U("shearingSheep"), 4000)
         MiniGame.Start('skillcheck', Config.ChoreMinigameConfig, function(result)
             if result.passed then
