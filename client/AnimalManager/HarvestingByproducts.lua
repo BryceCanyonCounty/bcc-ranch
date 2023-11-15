@@ -98,6 +98,7 @@ RegisterNetEvent('bcc-ranch:MilkCows', function()
     end
     TriggerEvent('bcc-ranch:ChoreDeadCheck')
     VORPcore.NotifyRightTip(_U("goMilk"), 4000)
+
     createdPed = BccUtils.Ped.CreatePed(model, Cowcoords.x, Cowcoords.y, Cowcoords.z - 1, true, true, false)
     FreezeEntityPosition(createdPed, true)
     local cc = GetEntityCoords(createdPed)
@@ -127,7 +128,7 @@ RegisterNetEvent('bcc-ranch:MilkCows', function()
     end
 
     if Config.ChoreMinigames then
-        playAnim('script_rc@rch1@ig@ig_1_milkingthecow', 'milkingloop_john', -1) 
+        playAnim('script_rc@rch1@ig@ig_1_milkingthecow', 'milkingloop_john', -1)
         VORPcore.NotifyRightTip(_U("milkingCow"), 4000)
         MiniGame.Start('cowmilker', Config.MilkingMinigameConfig, function(result)
             if result.collected >= Config.RanchSetup.RanchAnimalSetup.Cows.AmountToCollect then
@@ -150,6 +151,76 @@ RegisterNetEvent('bcc-ranch:MilkCows', function()
         VORPcore.NotifyRightTip(_U("cowMilked"), 4000)
         TriggerServerEvent('bcc-ranch:AddItem', Config.RanchSetup.RanchAnimalSetup.Cows.MilkingItem,
             Config.RanchSetup.RanchAnimalSetup.Cows.MilkingItemAmount)
+        DeletePed(createdPed)
+    end
+end)
+
+----------------- Shearing Sheeps --------------------
+RegisterNetEvent('bcc-ranch:ShearSheeps', function()
+    InMission = true
+    MenuData.CloseAll()
+    local model = joaat('a_c_sheep_01')
+    RequestModel(model)
+    while not HasModelLoaded(model) do
+        Wait(100)
+    end
+    TriggerEvent('bcc-ranch:ChoreDeadCheck')
+    VORPcore.NotifyRightTip(_U("goShear"), 4000)
+
+    createdPed = BccUtils.Ped.CreatePed(model, Sheepcoords.x, Sheepcoords.y, Sheepcoords.z - 1, true, true, false)
+    FreezeEntityPosition(createdPed, true)
+    local cc = GetEntityCoords(createdPed)
+    local PromptGroup = VORPutils.Prompts:SetupPromptGroup()
+    local firstprompt = PromptGroup:RegisterPrompt(_U("shearSheeps"), 0x760A9C6F, 1, 1, true, 'hold',
+        { timedeventhash = "MEDIUM_TIMED_EVENT" })
+    local sheepDead = false
+    while true do
+        Wait(5)
+        local plc = GetEntityCoords(PlayerPedId())
+        if PlayerDead then break end
+        if IsEntityDead(createdPed) then
+            sheepDead = true
+            break
+        end
+        if GetDistanceBetweenCoords(plc.x, plc.y, plc.z, cc.x, cc.y, cc.z, true) < 1 then
+            PromptGroup:ShowGroup('')
+            if firstprompt:HasCompleted() then break end
+        end
+    end
+
+    if PlayerDead or sheepDead then
+        InMission = false
+        DeletePed(createdPed)
+        VORPcore.NotifyRightTip(_U("Failed"), 4000)
+        return
+    end
+
+    if Config.ChoreMinigames then
+        playAnim('mech_inventory@crafting@fallbacks@in_hand@male_a', 'craft_trans_hold', -1)
+        VORPcore.NotifyRightTip(_U("shearingSheep"), 4000)
+        MiniGame.Start('skillcheck', Config.ChoreMinigameConfig, function(result)
+            if result.passed then
+                TriggerServerEvent('bcc-ranch:AddItem', Config.RanchSetup.RanchAnimalSetup.Sheeps.WoolItem,
+                Config.RanchSetup.RanchAnimalSetup.Sheeps.WoolItem_Amount)
+                VORPcore.NotifyRightTip(_U("HarvestedWool"), 4000)
+                InMission = false
+                DeletePed(createdPed)
+                return
+            else
+                InMission = false
+                VORPutils.Blips:RemoveBlip(blip.rawblip)
+                DeleteObject(chickenCoop)
+                VORPcore.NotifyRightTip(_U("Failed"), 4000)
+                return
+            end
+        end)
+    else
+        VORPcore.NotifyRightTip(_U("shearingSheep"), 4000)
+        playAnim('mech_inventory@crafting@fallbacks@in_hand@male_a', 'craft_trans_hold', 15000)
+        Wait(16500)
+        VORPcore.NotifyRightTip(_U("sheepSheared"), 4000)
+        TriggerServerEvent('bcc-ranch:AddItem', Config.RanchSetup.RanchAnimalSetup.Sheeps.WoolItem,
+            Config.RanchSetup.RanchAnimalSetup.Chickens.WoolItem_Amount)
         DeletePed(createdPed)
     end
 end)
