@@ -29,12 +29,10 @@ client_scripts {
 dependency {
     'vorp_core',
     'vorp_inventory',
-    'vorp_utils',
     'bcc-utils',
     'vorp_character',
     'vorp_inputs',
     'bcc-minigames'
 }
 
-
-version '1.2.6'
+version '1.2.7'

@@ -50,7 +50,7 @@ RegisterNetEvent('bcc-ranch:ShovelHay', function(chore)
     VORPcore.NotifyRightTip(_U("GoToChoreLocation"), 4000)
     TriggerEvent('bcc-ranch:ChoreDeadCheck')
     BccUtils.Misc.SetGps(choreCoords.x, choreCoords.y, choreCoords.z)
-    local PromptGroup = VORPutils.Prompts:SetupPromptGroup()
+    local PromptGroup = BccUtils.Prompts:SetupPromptGroup()
     local firstprompt = PromptGroup:RegisterPrompt(_U("StartChore"), 0x760A9C6F, 1, 1, true, 'hold', {timedeventhash = "MEDIUM_TIMED_EVENT"})
     while true do
         Wait(5)

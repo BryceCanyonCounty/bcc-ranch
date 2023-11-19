@@ -55,7 +55,7 @@ function ButcherAnimals(animalType)
         end
     end
 
-    local  PromptGroup = VORPutils.Prompts:SetupPromptGroup()
+    local  PromptGroup = BccUtils.Prompts:SetupPromptGroup()
     local firstprompt = PromptGroup:RegisterPrompt(_U("Skin"), 0x760A9C6F, 1, 1, true, 'hold', {timedeventhash = "MEDIUM_TIMED_EVENT"})
     while true do
         Wait(5)
