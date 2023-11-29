@@ -38,6 +38,9 @@ function ButcherAnimals(animalType)
     }
     if selectAnimalFuncts[animalType] then
         selectAnimalFuncts[animalType]()
+        if not spawnCoords then
+            return
+        end
     end
 
     InMission = true
@@ -66,7 +69,7 @@ function ButcherAnimals(animalType)
             PromptGroup:ShowGroup('')
             if firstprompt:HasCompleted() then
                 BccUtils.Ped.ScenarioInPlace(PlayerPedId(), 'WORLD_HUMAN_CROUCH_INSPECT', 5000)
-                DeletePed(createdped)
+                DeletePed(createdPed)
                 VORPcore.NotifyRightTip(_U("AnimalKilled"), 4000)
                 TriggerServerEvent('bcc-ranch:ButcherAnimalHandler', animalType, RanchId, tables) break
             end
