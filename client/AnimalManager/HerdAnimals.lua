@@ -15,10 +15,17 @@ function herdanimals(animalType, ranchCond)
                 scale = 0.5
             end
         end,
-        ['chickens'] = function()
-            tables = Config.RanchSetup.RanchAnimalSetup.Chickens
-            model = 'a_c_chicken_01'
-            if Chickensage < Config.RanchSetup.AnimalGrownAge then
+        ['pigs'] = function()
+            tables = Config.RanchSetup.RanchAnimalSetup.Pigs
+            model = 'a_c_pig_01'
+            if Pigsage < Config.RanchSetup.AnimalGrownAge then
+                scale = 0.5
+            end
+        end,
+        ['sheeps'] = function()
+            tables = Config.RanchSetup.RanchAnimalSetup.Sheeps
+            model = 'a_c_sheep_01'
+            if Sheepsage < Config.RanchSetup.AnimalGrownAge then
                 scale = 0.5
             end
         end,
@@ -29,10 +36,10 @@ function herdanimals(animalType, ranchCond)
                 scale = 0.5
             end
         end,
-        ['pigs'] = function()
-            tables = Config.RanchSetup.RanchAnimalSetup.Pigs
-            model = 'a_c_pig_01'
-            if Pigsage < Config.RanchSetup.AnimalGrownAge then
+        ['chickens'] = function()
+            tables = Config.RanchSetup.RanchAnimalSetup.Chickens
+            model = 'a_c_chicken_01'
+            if Chickensage < Config.RanchSetup.AnimalGrownAge then
                 scale = 0.5
             end
         end
