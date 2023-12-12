@@ -92,6 +92,7 @@ RegisterNetEvent('bcc-ranch:ShovelHay', function(chore)
                                 ChoreComplete(choreAnim, animTime, incAmount)
                             end
                         else
+                            SetPedToRagdoll(PlayerPedId(), 1000, 1000, 0, 0, 0, 0)
                             InMission = false
                             VORPcore.NotifyRightTip(_U("Failed"), 4000) return
                         end

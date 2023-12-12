@@ -196,17 +196,21 @@ RegisterNetEvent('bcc-ranch:ShearSheeps', function()
     end
 
     if Config.ChoreMinigames then
-        playAnim('mech_inventory@crafting@fallbacks@in_hand@male_a', 'craft_trans_hold', 15000)
+        playAnim('mech_inventory@crafting@fallbacks@in_hand@male_a', 'craft_trans_hold', -1)
         VORPcore.NotifyRightTip(_U("shearingSheep"), 4000)
+        Citizen.Wait(5000)
         MiniGame.Start('skillcheck', Config.ChoreMinigameConfig, function(result)
             if result.passed then
+                Citizen.Wait(5000)
                 TriggerServerEvent('bcc-ranch:AddItem', Config.RanchSetup.RanchAnimalSetup.Sheeps.WoolItem,
                 Config.RanchSetup.RanchAnimalSetup.Sheeps.WoolItem_Amount)
                 VORPcore.NotifyRightTip(_U("HarvestedWool"), 4000)
                 InMission = false
                 DeletePed(createdPed)
+                ClearPlayerTasks(PlayerPedId())
                 return
             else
+                SetPedToRagdoll(PlayerPedId(), 1000, 1000, 0, 0, 0, 0)
                 InMission = false
                 DeletePed(createdPed)
                 VORPcore.NotifyRightTip(_U("Failed"), 4000)
