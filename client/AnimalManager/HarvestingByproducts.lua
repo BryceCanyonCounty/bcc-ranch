@@ -208,7 +208,6 @@ RegisterNetEvent('bcc-ranch:ShearSheeps', function()
                 return
             else
                 InMission = false
-                VORPutils.Blips:RemoveBlip(blip.rawblip)
                 DeleteObject(chickenCoop)
                 VORPcore.NotifyRightTip(_U("Failed"), 4000)
                 return

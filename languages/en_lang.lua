@@ -205,6 +205,8 @@ Locales["en_lang"] = {
 
     -- Added by DerHobbs
     NoSell = 'You can not sell more animals of this type today!',
+    Ranchwork = 'Ranchwork', -- 12.12.2023
+    TooFar = 'You have strayed too far, the work has been completed!', -- 12.12.2023
 
     -- Added By JustRoy
     shearSheeps = 'Shear Sheeps',
