@@ -19,12 +19,21 @@ RegisterNetEvent('bcc-ranch:FeedAnimals', function(animalType)
                 scale = 0.5
             end
         end,
-        ['chickens'] = function()
-            tables = Config.RanchSetup.RanchAnimalSetup.Chickens
-            model = 'a_c_chicken_01'
-            eatAnim = joaat("WORLD_ANIMAL_CHICKEN_EATING")
-            spawnCoords = Chickencoords
-            if Chickensage < Config.RanchSetup.AnimalGrownAge then
+        ['pigs'] = function()
+            tables = Config.RanchSetup.RanchAnimalSetup.Pigs
+            model = 'a_c_pig_01'
+            spawnCoords = Pigcoords
+            eatAnim = joaat("WORLD_ANIMAL_PIG_EAT_CARCASS")
+            if Pigsage < Config.RanchSetup.AnimalGrownAge then
+                scale = 0.5
+            end
+        end,
+        ['sheeps'] = function()
+            tables = Config.RanchSetup.RanchAnimalSetup.Sheeps
+            model = 'a_c_sheep_01'
+            spawnCoords = Sheepcoords
+            eatAnim = joaat("WORLD_ANIMAL_SHEEP_EATING_GROUND")
+            if Sheepsage < Config.RanchSetup.AnimalGrownAge then
                 scale = 0.5
             end
         end,
@@ -37,12 +46,12 @@ RegisterNetEvent('bcc-ranch:FeedAnimals', function(animalType)
                 scale = 0.5
             end
         end,
-        ['pigs'] = function()
-            tables = Config.RanchSetup.RanchAnimalSetup.Pigs
-            model = 'a_c_pig_01'
-            spawnCoords = Pigcoords
-            eatAnim = joaat("WORLD_ANIMAL_PIG_EAT_CARCASS")
-            if Pigsage < Config.RanchSetup.AnimalGrownAge then
+        ['chickens'] = function()
+            tables = Config.RanchSetup.RanchAnimalSetup.Chickens
+            model = 'a_c_chicken_01'
+            eatAnim = joaat("WORLD_ANIMAL_CHICKEN_EATING")
+            spawnCoords = Chickencoords
+            if Chickensage < Config.RanchSetup.AnimalGrownAge then
                 scale = 0.5
             end
         end
