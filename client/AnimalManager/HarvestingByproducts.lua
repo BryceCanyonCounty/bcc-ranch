@@ -208,7 +208,7 @@ RegisterNetEvent('bcc-ranch:ShearSheeps', function()
                 return
             else
                 InMission = false
-                DeleteObject(chickenCoop)
+                DeletePed(createdPed)
                 VORPcore.NotifyRightTip(_U("Failed"), 4000)
                 return
             end
