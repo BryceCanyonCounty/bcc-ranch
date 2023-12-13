@@ -1,3 +1,5 @@
+local blip
+
 ----- Hammertime Minigame Config ------------
 local hammerTimeCfg = {
     focus = true, -- Should minigame take nui focus (required)
@@ -49,7 +51,7 @@ RegisterNetEvent('bcc-ranch:ShovelHay', function(chore)
     InMission = true
     VORPcore.NotifyRightTip(_U("GoToChoreLocation"), 4000)
     TriggerEvent('bcc-ranch:ChoreDeadCheck')
-    BccUtils.Misc.SetGps(choreCoords.x, choreCoords.y, choreCoords.z)
+    blip = VORPutils.Blips:SetBlip(_U("Ranchwork"), 960467426, 0.1, choreCoords.x, choreCoords.y, choreCoords.z)
     local PromptGroup = VORPutils.Prompts:SetupPromptGroup()
     local firstprompt = PromptGroup:RegisterPrompt(_U("StartChore"), 0x760A9C6F, 1, 1, true, 'hold', {timedeventhash = "MEDIUM_TIMED_EVENT"})
     while true do
@@ -90,6 +92,7 @@ RegisterNetEvent('bcc-ranch:ShovelHay', function(chore)
                                 ChoreComplete(choreAnim, animTime, incAmount)
                             end
                         else
+                            SetPedToRagdoll(PlayerPedId(), 1000, 1000, 0, 0, 0, 0)
                             InMission = false
                             VORPcore.NotifyRightTip(_U("Failed"), 4000) return
                         end
@@ -114,14 +117,20 @@ RegisterNetEvent('bcc-ranch:ShovelHay', function(chore)
                 end
             end
         end
-        if dist > 200 then
-            Wait(2000)
+        if dist > 100 then
+            InMission = false
+            blip:Remove()
+            VORPcore.NotifyTip(_U("TooFar"), 4000)
+            return
+            Citizen.Wait(2000)
         end
     end
 
     if PlayerDead then
         InMission = false
-        VORPcore.NotifyRightTip(_U("PlayerDead"), 4000) return
+        blip:Remove()
+        VORPcore.NotifyTip(_U("PlayerDead"), 4000)
+        return
     end
     InMission = false
 end)
@@ -136,16 +145,30 @@ AddEventHandler('bcc-ranch:ChoreDeadCheck', function()
     end
 end)
 
+Citizen.CreateThread(function ()
+    while true do
+        Citizen.Wait(5000)
+        if IsEntityDead(PlayerPedId()) then
+            PlayerDead = true
+        else
+            PlayerDead = false
+        end
+    end
+end)
+-------------------------------------------- 
 
 function ChoreComplete(choreAnim, animTime, incAmount) --what to do if chore is success
     BccUtils.Ped.ScenarioInPlace(PlayerPedId(), choreAnim, animTime)
     if PlayerDead then
         InMission = false
-        VORPcore.NotifyRightTip(_U("PlayerDead"), 4000) return
+        blip:Remove()
+        VORPcore.NotifyTip(_U("PlayerDead"), 4000)
+        return
     end
     VORPcore.NotifyRightTip(_U("ChoreComplete"), 4000)
     TriggerServerEvent('bcc-ranch:RanchConditionIncrease', incAmount, RanchId)
     InMission = false
+    blip:Remove()
 end
 
 --[[
