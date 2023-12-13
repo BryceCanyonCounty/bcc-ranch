@@ -16,13 +16,22 @@ function SellAnimals(animalType, animalCond)
                 spawnCoords = Cowcoords
             end
         end,
-        ['chickens'] = function()
-            if Chickensage < Config.RanchSetup.AnimalGrownAge then
+        ['pigs'] = function()
+            if Pigsage < Config.RanchSetup.AnimalGrownAge then
                 VORPcore.NotifyRightTip(_U("TooYoung"), 4000)
             else
-                tables = Config.RanchSetup.RanchAnimalSetup.Chickens
-                model = 'a_c_chicken_01'
-                spawnCoords = Chickencoords
+                tables = Config.RanchSetup.RanchAnimalSetup.Pigs
+                model = 'a_c_pig_01'
+                spawnCoords = Pigcoords
+            end
+        end,
+        ['sheeps'] = function()
+            if Sheepsage < Config.RanchSetup.AnimalGrownAge then
+                VORPcore.NotifyRightTip(_U("TooYoung"), 4000)
+            else
+                tables = Config.RanchSetup.RanchAnimalSetup.Sheeps
+                model = 'a_c_sheep_01'
+                spawnCoords = Sheepcoords
             end
         end,
         ['goats'] = function()
@@ -34,13 +43,13 @@ function SellAnimals(animalType, animalCond)
                 spawnCoords = Goatcoords
             end
         end,
-        ['pigs'] = function()
-            if Pigsage < Config.RanchSetup.AnimalGrownAge then
+        ['chickens'] = function()
+            if Chickensage < Config.RanchSetup.AnimalGrownAge then
                 VORPcore.NotifyRightTip(_U("TooYoung"), 4000)
             else
-                tables = Config.RanchSetup.RanchAnimalSetup.Pigs
-                model = 'a_c_pig_01'
-                spawnCoords = Pigcoords
+                tables = Config.RanchSetup.RanchAnimalSetup.Chickens
+                model = 'a_c_chicken_01'
+                spawnCoords = Chickencoords
             end
         end
     }
@@ -63,7 +72,6 @@ function SellAnimals(animalType, animalCond)
             finalSaleCoords = v.Coords
         end
     end
-
 
     local catch = 0
     repeat

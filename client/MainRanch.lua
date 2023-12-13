@@ -23,6 +23,26 @@ CreateThread(function()
     end
 end)
 
+RegisterNetEvent('bcc-ranch:GetData')
+AddEventHandler('bcc-ranch:GetData', function(ranch)
+    RanchCoords = json.decode(ranch.ranchcoords)
+    RanchRadius = ranch.ranch_radius_limit
+    RanchId = ranch.ranchid
+    ChickenCoop = ranch.chicken_coop
+    ChickenCoop_coords = json.decode(ranch.chicken_coop_coords)
+    TriggerEvent('bcc-ranch:StartCondDec')
+    TriggerServerEvent('bcc-ranch:AgeCheck', RanchId)
+    Cowcoords = json.decode(ranch.cowcoords)
+    Pigcoords = json.decode(ranch.pigcoords)
+    Chickencoords = json.decode(ranch.chickencoords)
+    Goatcoords = json.decode(ranch.goatcoords)
+    Herdlocation = json.decode(ranch.herdlocation)
+    FeedWagonLocation = json.decode(ranch.wagonfeedcoords)
+    Haycoords = json.decode(ranch.shovehaycoords)
+    WaterAnimalCoords = json.decode(ranch.wateranimalcoords)
+    RepairTroughCoords = json.decode(ranch.repairtroughcoords)
+    ScoopPoopCoords = json.decode(ranch.scooppoopcoords)
+end)
 
 ---- This will handle opening ranch menu -----
 RegisterNetEvent('bcc-ranch:HasRanchHandler', function(ranch)
@@ -39,6 +59,7 @@ RegisterNetEvent('bcc-ranch:HasRanchHandler', function(ranch)
     Pigcoords = json.decode(ranch.pigcoords)
     Chickencoords = json.decode(ranch.chickencoords)
     Goatcoords = json.decode(ranch.goatcoords)
+    Sheepcoords = json.decode(ranch.sheepcoords)
     Herdlocation = json.decode(ranch.herdlocation)
     FeedWagonLocation = json.decode(ranch.wagonfeedcoords)
     Haycoords = json.decode(ranch.shovehaycoords)

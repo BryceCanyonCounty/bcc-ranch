@@ -11,13 +11,21 @@ function ButcherAnimals(animalType)
             model = 'a_c_cow'
             spawnCoords = Cowcoords
         end,
-        ['chickens'] = function()
-            if Chickensage < Config.RanchSetup.AnimalGrownAge then
+        ['pigs'] = function()
+            if Pigsage < Config.RanchSetup.AnimalGrownAge then
                 VORPcore.NotifyRightTip(_U("TooYoung"), 4000) return
             end
-            tables = Config.RanchSetup.RanchAnimalSetup.Chickens
-            model = 'a_c_chicken_01'
-            spawnCoords = Chickencoords
+            tables = Config.RanchSetup.RanchAnimalSetup.Pigs
+            model = 'a_c_pig_01'
+            spawnCoords = Pigcoords
+        end,
+        ['sheeps'] = function()
+            if Sheepsage < Config.RanchSetup.AnimalGrownAge then
+                VORPcore.NotifyRightTip(_U("TooYoung"), 4000) return
+            end
+            tables = Config.RanchSetup.RanchAnimalSetup.Sheeps
+            model = 'a_c_sheep_01'
+            spawnCoords = Sheepcoords
         end,
         ['goats'] = function()
             if Goatsage < Config.RanchSetup.AnimalGrownAge then
@@ -27,17 +35,20 @@ function ButcherAnimals(animalType)
             model = 'a_c_goat_01'
             spawnCoords = Goatcoords
         end,
-        ['pigs'] = function()
-            if Pigsage < Config.RanchSetup.AnimalGrownAge then
+        ['chickens'] = function()
+            if Chickensage < Config.RanchSetup.AnimalGrownAge then
                 VORPcore.NotifyRightTip(_U("TooYoung"), 4000) return
             end
-            tables = Config.RanchSetup.RanchAnimalSetup.Pigs
-            model = 'a_c_pig_01'
-            spawnCoords = Pigcoords
+            tables = Config.RanchSetup.RanchAnimalSetup.Chickens
+            model = 'a_c_chicken_01'
+            spawnCoords = Chickencoords
         end
     }
     if selectAnimalFuncts[animalType] then
         selectAnimalFuncts[animalType]()
+        if not spawnCoords then
+            return
+        end
     end
 
     InMission = true
@@ -66,7 +77,7 @@ function ButcherAnimals(animalType)
             PromptGroup:ShowGroup('')
             if firstprompt:HasCompleted() then
                 BccUtils.Ped.ScenarioInPlace(PlayerPedId(), 'WORLD_HUMAN_CROUCH_INSPECT', 5000)
-                DeletePed(createdped)
+                DeletePed(createdPed)
                 VORPcore.NotifyRightTip(_U("AnimalKilled"), 4000)
                 TriggerServerEvent('bcc-ranch:ButcherAnimalHandler', animalType, RanchId, tables) break
             end

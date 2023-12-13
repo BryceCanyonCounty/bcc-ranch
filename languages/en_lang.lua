@@ -34,15 +34,18 @@ Locales["en_lang"] = {
     'Check Your Ranches Condition, You Want This High So Your Animals Are Higher Quality! The Max is 100!',
     WaterAnimalChore = 'Water Animals',
     WaterAnimalChore_desc = 'Watering your animals will increase your ranch condition and make your animals healthier',
+    
     BuyAnimals = 'Buy Animals',
     BuyAnimals_desc = 'Buy Animals for your ranch',
-    BuyCows = 'Buy Cows for',
-    BuyCows_desc = 'Buy cows for your ranch',
     Notenoughmoney = 'You do not have enough money',
     AlreadyOwnAnimal = 'You Already Own Some Of These animals',
     AlreadyOwnRanch = 'A ranch is already owned by said person',
+    BuyCows = 'Buy Cows for',
+    BuyCows_desc = 'Buy cows for your ranch',
     BuyPigs = 'Buy Pigs for',
     BuyPigs_desc = 'Buy Pigs for your ranch',
+    BuySheeps = 'Buy Sheeps for',
+    BuySheeps_desc = 'Buy Sheeps for your ranch',
     BuyGoats = 'Buy goats for',
     BuyGoats_desc = 'Buy Goats for your ranch',
     BuyChickens = 'Buy Chickens for',
@@ -54,19 +57,20 @@ Locales["en_lang"] = {
     ManageEmployee_desc = 'Manage the employees on your ranch',
     ManageAnimals_desc = 'Manage the animals your ranch owns',
     ManageCows = 'Manage Owned Cows',
+    ManagePigs = 'Manage Owned Pigs',
+    ManageSheeps = 'Manage Owned Sheeps',
     ManageGoats = 'Manage Owned Goats',
     ManageChickens = 'Manage Owned Chickens',
-    ManagePigs = 'Manage Owned Pigs',
     ManageCows_desc = 'Manage your owned cows!',
+    ManagePigs_desc = 'Mange your owned pigs',
+    ManageSheeps_desc = 'Mange your owned sheeps',
     ManageGoats_desc = 'Manage your owned goats',
     ManageChickens_desc = 'Manage your owned chickens',
-    ManagePigs_desc = 'Mange your owned pigs',
-    SellCows = 'Sell Animals',
-    SellCows_desc = 'Sell Your Animals? The higher thier condition the more profit you make!',
+    SellAnimal = 'Sell Animals',
+    SellCows_desc = 'Sell Your Animals? The higher their condition the more profit you make!',
     AnimalNotOwned = 'You do not own any of these animals',
     CheckAnimalCond = 'Check Animals Condition',
-    CheckAnimalCond_desc =
-    'Check your animals condition, the higher this is the more profit you can make when you sell them!',
+    CheckAnimalCond_desc = 'Check your animals condition, the higher this is the more profit you can make when you sell them!',
     LeadAnimalsToSale = 'Lead Your Animals to the sale area safely!',
     AnimalsSold = 'You Sold The Animals! You made: ',
     SetHerdLocation = 'Set Herd Location',
@@ -76,7 +80,7 @@ Locales["en_lang"] = {
     HerdAnimal_desc = 'Herd Animal? Doing so will increase the animals condition, which will improve its sell price!',
     HerdToLocation = 'Herd Your Animals to the location!',
     ReturnAnimals = 'Herd Them Back to the ranch!',
-    HerdingSuccess = 'You herded the animals successfully! Thier condition has increased!',
+    HerdingSuccess = 'You herded the animals successfully! Their condition has increased!',
     ButcherAnimal = 'Butcher Animal',
     ButcherAnimal_desc = 'Butcher Animal? Doing this while kill your animals, but will give you supplies.',
     KillAnimal = 'Kill The Animal!',
@@ -153,7 +157,7 @@ Locales["en_lang"] = {
     IntheLedger = ' in the ledger',
     FromtheLedger = ' from the ledger',
 
-    ----ByProducts
+    -- ByProducts
     BuyChickenCoop = 'Buy Chicken Coop',
     BuyChickenCoop_desc = 'Purchase a chicken coop for your ranch, and you will be able to collect eggs from it!',
     AlreadyOwnCoop = 'You already own a chicken coop!',
@@ -163,6 +167,7 @@ Locales["en_lang"] = {
     NoCoop = 'You do not own a coop!',
     HarvestedTooSoon = 'Has been harvested already wait!',
     HarvestedTooSoonCow = 'The cow doesnt have enough milk yet!',
+    HarvestedTooSoonSheep = 'The wool is not fully grown yet!',
     HarvestEggs = 'Go To your coop and harvest the eggs!',
     HarvestEggs_blip = 'Harvest Eggs',
     HarvestedEggs = 'You harvested eggs!',
@@ -171,7 +176,7 @@ Locales["en_lang"] = {
     goMilk = 'Go to the cow and begin milking it!',
     milkingCow = 'Milking the cow',
     cowMilked = 'Cow milked successfully!',
---- location saves
+    --- location saves
     ShoveHaySave = 'Location for Shoveling hay is Saved',
     WaterAnimalSave = 'Location for Watering Animal is Saved',
     RepairTroughSave = 'Location for Reparing Trough is Saved',
@@ -198,7 +203,17 @@ Locales["en_lang"] = {
     taxesSet = "Taxes set",
     TooSoon = 'Cooldown still active, wait!',
 
-    -- Add by DerHobbs
+    -- Added by DerHobbs
     NoSell = 'You can not sell more animals of this type today!',
+    Ranchwork = 'Ranchwork', -- 12.12.2023
+    TooFar = 'You have strayed too far, the work has been completed!', -- 12.12.2023
 
+    -- Added By JustRoy
+    shearSheeps = 'Shear Sheeps',
+    shearSheeps_desc = 'Shear your sheeps to get wool!',
+    goShear = 'Go to the sheep and begin shearing it!',
+    shearSheep = 'Shear Sheep',
+    HarvestedWool = 'You harvested wool!',
+    shearingSheep = 'Shearing the sheep',
+    sheepSheared = 'Sheep sheared successfully!',
 }

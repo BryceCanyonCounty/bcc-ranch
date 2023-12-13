@@ -40,3 +40,10 @@ ALTER TABLE `ranch` ADD COLUMN IF NOT EXISTS (`ledger` INT(10) DEFAULT 0);
 ALTER TABLE `ranch` ADD COLUMN IF NOT EXISTS (`isherding` INT(10) DEFAULT 0);
 ALTER TABLE `ranch` ADD COLUMN IF NOT EXISTS (`taxamount` INT(10) DEFAULT 0);
 ALTER TABLE `ranch` ADD COLUMN IF NOT EXISTS (`taxes_collected` varchar(50) DEFAULT 'false');
+
+-- Added by JustRoy
+-- Add this for the new animal Sheep
+ALTER TABLE ranch ADD COLUMN IF NOT EXISTS (sheepcoords LONGTEXT DEFAULT 'none');
+ALTER TABLE ranch ADD COLUMN IF NOT EXISTS (sheeps_age INT(10) DEFAULT 0);
+ALTER TABLE ranch ADD COLUMN IF NOT EXISTS (sheeps varchar(50) NOT NULL DEFAULT 'false');
+ALTER TABLE ranch ADD COLUMN IF NOT EXISTS (sheeps_cond int(10) NOT NULL DEFAULT 0);

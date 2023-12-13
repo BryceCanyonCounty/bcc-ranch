@@ -1,6 +1,7 @@
 Config = {}
 
-Config.Debug = true --false on live server
+Config.Debug = false --false on live server
+Config.DebugCommand = 'ranchstart'
 
 Config.TaxDay = 23 --This is the number day of each month that taxes will be collected on
 Config.TaxResetDay = 24 --This MUST be the day after TaxDay set above!!! (do not change either of these dates if the current date is one of the 2 for ex if its the 22 or 23rd day do not change these dates it will break the code)
@@ -10,37 +11,43 @@ Config.defaultlang = "en_lang"
 
 --Webhok Setup
 Config.Webhooks = {
-    RanchCreation = { --ranch creation webhook
-        WebhookLink = '', --insert your webhook link here(leave blank for no webhooks)
+    RanchCreation = { -- Ranch creation webhook
+        WebhookLink = 'https://discord.com/api/webhooks/1111414658407088158/pvHj9DuoKE_YXNwkmQ-ruMfv7DyA6WNxFHLnVRyvTobctb-uRld1eJ4O60UtPzqifsvI', --insert your webhook link here(leave blank for no webhooks)
+        WebhookImage = 'https://gamespot.com/a/uploads/original/1179/11799911/3383938-duck.jpg',
         --- Dont Change Just Translate ----
         TitleText = 'Admin Character Static id ',
         Text = 'Has Created A Ranch and given it too Character Static ID '
     },
     AnimalBought = {
-        WebhookLink = '', --insert your webhook link here(leave blank for no webhooks)
+        WebhookLink = 'https://discord.com/api/webhooks/1111414658407088158/pvHj9DuoKE_YXNwkmQ-ruMfv7DyA6WNxFHLnVRyvTobctb-uRld1eJ4O60UtPzqifsvI', --insert your webhook link here(leave blank for no webhooks)
+        WebhookImage = 'https://gamespot.com/a/uploads/original/1179/11799911/3383938-duck.jpg',
         ----- Dont Change just translate ----
         TitleText = 'Ranch Id ',
         DescText = 'Bought ',
         Cows = 'Cows',
         Pigs = 'Pigs',
+        Sheeps = 'Sheeps',
         Goats = 'Goats',
         Chickens = 'Chickens',
     },
     AnimalSold = {
-        WebhookLink = '', --insert your webhook link (leave blank for no webhook)
+        WebhookLink = 'https://discord.com/api/webhooks/1111414658407088158/pvHj9DuoKE_YXNwkmQ-ruMfv7DyA6WNxFHLnVRyvTobctb-uRld1eJ4O60UtPzqifsvI', --insert your webhook link (leave blank for no webhook)
+        WebhookImage = 'https://gamespot.com/a/uploads/original/1179/11799911/3383938-duck.jpg',
         ----- Dont Change Just Translate -----
         TitleText = 'Ranch ID ',
         Sold = 'Sold ',
         Cows = 'Cows for: ',
         Pigs = 'Pigs for: ',
+        Sheeps = 'Sheeps for: ',
         Goats = 'Goats for: ',
         Chickens = 'Chickens for: ',
     },
     Taxes = { --ranch creation webhook
-    WebhookLink = '', --insert your webhook link here(leave blank for no webhooks)
-    --- Dont Change Just Translate ----
-    TitleText = 'Admin Character Static id ',
-    Text = 'Has Created A Ranch and given it too Character Static ID '
+        WebhookLink = 'https://discord.com/api/webhooks/1111414658407088158/pvHj9DuoKE_YXNwkmQ-ruMfv7DyA6WNxFHLnVRyvTobctb-uRld1eJ4O60UtPzqifsvI', --insert your webhook link here(leave blank for no webhooks)
+        WebhookImage = 'https://gamespot.com/a/uploads/original/1179/11799911/3383938-duck.jpg',
+        --- Dont Change Just Translate ----
+        TitleText = 'Admin Character Static id ',
+        Text = 'Has Created A Ranch and given it too Character Static ID '
     },
 }
 
@@ -89,7 +96,6 @@ Config.ChoreConfig = {
     },
 }
 
---Main Ranch Setup
 Config.RanchSetup = {
     manageRanchCommand = {
         enabled = true, --if enabled players will be able to use command
@@ -171,6 +177,32 @@ Config.RanchSetup = {
                     name = 'Ingredient_Pig_Organs', --item db name
                     count = 2, --amount you will get
                 }, --you can add more by copy pasting this table
+            },
+        },
+        Sheeps = {
+            Health = 200, --How much health the goats will have while being herded or sold
+            AgeIncreaseTime = 60000, --The time that has to pass before the animals age increases
+            AgeIncreaseAmount = 5, --the amount the age will increase
+            ShearCooldownTime = 5, --Time in seconds that must pass before you can harvest wool from the sheep again
+            WoolItem = 'wool', --The item you will get from shearing the sheep
+            WoolItem_Amount = 6, --the amount of the item you will get
+            RoamingRadius = 3.0,
+            MaxCondition = 200,
+            --
+            Cost = 10,
+            LowPay = 0, --This is the amount that will be payed if any animals die along the way
+            BasePay = 15,--This is the base pay(what will be paid when selling the animal if animal condition is not max)
+            MaxConditionPay = 20,
+            --
+            AmountSpawned = 6, --Amount of animals that will spawn when herding or selling them
+            FeedAnimalCondIncrease = 25, --how much the animal condition will go up after feeding them!
+            CondIncreasePerHerd = 40, --this is the amount the animals condition will increase when successfully herded!
+            CondIncreasePerHerdNotMaxRanchCond = 15, --this is the amount the animals condition will go up per herd if the ranchs condition is not max
+            ButcherItems = { --items you will get when you butcher this animal
+                {
+                    name = 'Mutton',
+                    count = 10,
+                },
             },
         },
         Goats = {

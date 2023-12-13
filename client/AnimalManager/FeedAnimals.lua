@@ -19,12 +19,21 @@ RegisterNetEvent('bcc-ranch:FeedAnimals', function(animalType)
                 scale = 0.5
             end
         end,
-        ['chickens'] = function()
-            tables = Config.RanchSetup.RanchAnimalSetup.Chickens
-            model = 'a_c_chicken_01'
-            eatAnim = joaat("WORLD_ANIMAL_CHICKEN_EATING")
-            spawnCoords = Chickencoords
-            if Chickensage < Config.RanchSetup.AnimalGrownAge then
+        ['pigs'] = function()
+            tables = Config.RanchSetup.RanchAnimalSetup.Pigs
+            model = 'a_c_pig_01'
+            spawnCoords = Pigcoords
+            eatAnim = joaat("WORLD_ANIMAL_PIG_EAT_CARCASS")
+            if Pigsage < Config.RanchSetup.AnimalGrownAge then
+                scale = 0.5
+            end
+        end,
+        ['sheeps'] = function()
+            tables = Config.RanchSetup.RanchAnimalSetup.Sheeps
+            model = 'a_c_sheep_01'
+            spawnCoords = Sheepcoords
+            eatAnim = joaat("WORLD_ANIMAL_SHEEP_EATING_GROUND")
+            if Sheepsage < Config.RanchSetup.AnimalGrownAge then
                 scale = 0.5
             end
         end,
@@ -37,12 +46,12 @@ RegisterNetEvent('bcc-ranch:FeedAnimals', function(animalType)
                 scale = 0.5
             end
         end,
-        ['pigs'] = function()
-            tables = Config.RanchSetup.RanchAnimalSetup.Pigs
-            model = 'a_c_pig_01'
-            spawnCoords = Pigcoords
-            eatAnim = joaat("WORLD_ANIMAL_PIG_EAT_CARCASS")
-            if Pigsage < Config.RanchSetup.AnimalGrownAge then
+        ['chickens'] = function()
+            tables = Config.RanchSetup.RanchAnimalSetup.Chickens
+            model = 'a_c_chicken_01'
+            eatAnim = joaat("WORLD_ANIMAL_CHICKEN_EATING")
+            spawnCoords = Chickencoords
+            if Chickensage < Config.RanchSetup.AnimalGrownAge then
                 scale = 0.5
             end
         end
@@ -150,7 +159,7 @@ RegisterNetEvent('bcc-ranch:FeedAnimals', function(animalType)
         { timedeventhash = "MEDIUM_TIMED_EVENT" })
     repeat
         while true do
-            Wait(5)
+            local sleep = true
             local pl = GetEntityCoords(PlayerPedId())
             local cw = GetEntityCoords(vehicle)
             local dist = GetDistanceBetweenCoords(pl.x, pl.y, pl.z, cw.x, cw.y, cw.z, true)
@@ -164,7 +173,8 @@ RegisterNetEvent('bcc-ranch:FeedAnimals', function(animalType)
                 end
             end
             if PlayerDead then break end
-            if dist < 3 then
+            if dist < 2 then
+                sleep = false
                 PromptGroup2:ShowGroup('')
                 if firstprompt2:HasCompleted() then
                     if repAmount == 0 then
@@ -191,8 +201,14 @@ RegisterNetEvent('bcc-ranch:FeedAnimals', function(animalType)
                     end
                 end
             end
+            if sleep then
+                Citizen.Wait(500)
+            else
+                Citizen.Wait(0)
+            end
         end
     until repAmount == 3
+    
     if PlayerDead or animalsDead then
         DelPedsForTable(feedPeds)
         DeleteVehicle(vehicle)
