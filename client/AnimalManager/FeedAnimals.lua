@@ -154,7 +154,7 @@ RegisterNetEvent('bcc-ranch:FeedAnimals', function(animalType)
     VORPcore.NotifyRightTip(_U("FeedAnimalsAfterLocation"), 4000)
 
     local repAmount = 0
-    local PromptGroup2 = BccUtils.Prompts:SetupPromptGroup()
+    local PromptGroup2 = VORPutils.Prompts:SetupPromptGroup()
     local firstprompt2 = PromptGroup2:RegisterPrompt(_U("PickUpHay"), 0x760A9C6F, 1, 1, true, 'hold',
         { timedeventhash = "MEDIUM_TIMED_EVENT" })
     repeat
@@ -284,7 +284,7 @@ end
 
 -- function for getting the hay off the wagon and placing on the ground
 function PickUpAndDropHay(crate, vehicle)
-    local PromptGroup2 = BccUtils.Prompts:SetupPromptGroup()
+    local PromptGroup2 = VORPutils.Prompts:SetupPromptGroup()
     local firstprompt2 = PromptGroup2:RegisterPrompt(_U("DropHay"), 0x760A9C6F, 1, 1, true, 'hold',
         { timedeventhash = "MEDIUM_TIMED_EVENT" })
     while true do
