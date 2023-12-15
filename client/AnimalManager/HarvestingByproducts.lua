@@ -35,11 +35,11 @@ RegisterNetEvent('bcc-ranch:ChickenCoopHarvest', function()
     Citizen.InvokeNative(0x9587913B9E772D29, chickenCoop)
     VORPcore.NotifyRightTip(_U("HarvestEggs"), 4000)
     BccUtils.Misc.SetGps(ChickenCoop_coords.x, ChickenCoop_coords.y, ChickenCoop_coords.z)
-    local blip = BccUtils.Blips:SetBlip(_U("HarvestEggs_blip"), 'blip_teamsters', 0.2, ChickenCoop_coords.x,
+    local blip = VORPutils.Blips:SetBlip(_U("HarvestEggs_blip"), 'blip_teamsters', 0.2, ChickenCoop_coords.x,
         ChickenCoop_coords.y, ChickenCoop_coords.z)
 
 
-    local PromptGroup = BccUtils.Prompts:SetupPromptGroup()
+    local PromptGroup = VORPutils.Prompts:SetupPromptGroup()
     local firstprompt = PromptGroup:RegisterPrompt(_U("HarvestEggs_blip"), 0x760A9C6F, 1, 1, true, 'hold',
         { timedeventhash = "MEDIUM_TIMED_EVENT" })
     while true do
@@ -56,12 +56,12 @@ RegisterNetEvent('bcc-ranch:ChickenCoopHarvest', function()
                                 Config.RanchSetup.RanchAnimalSetup.Chickens.EggItem_Amount)
                             VORPcore.NotifyRightTip(_U("HarvestedEggs"), 4000)
                             InMission = false
-                            BccUtils.Blips:RemoveBlip(blip.rawblip)
+                            VORPutils.Blips:RemoveBlip(blip.rawblip)
                             DeleteObject(chickenCoop)
                             return
                         else
                             InMission = false
-                            BccUtils.Blips:RemoveBlip(blip.rawblip)
+                            VORPutils.Blips:RemoveBlip(blip.rawblip)
                             DeleteObject(chickenCoop)
                             VORPcore.NotifyRightTip(_U("Failed"), 4000)
                             return
@@ -73,7 +73,7 @@ RegisterNetEvent('bcc-ranch:ChickenCoopHarvest', function()
                         Config.RanchSetup.RanchAnimalSetup.Chickens.EggItem_Amount)
                     VORPcore.NotifyRightTip(_U("HarvestedEggs"), 4000)
                     InMission = false
-                    BccUtils.Blips:RemoveBlip(blip.rawblip)
+                    VORPutils.Blips:RemoveBlip(blip.rawblip)
                     DeleteObject(chickenCoop)
                     break
                 end
@@ -102,7 +102,7 @@ RegisterNetEvent('bcc-ranch:MilkCows', function()
     createdPed = BccUtils.Ped.CreatePed(model, Cowcoords.x, Cowcoords.y, Cowcoords.z - 1, true, true, false)
     FreezeEntityPosition(createdPed, true)
     local cc = GetEntityCoords(createdPed)
-    local PromptGroup = BccUtils.Prompts:SetupPromptGroup()
+    local PromptGroup = VORPutils.Prompts:SetupPromptGroup()
     local firstprompt = PromptGroup:RegisterPrompt(_U("milkCows"), 0x760A9C6F, 1, 1, true, 'hold',
         { timedeventhash = "MEDIUM_TIMED_EVENT" })
     local cowDead = false

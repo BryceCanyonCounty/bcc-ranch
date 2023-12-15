@@ -51,8 +51,8 @@ RegisterNetEvent('bcc-ranch:ShovelHay', function(chore)
     InMission = true
     VORPcore.NotifyRightTip(_U("GoToChoreLocation"), 4000)
     TriggerEvent('bcc-ranch:ChoreDeadCheck')
-    blip = BccUtils.Blips:SetBlip(_U("Ranchwork"), 960467426, 0.1, choreCoords.x, choreCoords.y, choreCoords.z)
-    local PromptGroup = BccUtils.Prompts:SetupPromptGroup()
+    blip = VORPutils.Blips:SetBlip(_U("Ranchwork"), 960467426, 0.1, choreCoords.x, choreCoords.y, choreCoords.z)
+    local PromptGroup = VORPutils.Prompts:SetupPromptGroup()
     local firstprompt = PromptGroup:RegisterPrompt(_U("StartChore"), 0x760A9C6F, 1, 1, true, 'hold', {timedeventhash = "MEDIUM_TIMED_EVENT"})
     while true do
         Wait(5)

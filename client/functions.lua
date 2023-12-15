@@ -4,6 +4,11 @@ TriggerEvent("getCore", function(core)
   VORPcore = core
 end)
 
+VORPutils = {}
+TriggerEvent("getUtils", function(utils)
+  VORPutils = utils
+end)
+
 MenuData = {}
 TriggerEvent("menuapi:getData", function(cb)
   MenuData = cb
