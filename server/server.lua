@@ -7,6 +7,7 @@ VORPInv = {}
 VORPInv = exports.vorp_inventory:vorp_inventoryApi()
 BccUtils = exports['bcc-utils'].initiate()
 local ranches = {}
+local allemployees = {}
 
 ------ Commands Admin Check --------
 RegisterServerEvent('bcc-ranch:AdminCheck', function(nextEvent, servEvent)
@@ -24,16 +25,8 @@ RegisterServerEvent('bcc-ranch:AdminCheck', function(nextEvent, servEvent)
 end)
 
 function LoadDB()
-    local loading = true
-    exports.ghmattimysql:execute('SELECT * FROM ranch', {}, function(result)
-        ranches = result
-        loading = false
-    end)
-    while loading do
-        Wait(10)
-    end
+    ranches = MySQL.query.await('SELECT * FROM ranch', {})
 end
-local allemployees = {}
 
 AddEventHandler('onResourceStart', function(resourceName)
     LoadDB()
@@ -68,18 +61,7 @@ function getRanchByCharIdentifier(charIdentifier)
 end
 
 function GetAllRanchEmployees()
-    local loading = true
-
-    exports.ghmattimysql:execute('SELECT charidentifier, ranchid FROM characters WHERE ranchid != 0', {}, function(result)
-        if #result ~= 0 then
-            allemployees = result
-        end
-        loading = false
-    end)
-    
-    while loading do
-        Wait(10)
-    end 
+    allemployees = MySQL.query.await('SELECT charidentifier, ranchid FROM characters WHERE ranchid != 0', {})
 end
 
 function CheckEmployeesbyranch(ranchid)
@@ -124,6 +106,9 @@ function senddatatoemployees(ranchid)
         local ison = isEmployeeOnServer(e.charidentifier)
         if ison then
             local ranch = getRanchById(ranchid)
+            if not ranch then
+                return
+            end
             TriggerClientEvent("bcc-ranch:GetData", ison, ranch)
         end
     end
@@ -165,16 +150,13 @@ end)
 
 RegisterServerEvent('bcc-ranch:CheckAnimalsOut', function(RanchId, getOnlyCurrentState, otherSource)
     local _source = otherSource or source
-    local param = { ['RanchId'] = RanchId }
-
-
     local ranch = getRanchById(RanchId)
     if not ranch then
         print('No ranch found for ranch id: ', RanchId, ' Current source: ', _source)
+        return
     end
 
     local isherding = ranch.isherding
-
     if isherding > 0 then
         TriggerClientEvent('bcc-ranch:AnimalsOutCl', _source, isherding)
     else
@@ -187,12 +169,12 @@ end)
 
 --------- Put Animals Back --------------
 RegisterServerEvent('bcc-ranch:PutAnimalsBack', function(RanchId)
-    local param = { ['RanchId'] = RanchId }
     local ranch = getRanchById(RanchId)
     if not ranch then
         print('No ranch found for ranch id: ', RanchId, ' Current source: ', source)
+        return
     end
-    ranch.ranch.isherding = 0
+    ranch.isherding = 0
 end)
 
 --------- Open Inv Handler --------------
@@ -268,6 +250,9 @@ RegisterServerEvent('bcc-ranch:InsertCreatedRanchIntoDB',
 RegisterServerEvent('bcc-ranch:ChoreInsertIntoDB', function(coords, RanchId, type)
     local _source = source
     local ranch = getRanchById(RanchId)
+    if not ranch then
+        return
+    end
 
     local databaseUpdate = {
         ['shovehaycoords'] = function()
@@ -308,6 +293,9 @@ end)
 RegisterServerEvent('bcc-ranch:AnimalLocationDbInserts', function(coords, RanchId, type)
     local _source = source
     local ranch = getRanchById(RanchId)
+    if not ranch then
+        return
+    end
 
     local databaseUpdate = { --utilizing good indexing to trigger functions instead of using elseif more optimal skips straight to the funt instead of going through all the elseif statements thanks to apo for the tip
         ['herdcoords'] = function()
@@ -372,10 +360,10 @@ end)
 ------ Ledger Area ------
 RegisterServerEvent('bcc-ranch:GetLedger', function(ranchid)
     local _source = source
-    local param = { ['ranchid'] = ranchid }
     local ranch = getRanchById(ranchid)
     if not ranch then
         print('No ranch found for ranch id: ', RanchId, ' Current source: ', source)
+        return
     end
     TriggerClientEvent('bcc-ranch:LedgerMenu', _source, ranch.ledger)
 end)
@@ -385,6 +373,9 @@ RegisterServerEvent('bcc-ranch:AffectLedger', function(ranchid, type, amount)
     local character = VORPcore.getUser(_source).getUsedCharacter
     local param = { ['ranchid'] = ranchid, ['amount'] = amount }
     local ranch = getRanchById(ranchid)
+    if not ranch then
+        return
+    end
     local result = MySQL.query.await("SELECT ledger FROM ranch WHERE ranchid=@ranchid", param)
     if #result > 0 then
         if type == 'withdraw' then
@@ -417,7 +408,6 @@ AddEventHandler('bcc-ranch:CheckIfRanchIsOwned',
         end
         
         local character = VORPcore.getUser(_source).getUsedCharacter
-        local param = { ['charidentifier'] = character.charIdentifier }
         local ranch = getRanchByCharIdentifier(character.charIdentifier)
         if ranch then
             VORPInv.removeInventory('Player_' .. ranch.ranchid .. '_bcc-ranchinv')
@@ -443,7 +433,6 @@ AddEventHandler('bcc-ranch:CheckIfInRanch', function(employeeSource)
     if #result > 0 then
         if result[1].ranchid ~= nil and 0 then
             local ranchid = result[1].ranchid
-            local param2 = { ["ranchid"] = ranchid }
             local ranch = getRanchById(ranchid)
             if ranch then
                 VORPInv.removeInventory('Player_' .. result[1].ranchid .. '_bcc-ranchinv')
@@ -487,7 +476,6 @@ end)
 ---- Event To Check for Ranchcondition For chores ----
 RegisterServerEvent('bcc-ranch:ChoreCheckRanchCondition', function(ranchid, chore)
     local _source = source
-    local param = { ['ranchid'] = ranchid }
     local ranch = getRanchById(ranchid)
     if ranch then
         if ranch.ranchCondition >= 100 then
@@ -502,6 +490,9 @@ end)
 RegisterServerEvent('bcc-ranch:RanchConditionIncrease', function(increaseAmount, ranchid)
     local param = { ['ranchid'] = ranchid, ['ConditionIncrease'] = increaseAmount }
     local ranch = getRanchById(ranchid)
+    if not ranch then
+        return
+    end
     ranch.ranchCondition = ranch.ranchCondition + increaseAmount
     exports.oxmysql:execute("UPDATE ranch SET `ranchCondition`=ranchCondition+@ConditionIncrease WHERE ranchid=@ranchid",
         param)
@@ -510,7 +501,6 @@ end)
 ---- Event To Display Ranch Condition To Player -----
 RegisterServerEvent('bcc-ranch:DisplayRanchCondition', function(ranchid)
     local _source = source
-    local param = { ['ranchid'] = ranchid }
     local ranch = getRanchById(ranchid)
     if ranch then
         VORPcore.NotifyRightTip(_source, tostring(ranch.ranchCondition), 4000)
@@ -525,6 +515,9 @@ RegisterServerEvent('bcc-ranch:BuyAnimals', function(ranchid, animalType)
     local character = VORPcore.getUser(_source).getUsedCharacter
     local param = { ['ranchid'] = ranchid }
     local ranch = getRanchById(ranchid)
+    if not ranch then
+        return
+    end
 
     local buyAnimalsHandler = {
         ['cows'] = function()
@@ -745,6 +738,9 @@ end)
 RegisterServerEvent('bcc-ranch:AnimalsSoldHandler', function(payAmount, animalType, ranchid)
     local param = { ['ranchid'] = ranchid }
     local ranch = getRanchById(ranchid)
+    if not ranch then
+        return
+    end
     local discord = BccUtils.Discord.setup(Config.Webhooks.AnimalSold.WebhookLink, 'BCC Ranch',
         'https://i.imgur.com/vLy5jKH.png')
     local ledger
@@ -807,6 +803,9 @@ end)
 RegisterServerEvent('bcc-ranch:AnimalCondIncrease', function(animalType, amounToInc, ranchid)
     local param = { ['ranchid'] = ranchid, ['levelinc'] = amounToInc }
     local ranch = getRanchById(ranchid)
+    if not ranch then
+        return
+    end
 
     local condIncFuncts = {
         ['cows'] = function()
@@ -842,6 +841,9 @@ RegisterServerEvent('bcc-ranch:ButcherAnimalHandler', function(animalType, ranch
     local param = { ['ranchid'] = ranchid }
     local _source = source
     local ranch = getRanchById(ranchid)
+    if not ranch then
+        return
+    end
 
     local ButcherFuncts = {
         ['cows'] = function()
@@ -894,6 +896,9 @@ end)
 ------ Decrease ranch cond over time ------------
 RegisterServerEvent('bcc-ranch:DecranchCondIncrease', function(ranchid)
     local ranch = getRanchById(ranchid)
+    if not ranch then
+        return
+    end
     local param = { ['ranchid'] = ranchid, ['levelinc'] = Config.RanchSetup.RanchCondDecreaseAmount }
     local result = MySQL.query.await("SELECT ranchCondition from ranch WHERE ranchid=@ranchid", param)
     if #result > 0 then
@@ -940,6 +945,9 @@ end)
 RegisterServerEvent('bcc-ranch:RemoveAnimalFromDB', function(ranchid, animalType)
     local param = { ['ranchid'] = ranchid }
     local ranch = getRanchById(ranchid)
+    if not ranch then
+        return
+    end
     local removeAnimalFuncts = {
         ['cows'] = function()
             ranch.cows = false
@@ -996,7 +1004,6 @@ RegisterServerEvent('bcc-ranch:WanderingSetup', function(ranchid)
     end
 
     if not alreadySpawned then
-        local param = { ['ranchid'] = ranchid }
         local _source = source
         local ranch = getRanchById(ranchid)
         if ranch then
@@ -1023,7 +1030,6 @@ end)
 ---------- Ageing Setup -----------------------
 RegisterServerEvent('bcc-ranch:AgeCheck', function(ranchid)
     local _source = source
-    local param = { ['ranchid'] = ranchid }
     local ranch = getRanchById(ranchid)
     if ranch then
         if ranch.cows == 'true' then
@@ -1064,6 +1070,9 @@ end)
 
 RegisterServerEvent('bcc-ranch:AgeIncrease', function(animalType, ranchid)
     local ranch = getRanchById(ranchid)
+    if not ranch then
+        return
+    end
     local ageIncFuncts = {
         ['cows'] = function()
             local param = {
@@ -1117,6 +1126,9 @@ end)
 ------ Coop Setup -----
 RegisterServerEvent('bcc-ranch:CoopDBStorage', function(ranchId, coopCoords) --storing coop to db
     local ranch = getRanchById(ranchId)
+    if not ranch then
+        return
+    end
     ranch.chicken_coop = true
     ranch.chicken_coop_coords = json.encode(coopCoords)
     local param = { ['ranchid'] = ranchId, ['coopcoords'] = json.encode(coopCoords) }
@@ -1272,6 +1284,9 @@ AddEventHandler('playerDropped', function()
 
     if ranch and #ranch > 0 and ranch[1] and ranch[1].ranchid and tonumber(ranch[1].ranchid) > 0 then
         local _ranch = getRanchById(ranch[1].ranchid)
+        if not _ranch then
+            return
+        end
         local update_ranch_param = { ranchid = ranch[1].ranchid }
         _ranch.isherding = 0
         MySQL.query.await("UPDATE ranch SET `isherding`=0 WHERE ranchid=@ranchid", update_ranch_param )
