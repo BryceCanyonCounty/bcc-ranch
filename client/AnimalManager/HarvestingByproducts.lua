@@ -8,8 +8,7 @@ RegisterNetEvent('bcc-ranch:PlaceChickenCoop', function()
         Wait(5)
         if IsControlJustReleased(0, 0x760A9C6F) then
             local coopCoords = GetEntityCoords(PlayerPedId())
-            ChickenCoop =
-            'true'               --Setting these 2 vars here so you dont have too disconnect and rejoin just to buy a coop
+            ChickenCoop = 'true' --Setting these 2 vars here so you dont have too disconnect and rejoin just to buy a coop
             ChickenCoop_coords = coopCoords
             TriggerServerEvent('bcc-ranch:CoopDBStorage', RanchId, coopCoords)
             break
@@ -23,30 +22,26 @@ end)
 RegisterNetEvent('bcc-ranch:ChickenCoopHarvest', function()
     InMission = true
     MenuData.CloseAll()
-    local chickenCoopModel = joaat('p_chickencoopcart01x')
-    RequestModel(chickenCoopModel)
-    while not HasModelLoaded(chickenCoopModel) do
-        Wait(100)
-    end
+    local model = 'p_chickencoopcart01x'
+    LoadModel(model)
     TriggerEvent('bcc-ranch:ChoreDeadCheck')
 
-    local chickenCoop = CreateObject(chickenCoopModel, ChickenCoop_coords.x, ChickenCoop_coords.y, ChickenCoop_coords.z,
+    local chickenCoop = CreateObject(model, ChickenCoop_coords.x, ChickenCoop_coords.y, ChickenCoop_coords.z,
         true, true, false)
-    Citizen.InvokeNative(0x9587913B9E772D29, chickenCoop)
+    Citizen.InvokeNative(0x9587913B9E772D29, chickenCoop) -- PlaceEntityOnGroundProperly
     VORPcore.NotifyRightTip(_U("HarvestEggs"), 4000)
     BccUtils.Misc.SetGps(ChickenCoop_coords.x, ChickenCoop_coords.y, ChickenCoop_coords.z)
     local blip = VORPutils.Blips:SetBlip(_U("HarvestEggs_blip"), 'blip_teamsters', 0.2, ChickenCoop_coords.x,
         ChickenCoop_coords.y, ChickenCoop_coords.z)
-
-
+    local coopCoords = GetEntityCoords(chickenCoop)
     local PromptGroup = VORPutils.Prompts:SetupPromptGroup()
     local firstprompt = PromptGroup:RegisterPrompt(_U("HarvestEggs_blip"), 0x760A9C6F, 1, 1, true, 'hold',
         { timedeventhash = "MEDIUM_TIMED_EVENT" })
     while true do
         Wait(5)
-        local plc = GetEntityCoords(PlayerPedId())
+        local distance = #(GetEntityCoords(PlayerPedId()) - coopCoords)
         if PlayerDead then break end
-        if GetDistanceBetweenCoords(plc.x, plc.y, plc.z, ChickenCoop_coords.x, ChickenCoop_coords.y, ChickenCoop_coords.z, true) < 3 then
+        if distance < 3 then
             PromptGroup:ShowGroup('')
             if firstprompt:HasCompleted() then
                 if Config.ChoreMinigames then
@@ -91,30 +86,27 @@ end)
 RegisterNetEvent('bcc-ranch:MilkCows', function()
     MenuData.CloseAll()
     InMission = true
-    local model = joaat('a_c_cow')
-    RequestModel(model)
-    while not HasModelLoaded(model) do
-        Wait(100)
-    end
+    local model = 'a_c_cow'
+    LoadModel(model)
     TriggerEvent('bcc-ranch:ChoreDeadCheck')
     VORPcore.NotifyRightTip(_U("goMilk"), 4000)
 
     createdPed = BccUtils.Ped.CreatePed(model, Cowcoords.x, Cowcoords.y, Cowcoords.z - 1, true, true, false)
     FreezeEntityPosition(createdPed, true)
-    local cc = GetEntityCoords(createdPed)
+    local pedCoords = GetEntityCoords(createdPed)
     local PromptGroup = VORPutils.Prompts:SetupPromptGroup()
     local firstprompt = PromptGroup:RegisterPrompt(_U("milkCows"), 0x760A9C6F, 1, 1, true, 'hold',
         { timedeventhash = "MEDIUM_TIMED_EVENT" })
     local cowDead = false
     while true do
         Wait(5)
-        local plc = GetEntityCoords(PlayerPedId())
         if PlayerDead then break end
         if IsEntityDead(createdPed) then
             cowDead = true
             break
         end
-        if GetDistanceBetweenCoords(plc.x, plc.y, plc.z, cc.x, cc.y, cc.z, true) < 1 then
+        local distance = #(GetEntityCoords(PlayerPedId()) - pedCoords)
+        if distance <= 1 then
             PromptGroup:ShowGroup('')
             if firstprompt:HasCompleted() then break end
         end
@@ -142,7 +134,7 @@ RegisterNetEvent('bcc-ranch:MilkCows', function()
                 DeletePed(createdPed)
                 VORPcore.NotifyRightTip(_U("Failed"), 4000)
             end
-            StopAnimTask(PlayerPedId(), 'script_rc@rch1@ig@ig_1_milkingthecow', 'milkingloop_john', 1.0)
+            ClearPedTasks(PlayerPedId())
         end)
     else
         VORPcore.NotifyRightTip(_U("milkingCow"), 4000)
@@ -159,30 +151,27 @@ end)
 RegisterNetEvent('bcc-ranch:ShearSheeps', function()
     InMission = true
     MenuData.CloseAll()
-    local model = joaat('a_c_sheep_01')
-    RequestModel(model)
-    while not HasModelLoaded(model) do
-        Wait(100)
-    end
+    local model = 'a_c_sheep_01'
+    LoadModel(model)
     TriggerEvent('bcc-ranch:ChoreDeadCheck')
     VORPcore.NotifyRightTip(_U("goShear"), 4000)
 
     createdPed = BccUtils.Ped.CreatePed(model, Sheepcoords.x, Sheepcoords.y, Sheepcoords.z - 1, true, true, false)
     FreezeEntityPosition(createdPed, true)
-    local cc = GetEntityCoords(createdPed)
+    local pedCoords = GetEntityCoords(createdPed)
     local PromptGroup = VORPutils.Prompts:SetupPromptGroup()
     local firstprompt = PromptGroup:RegisterPrompt(_U("shearSheeps"), 0x760A9C6F, 1, 1, true, 'hold',
         { timedeventhash = "MEDIUM_TIMED_EVENT" })
     local sheepDead = false
     while true do
         Wait(5)
-        local plc = GetEntityCoords(PlayerPedId())
         if PlayerDead then break end
         if IsEntityDead(createdPed) then
             sheepDead = true
             break
         end
-        if GetDistanceBetweenCoords(plc.x, plc.y, plc.z, cc.x, cc.y, cc.z, true) < 1 then
+        local distance = #(GetEntityCoords(PlayerPedId()) - pedCoords)
+        if distance <= 1 then
             PromptGroup:ShowGroup('')
             if firstprompt:HasCompleted() then break end
         end
@@ -207,7 +196,7 @@ RegisterNetEvent('bcc-ranch:ShearSheeps', function()
                 VORPcore.NotifyRightTip(_U("HarvestedWool"), 4000)
                 InMission = false
                 DeletePed(createdPed)
-                ClearPlayerTasks(PlayerPedId())
+                ClearPedTasks(PlayerPedId())
                 return
             else
                 SetPedToRagdoll(PlayerPedId(), 1000, 1000, 0, 0, 0, 0)
@@ -227,6 +216,14 @@ RegisterNetEvent('bcc-ranch:ShearSheeps', function()
         DeletePed(createdPed)
     end
 end)
+
+function LoadModel(model)
+    local hash = joaat(model)
+    RequestModel(hash)
+    while not HasModelLoaded(hash) do
+        Wait(10)
+    end
+end
 
 AddEventHandler('onResourceStop', function(resource)
     if resource == GetCurrentResourceName() then
