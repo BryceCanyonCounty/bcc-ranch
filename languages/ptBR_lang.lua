@@ -60,6 +60,7 @@ Locales["ptBR_lang"] = {
     ManageChickens_desc = 'Gerencie suas galinhas possuídas',
     ManagePigs_desc = 'Gerencie seus porcos possuídos',
     SellCows = 'Vender Animais',
+    SellAnimal_desc = 'Vender seus animais? Quanto melhor a condição deles, mais lucro você obterá!',
     SellCows_desc = 'Vender seus animais? Quanto melhor a condição deles, mais lucro você obterá!',
     AnimalNotOwned = 'Você não possui nenhum desses animais',
     CheckAnimalCond = 'Verificar Condição dos Animais',

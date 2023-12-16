@@ -61,6 +61,7 @@ Locales["de_lang"] = {
     ManageChickens_desc = 'Verwalte deine gekauften Hühner!',
     ManagePigs_desc = 'Verwalte deine gekauften Schweine!',
     SellCows = 'Verkaufe Vieh',
+    SellAnimal_desc = 'Vieh verkaufen? Umso höher die Zufriedenheit, desto höher der Preis!',
     SellCows_desc = 'Vieh verkaufen? Umso höher die Zufriedenheit, desto höher der Preis!',
     AnimalNotOwned = 'So viel von diesem Vieh besitzt du nicht!',
     CheckAnimalCond = 'Prüfe die Zufriedenheit deines Viehs',
