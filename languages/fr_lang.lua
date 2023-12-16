@@ -59,6 +59,7 @@ Locales["fr_lang"] = {
     ManageChickens_desc = ' Gérez vos propres poulets ' ,
     ManagePigs_desc = ' Gérez les cochons de votre propriété ' ,
     SellCows = ' Vendre des animaux ' ,
+    SellAnimal_desc = ' Vendre vos animaux ? Plus leur état est élevé, plus vous faites de profit ! ' ,
     SellCows_desc = ' Vendre vos animaux ? Plus leur état est élevé, plus vous faites de profit ! ' ,
     AnimalNotOwned = ' Vous ne possédez aucun de ces animaux ' ,
     CheckAnimalCond = ' Vérifier l état des animaux ' ,

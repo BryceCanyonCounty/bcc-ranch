@@ -67,6 +67,7 @@ Locales["en_lang"] = {
     ManageGoats_desc = 'Manage your owned goats',
     ManageChickens_desc = 'Manage your owned chickens',
     SellAnimal = 'Sell Animals',
+    SellAnimal_desc = 'Sell Your Animals? The higher their condition the more profit you make!',
     SellCows_desc = 'Sell Your Animals? The higher their condition the more profit you make!',
     AnimalNotOwned = 'You do not own any of these animals',
     CheckAnimalCond = 'Check Animals Condition',
