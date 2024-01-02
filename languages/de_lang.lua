@@ -40,6 +40,8 @@ Locales["de_lang"] = {
     Notenoughmoney = 'Du hast nicht genug Geld',
     AlreadyOwnAnimal = 'Du hast bereits genug Vieh',
     AlreadyOwnRanch = 'Diese Person hat bereits eine Ranch',
+    BuySheeps = 'Kaufe Schafe für',
+    BuySheeps_desc = 'Kaufe Schafe für deine Ranch',
     BuyPigs = 'Kaufe Schweine für',
     BuyPigs_desc = 'Kaufe Schweine für deine Ranch',
     BuyGoats = 'Kaufe Schaafe für',
@@ -56,13 +58,16 @@ Locales["de_lang"] = {
     ManageGoats = 'Verwalte Schaafe',
     ManageChickens = 'Verwalte Hühner',
     ManagePigs = 'Verwalte Schweine',
+    ManageSheeps = 'Verwalte Schafe',
+    ManageSheeps_desc = 'Verwalte deine gekauften Schafe!',
     ManageCows_desc = 'Verwalte deine gekauften Kühe!',
     ManageGoats_desc = 'Verwalte deine gekauften Schaafe!',
     ManageChickens_desc = 'Verwalte deine gekauften Hühner!',
     ManagePigs_desc = 'Verwalte deine gekauften Schweine!',
-    SellCows = 'Verkaufe Vieh',
+    SellCows = 'Verkaufe Kühe',
+    SellAnimal = 'Verkaufe Vieg',
     SellAnimal_desc = 'Vieh verkaufen? Umso höher die Zufriedenheit, desto höher der Preis!',
-    SellCows_desc = 'Vieh verkaufen? Umso höher die Zufriedenheit, desto höher der Preis!',
+    SellCows_desc = 'Kuh verkaufen? Umso höher die Zufriedenheit, desto höher der Preis!',
     AnimalNotOwned = 'So viel von diesem Vieh besitzt du nicht!',
     CheckAnimalCond = 'Prüfe die Zufriedenheit deines Viehs',
     CheckAnimalCond_desc = 'Prüfe die Zufriedenheit deines Viehs. Umso höher die Zufriedenheit, umso mehr Ertrag, wenn du es verkaufst!',
@@ -163,10 +168,15 @@ Locales["de_lang"] = {
     NoCoop = 'Du hast keinen Hühnerstall!',
     HarvestedTooSoon = 'Es wurden noch keine Eier gelegt!',
     HarvestedTooSoonCow = 'Die Kuh hat noch nicht genug Milch!',
+    HarvestedTooSoonSheep = 'Die Wolle ist noch nicht Gewachsen!',
     HarvestEggs = 'Gehe zum Hühnerstall und sammle die Eier!',
     HarvestEggs_blip = 'Eier sammeln',
     HarvestedEggs = 'Du hast Eier gesammelt!',
     cowMilked = 'Kuh erfolgreich gemolken!',
+    milkCows = 'Milk Cows',
+    milkCows_desc = 'Melke Kühe um Milch zu bekommen!',
+    goMilk = 'Gehe zur Kuh und beginne zu Melken!',
+    milkingCow = 'Melke die Kuh',
 --- Speicherorte speichern
     ShoveHaySave = 'Speicherort für das Schaufeln von Heu wurde gespeichert',
     WaterAnimalSave = 'Speicherort für das Bewässern der Tiere wurde gespeichert',
@@ -185,7 +195,7 @@ Locales["de_lang"] = {
     radiusSet = 'Radius festgelegt',
     toFar = 'Zu weit weg von der Ranch',
 
-    --Added by Jannings
+    --Added by JanningsTranslated 01.01.2024
     AnimalsOut = "Deine Tiere sind bereits draußen",
     ranchIdWebhook = 'Ranch ID: ',
     taxPaidWebhook = 'Steuern wurden bezahlt!',
@@ -194,6 +204,17 @@ Locales["de_lang"] = {
     taxesSet = "Steuern festgelegt",
     TooSoon = 'Abklingzeit ist noch aktiv, bitte warten!',
 
-    -- Add by DerHobbs
+    -- Add by DerHobbsTranslated 01.01.2024
     NoSell = 'Du kannst aktuell keine Tiere dieser Art zum Ankäufer bringen!',
+    Ranchwork = 'Rancharbeit', -- 12.12.2023
+    TooFar = 'Sie haben sich zu weit entfernt, die Arbeit ist abgeschlossen!', -- 12.12.2023
+
+    -- Added By JustRoy Translated 01.01.2024
+    shearSheeps = 'Schafe scheren',
+    shearSheeps_desc = 'Schere deine Schafe um Wollen zu bekommen!',
+    goShear = 'Gehe zum Schaf und beginne zu Scheren!',
+    shearSheep = 'Schaf scheren',
+    HarvestedWool = 'Du erntest Wolle!',
+    shearingSheep = 'Schere das Schaf',
+    sheepSheared = 'Schaf erfolgreich Geschert!',
 }
