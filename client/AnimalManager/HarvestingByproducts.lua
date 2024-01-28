@@ -144,6 +144,7 @@ RegisterNetEvent('bcc-ranch:MilkCows', function()
         TriggerServerEvent('bcc-ranch:AddItem', Config.RanchSetup.RanchAnimalSetup.Cows.MilkingItem,
             Config.RanchSetup.RanchAnimalSetup.Cows.MilkingItemAmount)
         DeletePed(createdPed)
+        InMission = false
     end
 end)
 
