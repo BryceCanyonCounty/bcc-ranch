@@ -216,5 +216,5 @@ Locales["de_lang"] = {
     shearSheep = 'Schaf scheren',
     HarvestedWool = 'Du erntest Wolle!',
     shearingSheep = 'Schere das Schaf',
-    sheepSheared = 'Schaf erfolgreich Geschert!',
+    sheepSheared = 'Schaf erfolgreich Geschert!'
 }

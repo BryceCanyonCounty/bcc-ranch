@@ -184,5 +184,31 @@ Locales["ptPT_lang"] = {
     -- fim adicionado por Little Creek
     nameSet = 'Nome Definido',
     radiusSet = 'Raio Definido',
-    toFar = 'Demasiado longe da quinta'
+    toFar = 'Demasiado longe da quinta',
+
+    -- TRANSLATION NEEDED BELOW!
+
+    BuySheeps = 'Buy Sheeps for',
+    BuySheeps_desc = 'Buy Sheeps for your ranch',
+    ManageSheeps = 'Manage Owned Sheeps',
+    ManageSheeps_desc = 'Mange your owned sheeps',
+    SellAnimal = 'Sell Animals',
+    HarvestedTooSoonCow = 'The cow doesnt have enough milk yet!',
+    HarvestedTooSoonSheep = 'The wool is not fully grown yet!',
+    AnimalsOut = "Your animals are already out",
+    ranchIdWebhook = 'Ranch Id: ',
+    taxPaidWebhook = 'Tax paid!',
+    taxPaidFailedWebhook = 'Not enough money for taxes, Ranch has been deleted!',
+    TaxAmount = "Amount of Taxes",
+    taxesSet = "Taxes set",
+    TooSoon = 'Cooldown still active, wait!',
+    NoSell = 'You can not sell more animals of this type today!',
+    Ranchwork = 'Ranchwork',
+    TooFar = 'You have strayed too far, the work has been completed!',
+    shearSheeps_desc = 'Shear your sheeps to get wool!',
+    goShear = 'Go to the sheep and begin shearing it!',
+    shearSheep = 'Shear Sheep',
+    HarvestedWool = 'You harvested wool!',
+    shearingSheep = 'Shearing the sheep',
+    sheepSheared = 'Sheep sheared successfully!'
 }

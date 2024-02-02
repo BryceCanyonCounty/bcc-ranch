@@ -308,9 +308,12 @@ Config.SaleLocations = {
 }
 
 ---------- Admin Configuration (Anyone listed here will be able to create and delete ranches!) -----------
+
+-- You can see how to find it here. https://www.howtogeek.com/819859/how-to-find-steam-id/
+-- Then once you copy your steam id or url you can paste it into here https://steamid.pro/ which will then show a section called 'FiveM, HEX' which you can paste below
 Config.AdminSteamIds = {
     {
-        steamid = 'steam:11000013707db22', --insert players steam id
+        steamid = 'steam:11000013707db22', --insert players steam HEX id
     } --to add more just copy this table paste and change id
 }
 Config.CreateRanchCommand = 'createranch' --name of the command used to create ranches!
