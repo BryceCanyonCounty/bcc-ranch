@@ -13,26 +13,23 @@ shared_scripts {
 
 server_scripts {
     '@oxmysql/lib/MySQL.lua',
-    'server/server.lua',
-    'server/exports.lua',
-    'server/AdminMenu.lua'
+    '/server/helpers/functions.lua',
+    '/server/helpers/controllers.lua',
+    '/server/main.lua',
+    '/server/services/*.lua'
 }
 
 client_scripts {
-    'client/functions.lua',
-    'client/menusetup/*.lua',
-    'client/MainRanch.lua',
-    'client/chores.lua',
-    'client/AnimalManager/*.lua'
+    '/client/helpers/functions.lua',
+    '/client/main.lua',
+    '/client/services/animalshelper/*.lua',
+    '/client/services/*.lua'
 }
 
 dependency {
     'vorp_core',
-    'vorp_inventory',
-    'bcc-utils',
-    'vorp_character',
-    'vorp_inputs',
-    'bcc-minigames'
+    'feather-menu',
+    'bcc-utils'
 }
 
-version '1.3.3'
+version '1.3.4'
