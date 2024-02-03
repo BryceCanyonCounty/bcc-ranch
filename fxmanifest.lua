@@ -29,7 +29,11 @@ client_scripts {
 dependency {
     'vorp_core',
     'feather-menu',
-    'bcc-utils'
+    'bcc-utils',
+    'vorp_character',
+    'vorp_inventory',
+    'bcc-minigames',
+    'vorp_utils'
 }
 
 version '1.3.4'
