@@ -6,10 +6,9 @@
 - VORP Core
 - VORP Utils
 - VORP Inventory
-- VORP Inputs
+- feather-menu
 - bcc-utils
 - VORP Character
-- VORP Menu
 - bcc-minigames
 
 # Features

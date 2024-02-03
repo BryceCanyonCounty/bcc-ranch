@@ -3,7 +3,7 @@ fx_version "adamant"
 rdr3_warning 'I acknowledge that this is a prerelease build of RedM, and I am aware my resources *will* become incompatible once RedM ships.'
 
 lua54 'yes'
-author 'Jake2k4'
+author 'BCC @ Jake2k4'
 
 shared_scripts {
     'config.lua',
@@ -13,26 +13,27 @@ shared_scripts {
 
 server_scripts {
     '@oxmysql/lib/MySQL.lua',
-    'server/server.lua',
-    'server/exports.lua',
-    'server/AdminMenu.lua'
+    '/server/helpers/functions.lua',
+    '/server/helpers/controllers.lua',
+    '/server/main.lua',
+    '/server/services/*.lua'
 }
 
 client_scripts {
-    'client/functions.lua',
-    'client/menusetup/*.lua',
-    'client/MainRanch.lua',
-    'client/chores.lua',
-    'client/AnimalManager/*.lua'
+    '/client/helpers/functions.lua',
+    '/client/main.lua',
+    '/client/services/animalshelper/*.lua',
+    '/client/services/*.lua'
 }
 
 dependency {
     'vorp_core',
-    'vorp_inventory',
+    'feather-menu',
     'bcc-utils',
     'vorp_character',
-    'vorp_inputs',
-    'bcc-minigames'
+    'vorp_inventory',
+    'bcc-minigames',
+    'vorp_utils'
 }
 
-version '1.3.3'
+version '2.0.0'
