@@ -3,7 +3,7 @@ fx_version "adamant"
 rdr3_warning 'I acknowledge that this is a prerelease build of RedM, and I am aware my resources *will* become incompatible once RedM ships.'
 
 lua54 'yes'
-author 'Jake2k4'
+author 'BCC @ Jake2k4'
 
 shared_scripts {
     'config.lua',
@@ -36,4 +36,4 @@ dependency {
     'vorp_utils'
 }
 
-version '1.3.4'
+version '2.0.0'
