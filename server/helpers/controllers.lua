@@ -34,7 +34,7 @@ local function newRancherOnline(sourceToInput, ranchId)
 end
 
 ---@param ranchId integer
-local function updateAllRanchersRanchData(ranchId)
+function UpdateAllRanchersRanchData(ranchId)
     checkOnlineRanchers(ranchId)
     local ranchData = MySQL.query.await("SELECT * FROM ranch WHERE ranchid=@ranchid", { ['ranchid'] = ranchId })
     for k, v in pairs(ranchersOnline[ranchId]) do
@@ -157,7 +157,7 @@ RegisterServerEvent('bcc-ranch:AffectLedger', function(ranchId, type, amount)
                 MySQL.query.await("UPDATE ranch SET ledger= ledger-@amount WHERE ranchid=@ranchid", getRanchParam)
                 character.addCurrency(0, tonumber(amount))
                 VORPcore.NotifyRightTip(_source, _U("withdrewFromLedger") .. " " .. amount, 4000)
-                updateAllRanchersRanchData(ranchId)
+                UpdateAllRanchersRanchData(ranchId)
             else
                 VORPcore.NotifyRightTip(_source, _U("notEnoughMoney"), 4000)
             end
@@ -166,7 +166,7 @@ RegisterServerEvent('bcc-ranch:AffectLedger', function(ranchId, type, amount)
                 MySQL.query.await("UPDATE ranch SET ledger= ledger+@amount WHERE ranchid=@ranchid", getRanchParam)
                 character.removeCurrency(0, tonumber(amount))
                 VORPcore.NotifyRightTip(_source, _U("depositedToLedger") .. " " .. amount, 4000)
-                updateAllRanchersRanchData(ranchId)
+                UpdateAllRanchersRanchData(ranchId)
             else
                 VORPcore.NotifyRightTip(_source, _U("notEnoughMoney"), 4000)
             end
@@ -200,7 +200,7 @@ RegisterServerEvent("bcc-ranch:InsertChoreCoordsIntoDB", function(choreCoords, r
     if databaseUpdate[choreType] then
         VORPcore.NotifyRightTip(_source, _U("coordsSet"), 4000)
         databaseUpdate[choreType]()
-        updateAllRanchersRanchData(ranchId)
+        UpdateAllRanchersRanchData(ranchId)
     end
 end)
 
@@ -209,7 +209,7 @@ end)
 RegisterServerEvent("bcc-ranch:IncreaseRanchCond", function(ranchId, amount)
     local param = { ['ranchid'] = ranchId, ['amount'] = amount }
     MySQL.query.await("UPDATE ranch SET `ranchCondition`=ranchCondition+@amount WHERE ranchid=@ranchid", param)
-    updateAllRanchersRanchData(ranchId)
+    UpdateAllRanchersRanchData(ranchId)
 end)
 
 -- Employee area --
@@ -263,7 +263,7 @@ RegisterServerEvent('bcc-ranch:AnimalBought', function(ranchId, animalType)
                     if ranch[1].cows == "false" then
                         animalBoughtLogic(Config.animalSetup.cows.cost)
                         MySQL.query.await("UPDATE ranch SET cows='true' WHERE ranchid=@ranchid", param)
-                        updateAllRanchersRanchData(ranchId)
+                        UpdateAllRanchersRanchData(ranchId)
                     else
                         VORPcore.NotifyRightTip(_source, _U("alreadyOwnsAnimal"), 4000)
                     end
@@ -276,7 +276,7 @@ RegisterServerEvent('bcc-ranch:AnimalBought', function(ranchId, animalType)
                     if ranch[1].pigs == "false" then
                         animalBoughtLogic(Config.animalSetup.pigs.cost)
                         MySQL.query.await("UPDATE ranch SET pigs='true' WHERE ranchid=@ranchid", param)
-                        updateAllRanchersRanchData(ranchId)
+                        UpdateAllRanchersRanchData(ranchId)
                     else
                         VORPcore.NotifyRightTip(_source, _U("alreadyOwnsAnimal"), 4000)
                     end
@@ -289,7 +289,7 @@ RegisterServerEvent('bcc-ranch:AnimalBought', function(ranchId, animalType)
                     if ranch[1].sheeps == "false" then
                         animalBoughtLogic(Config.animalSetup.sheeps.cost)
                         MySQL.query.await("UPDATE ranch SET sheeps='true' WHERE ranchid=@ranchid", param)
-                        updateAllRanchersRanchData(ranchId)
+                        UpdateAllRanchersRanchData(ranchId)
                     else
                         VORPcore.NotifyRightTip(_source, _U("alreadyOwnsAnimal"), 4000)
                     end
@@ -302,7 +302,7 @@ RegisterServerEvent('bcc-ranch:AnimalBought', function(ranchId, animalType)
                     if ranch[1].goats == "false" then
                         animalBoughtLogic(Config.animalSetup.goats.cost)
                         MySQL.query.await("UPDATE ranch SET goats='true' WHERE ranchid=@ranchid", param)
-                        updateAllRanchersRanchData(ranchId)
+                        UpdateAllRanchersRanchData(ranchId)
                     else
                         VORPcore.NotifyRightTip(_source, _U("alreadyOwnsAnimal"), 4000)
                     end
@@ -315,7 +315,7 @@ RegisterServerEvent('bcc-ranch:AnimalBought', function(ranchId, animalType)
                     if ranch[1].chickens == "false" then
                         animalBoughtLogic(Config.animalSetup.chickens.cost)
                         MySQL.query.await("UPDATE ranch SET chickens='true' WHERE ranchid=@ranchid", param)
-                        updateAllRanchersRanchData(ranchId)
+                        UpdateAllRanchersRanchData(ranchId)
                     else
                         VORPcore.NotifyRightTip(_source, _U("alreadyOwnsAnimal"), 4000)
                     end
@@ -375,14 +375,14 @@ RegisterServerEvent('bcc-ranch:InsertAnimalRelatedCoords', function(ranchId, coo
                     character.removeCurrency(0, moneyToRemove)
                     VORPcore.NotifyRightTip(_source, _U("coordsSet"), 4000)
                     updateTable[type]()
-                    updateAllRanchersRanchData(ranchId)
+                    UpdateAllRanchersRanchData(ranchId)
                 else
                     VORPcore.NotifyRightTip(_source, _U("notEnoughMoney"), 4000)
                     return
                 end
             else
                 updateTable[type]()
-                updateAllRanchersRanchData(ranchId)
+                UpdateAllRanchersRanchData(ranchId)
             end
         end
     end
@@ -398,7 +398,7 @@ RegisterServerEvent('bcc-ranch:UpdateAnimalsOut', function(ranchId, isOut)
                 if _source == v.rancherSource then
                     MySQL.query.await("UPDATE ranch SET is_any_animals_out='true' WHERE ranchid=@ranchid", param)
                     v.doesRancherHaveAnimalsOut = true
-                    updateAllRanchersRanchData(ranchId) break
+                    UpdateAllRanchersRanchData(ranchId) break
                 end
             end
         else
@@ -406,7 +406,7 @@ RegisterServerEvent('bcc-ranch:UpdateAnimalsOut', function(ranchId, isOut)
                 if _source == v.rancherSource then
                     MySQL.query.await("UPDATE ranch SET is_any_animals_out='false' WHERE ranchid=@ranchid", param)
                     v.doesRancherHaveAnimalsOut = false
-                    updateAllRanchersRanchData(ranchId) break
+                    UpdateAllRanchersRanchData(ranchId) break
                 end
             end
         end
@@ -439,7 +439,7 @@ RegisterServerEvent('bcc-ranch:IncreaseAnimalsCond', function(ranchId, animalTyp
 
     if animalOptionsTable[animalType] then
         animalOptionsTable[animalType]()
-        updateAllRanchersRanchData(ranchId)
+        UpdateAllRanchersRanchData(ranchId)
         VORPcore.NotifyRightTip(_source, _U("animalCondIncreased") .. tostring(incAmount), 4000)
     end
 end)
@@ -469,7 +469,7 @@ RegisterServerEvent("bcc-ranch:IncreaseAnimalAge", function(ranchId, animalType,
 
     if animalOptionsTable[animalType] then
         animalOptionsTable[animalType]()
-        updateAllRanchersRanchData(ranchId)
+        UpdateAllRanchersRanchData(ranchId)
     end
 end)
 
@@ -499,7 +499,7 @@ RegisterServerEvent('bcc-ranch:ButcherAnimalHandler', function(animalType, ranch
     }
     if butcherFuncts[animalType] then
         butcherFuncts[animalType]()
-        updateAllRanchersRanchData(ranchId)
+        UpdateAllRanchersRanchData(ranchId)
     end
 
     for k, v in pairs(table.butcherItems) do
@@ -533,7 +533,7 @@ RegisterServerEvent('bcc-ranch:AnimalSold', function(payAmount, ranchId, animalT
         }
         if soldFuncts[animalType] then
             soldFuncts[animalType]()
-            updateAllRanchersRanchData(ranchId)
+            UpdateAllRanchersRanchData(ranchId)
         end
     end
 end)
