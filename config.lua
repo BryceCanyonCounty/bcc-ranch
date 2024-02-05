@@ -1,14 +1,15 @@
 Config = {
     defaultlang = "en_lang", -- set your language
-    devMode = true,
+    devMode = false,
     adminGroup = "admin", --Name of the group to set admin (in order to be an admin you must have the group admin on the characters table)
     commands = {
         createRanchCommand = "createRanch",
         manageRanches = "manageRanches",
         devModeCommand = "startRanch"
     },
-    webhookLink = "", -- Set your webhook link where logs will go
     ranchSetup = {
+        ranchConditionDecreaseInterval = 60000, -- 1 minute (Time that must pass before ranch condition decreases)
+        ranchConditionDecreaseAmount = 10, -- Amount to decrease ranch condition by
         taxDay = 23, -- Day of the month that taxes are collected
         taxResetDay = 1, -- Day of the month that taxes are reset
         ranchBlip = "blip_mp_roundup", --Main ranch blip
