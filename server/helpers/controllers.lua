@@ -1,16 +1,16 @@
 -- Creation and checking if in ranch area --
-local ranchersOnline = {} --this will be used to store the ranchers who are online of each ranch so we can sync changes firing etc to all online players of the ranch (It will store the playersSource and remove it if they leave (done by checking if they are online using getplayerped(plrysrc) native))
+RanchersOnline = {} --this will be used to store the ranchers who are online of each ranch so we can sync changes firing etc to all online players of the ranch (It will store the playersSource and remove it if they leave (done by checking if they are online using getplayerped(plrysrc) native))
 
 --These two functions are used to sync coord changes etc across all clients in the ranch
 ---@param ranchId integer
-local function checkOnlineRanchers(ranchId) --will ensure the ranchersOnline table is up to date
-    if ranchersOnline[ranchId] then
-        for k, v in pairs(ranchersOnline[ranchId]) do
+local function checkOnlineRanchers(ranchId) --will ensure the RanchersOnline table is up to date
+    if RanchersOnline[ranchId] then
+        for k, v in pairs(RanchersOnline[ranchId]) do
             if not GetPlayerPed(v.rancherSource) then
                 if v.doesRancherHaveAnimalsOut then
                     MySQL.query.await("UPDATE ranch SET is_any_animals_out='false' WHERE ranchid=@ranchid", { ['ranchid'] = ranchId })
                 end
-                table.remove(ranchersOnline[ranchId], k)
+                table.remove(RanchersOnline[ranchId], k)
             end
         end
     end
@@ -19,17 +19,17 @@ end
 ---@param sourceToInput integer
 ---@param ranchId integer
 local function newRancherOnline(sourceToInput, ranchId)
-    if not ranchersOnline[ranchId] then
-        ranchersOnline[ranchId] = {}
+    if not RanchersOnline[ranchId] then
+        RanchersOnline[ranchId] = {}
     end
-    if #ranchersOnline[ranchId] > 0 then
-        for k, v in pairs(ranchersOnline[ranchId]) do
+    if #RanchersOnline[ranchId] > 0 then
+        for k, v in pairs(RanchersOnline[ranchId]) do
             if sourceToInput ~= v.rancherSource then
-                table.insert(ranchersOnline[ranchId], {rancherSource = sourceToInput, isRancherAging = false, doesRancherHaveAnimalsOut = false})
+                table.insert(RanchersOnline[ranchId], {rancherSource = sourceToInput, isRancherAging = false, doesRancherHaveAnimalsOut = false})
             end
         end
     else
-        table.insert(ranchersOnline[ranchId], {rancherSource = sourceToInput, isRancherAging = false})
+        table.insert(RanchersOnline[ranchId], {rancherSource = sourceToInput, isRancherAging = false})
     end
 end
 
@@ -37,7 +37,7 @@ end
 function UpdateAllRanchersRanchData(ranchId)
     checkOnlineRanchers(ranchId)
     local ranchData = MySQL.query.await("SELECT * FROM ranch WHERE ranchid=@ranchid", { ['ranchid'] = ranchId })
-    for k, v in pairs(ranchersOnline[ranchId]) do
+    for k, v in pairs(RanchersOnline[ranchId]) do
         TriggerClientEvent('bcc-ranch:UpdateRanchData', v.rancherSource, ranchData[1])
     end
 end
@@ -45,19 +45,19 @@ end
 --This thread is used to ensure that every ranch has someone doing aging (we do this as otherwise it would make aging vulnerable to thread abuse aka multiple employees aging an animal at the same time)
 CreateThread(function()
     while true do
-        if #ranchersOnline > 0 then
+        if #RanchersOnline > 0 then
             local firstIteration = true --needed as if theres no previous ranchId then the if would never trigger
             local currentRanchCheck = {
                 ranchId = nil,
                 isRancherAging = false
             }
-            for k, v in pairs(ranchersOnline) do
+            for k, v in pairs(RanchersOnline) do
                 if currentRanchCheck.ranchId ~= nil and firstIteration or currentRanchCheck.ranchId ~= k and currentRanchCheck.isRancherAging == false then --this checks the last ranch that was looped over before the current ranchId loop, and makes sure that if no one is aging then we can trigger it on an online client this ensures only one client is aging at a time to prevent threading abuse
                     checkOnlineRanchers(currentRanchCheck.ranchId)
                     if not firstIteration then
-                        TriggerClientEvent('bcc-ranch:AgingTriggered', ranchersOnline[k][1].rancherSource)
+                        TriggerClientEvent('bcc-ranch:AgingTriggered', RanchersOnline[k][1].rancherSource)
                     else
-                        TriggerClientEvent('bcc-ranch:AgingTriggered', ranchersOnline[k][1].rancherSource, true)
+                        TriggerClientEvent('bcc-ranch:AgingTriggered', RanchersOnline[k][1].rancherSource, true)
                     end
                 end
                 currentRanchCheck.ranchId = k
@@ -392,9 +392,9 @@ end)
 RegisterServerEvent('bcc-ranch:UpdateAnimalsOut', function(ranchId, isOut)
     local _source = source
     local param = { ['ranchid'] = ranchId }
-    if ranchersOnline[ranchId] then
+    if RanchersOnline[ranchId] then
         if isOut then
-            for k, v in pairs(ranchersOnline[ranchId]) do
+            for k, v in pairs(RanchersOnline[ranchId]) do
                 if _source == v.rancherSource then
                     MySQL.query.await("UPDATE ranch SET is_any_animals_out='true' WHERE ranchid=@ranchid", param)
                     v.doesRancherHaveAnimalsOut = true
@@ -402,7 +402,7 @@ RegisterServerEvent('bcc-ranch:UpdateAnimalsOut', function(ranchId, isOut)
                 end
             end
         else
-            for k, v in pairs(ranchersOnline[ranchId]) do
+            for k, v in pairs(RanchersOnline[ranchId]) do
                 if _source == v.rancherSource then
                     MySQL.query.await("UPDATE ranch SET is_any_animals_out='false' WHERE ranchid=@ranchid", param)
                     v.doesRancherHaveAnimalsOut = false

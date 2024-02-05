@@ -87,6 +87,7 @@ function SellAnimals(animalType, animalCond)
     SetRelAndFollowPlayer(peds)
     VORPcore.NotifyRightTip(_U("leadAnimalsToSaleLocation"), 4000)
     BccUtils.Misc.SetGps(finalSaleCoords.x, finalSaleCoords.y, finalSaleCoords.z)
+    local blip = BccUtils.Blip:SetBlip(_U("saleLocationBlip"), Config.ranchSetup.ranchBlip, 0.2, finalSaleCoords.x, finalSaleCoords.y, finalSaleCoords.z)
 
     local animalsNear = false
     while true do
@@ -122,11 +123,13 @@ function SellAnimals(animalType, animalCond)
     end
     ClearGpsMultiRoute()
     if IsEntityDead(PlayerPedId()) or catch == 0 then
+        blip:Remove()
         VORPcore.NotifyRightTip(_U("failed"), 4000)
     end
     for k, v in pairs(peds) do
         DeletePed(v)
     end
+    blip:Remove()
     IsInMission = false
     TriggerServerEvent('bcc-ranch:UpdateAnimalsOut', RanchData.ranchid, false)
 end

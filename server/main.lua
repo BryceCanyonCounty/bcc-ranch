@@ -46,6 +46,11 @@ CreateThread(function()
             for k, v in pairs(allRanches) do
                 if tonumber(v.ranchCondition) > 0 then
                     MySQL.query.await("UPDATE ranch SET ranchCondition = ranchCondition - @amount WHERE ranchid = @ranchid", {["ranchid"] = v.ranchid, ["amount"] = Config.ranchSetup.ranchConditionDecreaseAmount})
+                    if RanchersOnline[v.ranchid] ~= nil then
+                        if #RanchersOnline[v.ranchid] > 0 then
+                            UpdateAllRanchersRanchData(v.ranchid)
+                        end
+                    end
                 end
             end
         else
