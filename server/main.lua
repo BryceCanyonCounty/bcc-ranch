@@ -37,4 +37,21 @@ AddEventHandler('bcc-ranch:GetPlayers', function()
     TriggerClientEvent("bcc-ranch:SendPlayers", _source, data)
 end)
 
+CreateThread(function()
+    while true do
+        if Config.ranchSetup.ranchConditionDecreaseInterval <= 0 then break end
+        Wait(Config.ranchSetup.ranchConditionDecreaseInterval)
+        local allRanches = MySQL.query.await("SELECT * FROM ranch")
+        if #allRanches > 0 then
+            for k, v in pairs(allRanches) do
+                if tonumber(v.ranchCondition) > 0 then
+                    MySQL.query.await("UPDATE ranch SET ranchCondition = ranchCondition - @amount WHERE ranchid = @ranchid", {["ranchid"] = v.ranchid, ["amount"] = Config.ranchSetup.ranchConditionDecreaseAmount})
+                end
+            end
+        else
+            Wait(15000)
+        end
+    end
+end)
+
 BccUtils.Versioner.checkRelease(GetCurrentResourceName(), 'https://github.com/BryceCanyonCounty/bcc-ranch')
