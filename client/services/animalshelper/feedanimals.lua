@@ -87,7 +87,7 @@ RegisterNetEvent('bcc-ranch:FeedAnimals', function(animalType)
             model = 'a_c_goat_01'
             spawnCoords = json.decode(RanchData.goat_coords)
             eatAnim = joaat("PROP_ANIMAL_GOAT_EAT_TROUGH")
-            if tonumber(RanchData.goat_coords) < Config.animalSetup.goats.AnimalGrownAge then
+            if tonumber(RanchData.goats_age) < Config.animalSetup.goats.AnimalGrownAge then
                 scale = 0.5
             end
         end,
@@ -96,7 +96,7 @@ RegisterNetEvent('bcc-ranch:FeedAnimals', function(animalType)
             model = 'a_c_chicken_01'
             eatAnim = joaat("WORLD_ANIMAL_CHICKEN_EATING")
             spawnCoords = json.decode(RanchData.chicken_coords)
-            if tonumber(RanchData.chicken_coords) < Config.animalSetup.chickens.AnimalGrownAge then
+            if tonumber(RanchData.chickens_age) < Config.animalSetup.chickens.AnimalGrownAge then
                 scale = 0.5
             end
         end
