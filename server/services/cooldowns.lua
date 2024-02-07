@@ -22,7 +22,7 @@ RegisterServerEvent('bcc-ranch:ChoreCheckRanchCond/Cooldown', function(ranchId, 
                 choreDoneCount[ranchId] = 1
                 TriggerClientEvent('bcc-ranch:StartChoreClient', _source, choreType)
             else
-                VORPcore.NotifyRightTip(_source, _U("cooldown"), 4000)
+                VORPcore.NotifyRightTip(_source, _U("cooldown") .. tostring(Config.ranchSetup.choreSetup.choreCooldown - os.difftime(os.time(), choreCooldowns[ranchId])), 4000)
             end
         end
     end
@@ -41,7 +41,7 @@ RegisterServerEvent('bcc-ranch:HerdingCooldown', function(ranchId, animalType)
             herdingCooldown[ranchId] = os.time()
             TriggerClientEvent('bcc-ranch:HerdAnimalClientHandler', _source, animalType)
         else
-            VORPcore.NotifyRightTip(_source, _U("cooldown"), 4000)
+            VORPcore.NotifyRightTip(_source, _U("cooldown") .. tostring(Config.ranchSetup.herdingCooldown - os.difftime(os.time(), herdingCooldown[ranchId])), 4000)
         end
     end
 end)
@@ -59,7 +59,7 @@ RegisterServerEvent('bcc-ranch:FeedingCooldown', function(ranchId, animalType)
             feedingCooldown[ranchId] = os.time()
             TriggerClientEvent('bcc-ranch:FeedAnimals', _source, animalType)
         else
-            VORPcore.NotifyRightTip(_source, _U("cooldown"), 4000)
+            VORPcore.NotifyRightTip(_source, _U("cooldown") .. tostring(Config.ranchSetup.feedingCooldown - os.difftime(os.time(), feedingCooldown[ranchId])), 4000)
         end
     end
 end)
@@ -77,7 +77,7 @@ RegisterServerEvent('bcc-ranch:HarvestEggsCooldown', function(ranchId)
             harvestingEggsCooldown[ranchId] = os.time()
             TriggerClientEvent('bcc-ranch:HarvestEggs', _source)
         else
-            VORPcore.NotifyRightTip(_source, _U("cooldown"), 4000)
+            VORPcore.NotifyRightTip(_source, _U("cooldown") .. tostring(Config.animalSetup.chickens.harvestingCooldown - os.difftime(os.time(), harvestingEggsCooldown[ranchId])), 4000)
         end
     end
 end)
@@ -95,7 +95,7 @@ RegisterServerEvent('bcc-ranch:MilkingCowsCooldown', function(ranchId)
             milkingCowsCooldown[ranchId] = os.time()
             TriggerClientEvent('bcc-ranch:MilkCows', _source)
         else
-            VORPcore.NotifyRightTip(_source, _U("cooldown"), 4000)
+            VORPcore.NotifyRightTip(_source, _U("cooldown") .. tostring(Config.animalSetup.cows.milkingCooldown - os.difftime(os.time(), milkingCowsCooldown[ranchId])), 4000)
         end
     end
 end)
@@ -113,7 +113,7 @@ RegisterServerEvent('bcc-ranch:ShearingSheepsCooldown', function(ranchId)
             shearingSheepsCooldown[ranchId] = os.time()
             TriggerClientEvent('bcc-ranch:ShearSheeps', _source)
         else
-            VORPcore.NotifyRightTip(_source, _U("cooldown"), 4000)
+            VORPcore.NotifyRightTip(_source, _U("cooldown") .. tostring(Config.animalSetup.sheeps.shearingCooldown - os.difftime(os.time(), shearingSheepsCooldown[ranchId])), 4000)
         end
     end
 end)

@@ -38,7 +38,23 @@ RegisterNetEvent("bcc-ranch:PlayerOwnsARanch", function(ranchData, isOwnerOfRanc
     local promptGroup = VORPutils.Prompts:SetupPromptGroup()
     local firstprompt = promptGroup:RegisterPrompt(_U("manage"), Config.ranchSetup.manageRanchKey, 1, 1, true, 'hold', {timedeventhash = "MEDIUM_TIMED_EVENT"})
 
+    if Config.commands.manageMyRanchCommand then
+        RegisterCommand(Config.commands.manageMyRanchCommandName, function()
+            local dist = #(RanchData.ranchcoordsVector3 - GetEntityCoords(PlayerPedId()))
+            if dist < 5 then
+                if not IsInMission then
+                    MainRanchMenu()
+                else
+                    VORPcore.NotifyRightTip(_U("cantManageRanch"), 4000)
+                end
+            else
+                VORPcore.NotifyRightTip(_U("tooFarFromRanch"), 4000)
+            end
+        end)
+    end
+
     while true do
+        if Config.commands.manageMyRanchCommand then break end
         if not IsInMission then
             local dist = #(RanchData.ranchcoordsVector3 - GetEntityCoords(PlayerPedId()))
             local sleep = false

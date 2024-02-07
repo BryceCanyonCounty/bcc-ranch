@@ -225,6 +225,7 @@ RegisterNetEvent("bcc-ranch:StartChoreClient", function(choreType)
                         if result.result or result.passed then
                             playChore()
                         else
+                            IsInMission = false
                             VORPcore.NotifyRightTip(_U("failed"), 4000)
                             SetPedToRagdoll(PlayerPedId(), 1000, 1000, 0, 0, 0, 0)
                         end

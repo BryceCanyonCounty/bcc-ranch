@@ -5,6 +5,7 @@
 ---@param minDist integer
 local function setCoords(type, minDist, cost)
     BCCRanchMenu:Close()
+    IsInMission = true
     VORPcore.NotifyRightTip(_U("setCoordsLoop"), 10000)
     VORPcore.NotifyRightTip(_U("cancelSetCoords"), 10000)
     while true do
@@ -16,23 +17,25 @@ local function setCoords(type, minDist, cost)
                 if dist > minDist then
                     VORPcore.NotifyRightTip(_U("coordsSet"), 4000)
                     TriggerServerEvent('bcc-ranch:InsertAnimalRelatedCoords', RanchData.ranchid, pCoords, "herdCoords")
+                    IsInMission = false
                     break
                 else
                     VORPcore.NotifyRightTip(_U("tooCloseToRanch"), 4000)
                 end
             end
-            if IsControlJustReleased(0, 0x9959A6F0) then break end -- 0x9959A6F0 = C
+            if IsControlJustReleased(0, 0x9959A6F0) then IsInMission = false break end -- 0x9959A6F0 = C
         else
             if IsControlJustReleased(0, 0x760A9C6F) then
                 if dist < minDist then
                     VORPcore.NotifyRightTip(_U("coordsSet"), 4000)
                     TriggerServerEvent('bcc-ranch:InsertAnimalRelatedCoords', RanchData.ranchid, pCoords, type, cost)
+                    IsInMission = false
                     break
                 else
                     VORPcore.NotifyRightTip(_U("tooFarFromRanch"), 4000)
                 end
             end
-            if IsControlJustReleased(0, 0x9959A6F0) then break end
+            if IsControlJustReleased(0, 0x9959A6F0) then IsInMission = false break end
         end
     end
 end
