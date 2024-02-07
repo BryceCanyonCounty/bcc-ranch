@@ -40,12 +40,12 @@ end)
 CreateThread(function()
     while true do
         if Config.ranchSetup.ranchConditionDecreaseInterval <= 0 then break end
-        Wait(Config.ranchSetup.ranchConditionDecreaseInterval)
+        Wait(Config.ranchSetup.ranchConditionDecreaseInterval * 1000)
         local allRanches = MySQL.query.await("SELECT * FROM ranch")
         if #allRanches > 0 then
             for k, v in pairs(allRanches) do
                 if tonumber(v.ranchCondition) > 0 then
-                    MySQL.query.await("UPDATE ranch SET ranchCondition = ranchCondition - @amount WHERE ranchid = @ranchid", {["ranchid"] = v.ranchid, ["amount"] = Config.ranchSetup.ranchConditionDecreaseAmount})
+                    MySQL.query.await("UPDATE ranch SET ranchCondition = ranchCondition - ? WHERE ranchid = ?", { Config.ranchSetup.ranchConditionDecreaseAmount, v.ranchid })
                     if RanchersOnline[v.ranchid] ~= nil then
                         if #RanchersOnline[v.ranchid] > 0 then
                             UpdateAllRanchersRanchData(v.ranchid)

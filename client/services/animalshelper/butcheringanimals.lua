@@ -51,6 +51,7 @@ function ButcherAnimals(animalType)
     IsInMission = true
 
     createdPed = BccUtils.Ped.CreatePed(model, spawnCoords.x, spawnCoords.y, spawnCoords.z, true, true, false)
+    local blip = BccUtils.Blip:SetBlip(_U("choreLocation"), 960467426, 0.2, spawnCoords.x, spawnCoords.y, spawnCoords.z)
     SetBlockingOfNonTemporaryEvents(createdPed, true)
     Citizen.InvokeNative(0x9587913B9E772D29, createdPed, true)
     FreezeEntityPosition(createdPed, true)
@@ -82,6 +83,7 @@ function ButcherAnimals(animalType)
     if IsEntityDead(PlayerPedId()) then
         VORPcore.NotifyRightTip(_U("failed"), 4000)
     end
+    blip:Remove()
     IsInMission = false
 end
 

@@ -8,7 +8,7 @@ local function checkOnlineRanchers(ranchId) --will ensure the RanchersOnline tab
         for k, v in pairs(RanchersOnline[ranchId]) do
             if not GetPlayerPed(v.rancherSource) then
                 if v.doesRancherHaveAnimalsOut then
-                    MySQL.query.await("UPDATE ranch SET is_any_animals_out='false' WHERE ranchid=@ranchid", { ['ranchid'] = ranchId })
+                    MySQL.query.await("UPDATE ranch SET is_any_animals_out = 'false' WHERE ranchid = ?", { ranchId })
                 end
                 table.remove(RanchersOnline[ranchId], k)
             end
@@ -36,7 +36,7 @@ end
 ---@param ranchId integer
 function UpdateAllRanchersRanchData(ranchId)
     checkOnlineRanchers(ranchId)
-    local ranchData = MySQL.query.await("SELECT * FROM ranch WHERE ranchid=@ranchid", { ['ranchid'] = ranchId })
+    local ranchData = MySQL.query.await("SELECT * FROM ranch WHERE ranchid = ?", { ranchId })
     for k, v in pairs(RanchersOnline[ranchId]) do
         TriggerClientEvent('bcc-ranch:UpdateRanchData', v.rancherSource, ranchData[1])
     end
@@ -81,30 +81,24 @@ end)
 ---@param ownerSource integer is owners server id
 RegisterServerEvent("bcc-ranch:RanchCreationInsert", function(charId, ranchName, ranchRadius, taxes, ranchCoords, ownerSource)
     local _source = source
-    local param = { ['charidentifier'] = charId, ["ranch_radius_limit"] = ranchRadius, ["ranchname"] = ranchName, ["taxamount"] = taxes, ["ranchcoords"] = json.encode(ranchCoords) }
-    local result = MySQL.query.await('SELECT * FROM characters WHERE charidentifier=@charidentifier AND ranchid != 0', param)
+    local result = MySQL.query.await('SELECT * FROM characters WHERE charidentifier = ? AND ranchid != 0', { charId })
     if #result > 1 then
         VORPcore.NotifyRightTip(_source, _U("alreadyOwnsRanch"), 4000)
     else
-        local ranchId = MySQL.insert.await("INSERT INTO ranch (`charidentifier`,`ranchcoords`,`ranchname`,`ranch_radius_limit` ,`taxamount`) VALUES (@charidentifier,@ranchcoords,@ranchname,@ranch_radius_limit,@taxamount)", param)
-        local charUpdateParams = { ["ranchid"] = ranchId, ["charidentifier"] = charId }
-        MySQL.query.await("UPDATE characters SET ranchid=@ranchid WHERE charidentifier=@charidentifier", charUpdateParams)
+        local ranchId = MySQL.insert.await("INSERT INTO ranch (`charidentifier`,`ranchcoords`,`ranchname`,`ranch_radius_limit` ,`taxamount`) VALUES (?, ?, ?, ?, ?)", { charId, json.encode(ranchCoords), ranchName, ranchRadius, taxes })
+        MySQL.query.await("UPDATE characters SET ranchid = ? WHERE charidentifier = ?", { ranchId, charId })
 
-        local selectRanchParams = { ["ranchid"] = ranchId }
-        local ranchCreatedData = MySQL.query.await("SELECT * FROM ranch WHERE ranchid=@ranchid", selectRanchParams)
+        local ranchCreatedData = MySQL.query.await("SELECT * FROM ranch WHERE ranchid = ?", { ranchId })
         TriggerClientEvent("bcc-ranch:PlayerOwnsARanch", ownerSource, ranchCreatedData[1], true)
         newRancherOnline(ownerSource, ranchId)
         VORPcore.NotifyRightTip(_source, _U("ranchCreated"), 4000)
-        local character = VORPcore.getUser(_source).getUsedCharacter
-        BccUtils.Discord.sendMessage(Config.webhookLink, 'BCC Ranch', 'https://gamespot.com/a/uploads/original/1179/11799911/3383938-duck.jpg', "Ranch Created By character Id: " .. tostring(character.charIdentifier), " Ranch given to character id: " .. tostring(charId))
     end
 end)
 
 RegisterServerEvent('bcc-ranch:CheckIfPlayerOwnsARanch', function()
     local _source = source
     local character = VORPcore.getUser(_source).getUsedCharacter
-    local param = { ['charidentifier'] = character.charIdentifier }
-    local result = MySQL.query.await("SELECT * FROM ranch WHERE charidentifier=@charidentifier", param)
+    local result = MySQL.query.await("SELECT * FROM ranch WHERE charidentifier = ?", { character.charIdentifier })
     if #result > 0 then
         VORPInv.removeInventory('Player_' .. result[1].ranchid .. '_bcc-ranchinv')
         Wait(50)
@@ -124,13 +118,11 @@ AddEventHandler('bcc-ranch:CheckIfPlayerIsEmployee', function(recSource)
         _source = recSource
     end
     local character = VORPcore.getUser(_source).getUsedCharacter
-    local param = { ['charidentifier'] = character.charIdentifier }
 
-    local result = MySQL.query.await("SELECT ranchid FROM characters WHERE charidentifier=@charidentifier", param)
+    local result = MySQL.query.await("SELECT ranchid FROM characters WHERE charidentifier = ?", { character.charIdentifier })
     if #result > 0 then
         if result[1].ranchid ~= nil and 0 then
-            local employedAtParam = { ['ranchid'] = result[1].ranchid }
-            local ranchEmployedAt = MySQL.query.await("SELECT * FROM ranch WHERE ranchid=@ranchid", employedAtParam)
+            local ranchEmployedAt = MySQL.query.await("SELECT * FROM ranch WHERE ranchid = ?", { result[1].ranchid })
             if #ranchEmployedAt > 0 then
                 VORPInv.removeInventory('Player_' .. result[1].ranchid .. '_bcc-ranchinv')
                 Wait(50)
@@ -148,13 +140,12 @@ end)
 ---@param amount integer
 RegisterServerEvent('bcc-ranch:AffectLedger', function(ranchId, type, amount)
     local _source = source
-    local getRanchParam = { ['ranchid'] = ranchId, ['amount'] = tonumber(amount) }
     local character = VORPcore.getUser(_source).getUsedCharacter
-    local ranch = MySQL.query.await("SELECT * FROM ranch WHERE ranchid=@ranchid", getRanchParam)
+    local ranch = MySQL.query.await("SELECT * FROM ranch WHERE ranchid = ?", { ranchId })
     if #ranch > 0 then
         if type == "withdraw" then
             if tonumber(amount) <= tonumber(ranch[1].ledger) then
-                MySQL.query.await("UPDATE ranch SET ledger= ledger-@amount WHERE ranchid=@ranchid", getRanchParam)
+                MySQL.query.await("UPDATE ranch SET ledger = ledger - ? WHERE ranchid = ?", { tonumber(amount), ranchId })
                 character.addCurrency(0, tonumber(amount))
                 VORPcore.NotifyRightTip(_source, _U("withdrewFromLedger") .. " " .. amount, 4000)
                 UpdateAllRanchersRanchData(ranchId)
@@ -163,7 +154,7 @@ RegisterServerEvent('bcc-ranch:AffectLedger', function(ranchId, type, amount)
             end
         else
             if tonumber(character.money) >= tonumber(amount) then
-                MySQL.query.await("UPDATE ranch SET ledger= ledger+@amount WHERE ranchid=@ranchid", getRanchParam)
+                MySQL.query.await("UPDATE ranch SET ledger = ledger + ? WHERE ranchid = ?", { tonumber(amount), ranchId })
                 character.removeCurrency(0, tonumber(amount))
                 VORPcore.NotifyRightTip(_source, _U("depositedToLedger") .. " " .. amount, 4000)
                 UpdateAllRanchersRanchData(ranchId)
@@ -176,24 +167,23 @@ end)
 
 -- Ranch Condition Area/Caretaking --
 
+---@param choreCoords vector3
+---@param ranchId integer
+---@param choreType string
 RegisterServerEvent("bcc-ranch:InsertChoreCoordsIntoDB", function(choreCoords, ranchId, choreType)
     local _source = source
     local databaseUpdate = {
         ['shovehaycoords'] = function()
-            local param = { ['shovel_hay_coords'] = json.encode(choreCoords), ['ranchid'] = ranchId }
-            MySQL.query.await("UPDATE ranch SET shovel_hay_coords = @shovel_hay_coords WHERE ranchid=@ranchid", param)
+            MySQL.query.await("UPDATE ranch SET shovel_hay_coords = ? WHERE ranchid = ?", { json.encode(choreCoords), ranchId })
         end,
         ['wateranimalcoords'] = function()
-            local param = { ['water_animal_coords'] = json.encode(choreCoords), ['ranchid'] = ranchId }
-            MySQL.query.await("UPDATE ranch SET water_animal_coords = @water_animal_coords WHERE ranchid=@ranchid", param)
+            MySQL.query.await("UPDATE ranch SET water_animal_coords = ? WHERE ranchid = ?", { json.encode(choreCoords), ranchId })
         end,
         ['repairtroughcoords'] = function()
-            local param = { ['repair_trough_coords'] = json.encode(choreCoords), ['ranchid'] = ranchId }
-            MySQL.query.await("UPDATE ranch SET repair_trough_coords = @repair_trough_coords WHERE ranchid=@ranchid", param)
+            MySQL.query.await("UPDATE ranch SET repair_trough_coords = ? WHERE ranchid = ?", { json.ensure(choreCoords), ranchId })
         end,
         ['scooppoopcoords'] = function()
-            local param = { ['scoop_poop_coords'] = json.encode(choreCoords), ['ranchid'] = ranchId }
-            MySQL.query.await("UPDATE ranch SET scoop_poop_coords = @scoop_poop_coords WHERE ranchid=@ranchid", param)
+            MySQL.query.await("UPDATE ranch SET scoop_poop_coords = ? WHERE ranchid = ?", { json.encode(choreCoords), ranchId })
         end
     }
 
@@ -207,8 +197,7 @@ end)
 ---@param ranchId integer
 ---@param amount integer
 RegisterServerEvent("bcc-ranch:IncreaseRanchCond", function(ranchId, amount)
-    local param = { ['ranchid'] = ranchId, ['amount'] = amount }
-    MySQL.query.await("UPDATE ranch SET `ranchCondition`=ranchCondition+@amount WHERE ranchid=@ranchid", param)
+    MySQL.query.await("UPDATE ranch SET ranchCondition = ranchCondition + ? WHERE ranchid = ?", { tonumber(amount), ranchId })
     UpdateAllRanchersRanchData(ranchId)
 end)
 
@@ -217,15 +206,15 @@ end)
 ---@param employeeSource integer
 ---@param employeeCharId integer
 RegisterServerEvent("bcc-ranch:EmployeeHired", function(ranchId, employeeSource, employeeCharId)
-    local param = { ['ranchid'] = ranchId, ['charidentifier'] = employeeCharId }
-    MySQL.query.await('UPDATE characters SET ranchid=@ranchid WHERE charidentifier=@charidentifier', param)
+    MySQL.query.await('UPDATE characters SET ranchid = ? WHERE charidentifier = ?', { ranchId, employeeCharId })
     TriggerEvent('bcc-ranch:CheckIfPlayerIsEmployee', tonumber(employeeSource))
 end)
 
 ---@param ranchId integer
+---@param type string
 RegisterServerEvent("bcc-ranch:GetEmployeeList", function(ranchId, type)
     local _source = source
-    local result = MySQL.query.await( "SELECT firstname, lastname, charidentifier FROM characters WHERE ranchid = @ranchid", { ["ranchid"] = ranchId })
+    local result = MySQL.query.await( "SELECT firstname, lastname, charidentifier FROM characters WHERE ranchid = ?", { ranchId })
     if type == "fire" then
         if #result > 0 then
             TriggerClientEvent('bcc-ranch:FireEmployeesMenu', _source, result)
@@ -239,8 +228,7 @@ end)
 
 ---@param charId integer
 RegisterServerEvent('bcc-ranch:FireEmployee', function(charId)
-    local param = { ['charidentifier'] = charId }
-    MySQL.query.await('UPDATE characters SET ranchid=0 WHERE charidentifier=@charidentifier', param)
+    MySQL.query.await('UPDATE characters SET ranchid=0 WHERE charidentifier = ?', { charId })
 end)
 
 -- Animal Area --
@@ -249,8 +237,7 @@ end)
 RegisterServerEvent('bcc-ranch:AnimalBought', function(ranchId, animalType)
     local _source = source
     local character = VORPcore.getUser(_source).getUsedCharacter
-    local param = { ['ranchid'] = ranchId }
-    local ranch = MySQL.query.await("SELECT * FROM ranch WHERE ranchid=@ranchid", param)
+    local ranch = MySQL.query.await("SELECT * FROM ranch WHERE ranchid = ?", { ranchId })
     if #ranch > 0 then
         local function animalBoughtLogic(cost)
             character.removeCurrency(0, cost)
@@ -262,7 +249,7 @@ RegisterServerEvent('bcc-ranch:AnimalBought', function(ranchId, animalType)
                 if character.money >= Config.animalSetup.cows.cost then
                     if ranch[1].cows == "false" then
                         animalBoughtLogic(Config.animalSetup.cows.cost)
-                        MySQL.query.await("UPDATE ranch SET cows='true' WHERE ranchid=@ranchid", param)
+                        MySQL.query.await("UPDATE ranch SET cows='true' WHERE ranchid = ?", { ranchId })
                         UpdateAllRanchersRanchData(ranchId)
                     else
                         VORPcore.NotifyRightTip(_source, _U("alreadyOwnsAnimal"), 4000)
@@ -275,7 +262,7 @@ RegisterServerEvent('bcc-ranch:AnimalBought', function(ranchId, animalType)
                 if character.money >= Config.animalSetup.pigs.cost then
                     if ranch[1].pigs == "false" then
                         animalBoughtLogic(Config.animalSetup.pigs.cost)
-                        MySQL.query.await("UPDATE ranch SET pigs='true' WHERE ranchid=@ranchid", param)
+                        MySQL.query.await("UPDATE ranch SET pigs='true' WHERE ranchid = ?", { ranchId })
                         UpdateAllRanchersRanchData(ranchId)
                     else
                         VORPcore.NotifyRightTip(_source, _U("alreadyOwnsAnimal"), 4000)
@@ -288,7 +275,7 @@ RegisterServerEvent('bcc-ranch:AnimalBought', function(ranchId, animalType)
                 if character.money >= Config.animalSetup.sheeps.cost then
                     if ranch[1].sheeps == "false" then
                         animalBoughtLogic(Config.animalSetup.sheeps.cost)
-                        MySQL.query.await("UPDATE ranch SET sheeps='true' WHERE ranchid=@ranchid", param)
+                        MySQL.query.await("UPDATE ranch SET sheeps='true' WHERE ranchid = ?", { ranchId })
                         UpdateAllRanchersRanchData(ranchId)
                     else
                         VORPcore.NotifyRightTip(_source, _U("alreadyOwnsAnimal"), 4000)
@@ -301,7 +288,7 @@ RegisterServerEvent('bcc-ranch:AnimalBought', function(ranchId, animalType)
                 if character.money >= Config.animalSetup.goats.cost then
                     if ranch[1].goats == "false" then
                         animalBoughtLogic(Config.animalSetup.goats.cost)
-                        MySQL.query.await("UPDATE ranch SET goats='true' WHERE ranchid=@ranchid", param)
+                        MySQL.query.await("UPDATE ranch SET goats='true' WHERE ranchid = ?", { ranchId })
                         UpdateAllRanchersRanchData(ranchId)
                     else
                         VORPcore.NotifyRightTip(_source, _U("alreadyOwnsAnimal"), 4000)
@@ -314,7 +301,7 @@ RegisterServerEvent('bcc-ranch:AnimalBought', function(ranchId, animalType)
                 if character.money >= Config.animalSetup.chickens.cost then
                     if ranch[1].chickens == "false" then
                         animalBoughtLogic(Config.animalSetup.chickens.cost)
-                        MySQL.query.await("UPDATE ranch SET chickens='true' WHERE ranchid=@ranchid", param)
+                        MySQL.query.await("UPDATE ranch SET chickens='true' WHERE ranchid = ?", { ranchId })
                         UpdateAllRanchersRanchData(ranchId)
                     else
                         VORPcore.NotifyRightTip(_source, _U("alreadyOwnsAnimal"), 4000)
@@ -337,34 +324,33 @@ end)
 ---@param moneyToRemove integer
 RegisterServerEvent('bcc-ranch:InsertAnimalRelatedCoords', function(ranchId, coords, type, moneyToRemove)
     local _source = source
-    local param = { ['ranchid'] = ranchId, ['coords'] = json.encode(coords) }
-    local ranch = MySQL.query.await("SELECT * FROM ranch WHERE ranchid=@ranchid", param)
+    local ranch = MySQL.query.await("SELECT * FROM ranch WHERE ranchid = ?",  { ranchId })
     if #ranch > 0 then
         local updateTable = {
             ['herdCoords'] = function()
-                MySQL.query.await("UPDATE ranch SET herd_coords=@coords WHERE ranchid=@ranchid", param)
+                MySQL.query.await("UPDATE ranch SET herd_coords = ? WHERE ranchid = ?", { json.encode(coords), ranchId })
             end,
             ['feedWagonCoords'] = function()
-                MySQL.query.await("UPDATE ranch SET feed_wagon_coords=@coords WHERE ranchid=@ranchid", param)
+                MySQL.query.await("UPDATE ranch SET feed_wagon_coords = ? WHERE ranchid = ?", { json.encode(coords), ranchId })
             end,
             ['cowCoords'] = function()
-                MySQL.query.await("UPDATE ranch SET cow_coords=@coords WHERE ranchid=@ranchid", param)
+                MySQL.query.await("UPDATE ranch SET cow_coords = ? WHERE ranchid = ?", { json.encode(coords), ranchId })
             end,
             ['pigCoords'] = function()
-                MySQL.query.await("UPDATE ranch SET pig_coords=@coords WHERE ranchid=@ranchid", param)
+                MySQL.query.await("UPDATE ranch SET pig_coords = ? WHERE ranchid = ?", { json.encode(coords), ranchId })
             end,
             ['sheepCoords'] = function()
-                MySQL.query.await("UPDATE ranch SET sheep_coords=@coords WHERE ranchid=@ranchid", param)
+                MySQL.query.await("UPDATE ranch SET sheep_coords = ? WHERE ranchid = ?", { json.encode(coords), ranchId })
             end,
             ['goatCoords'] = function()
-                MySQL.query.await("UPDATE ranch SET goat_coords=@coords WHERE ranchid=@ranchid", param)
+                MySQL.query.await("UPDATE ranch SET goat_coords = ? WHERE ranchid = ?", { json.encode(coords), ranchId })
             end,
             ['chickenCoords'] = function()
-                MySQL.query.await("UPDATE ranch SET chicken_coords=@coords WHERE ranchid=@ranchid", param)
+                MySQL.query.await("UPDATE ranch SET chicken_coords = ? WHERE ranchid = ?", { json.encode(coords), ranchId })
             end,
             ['coopCoords'] = function()
-                MySQL.query.await("UPDATE ranch SET chicken_coop='true' WHERE ranchid=@ranchid", param)
-                MySQL.query.await("UPDATE ranch SET chicken_coop_coords=@coords WHERE ranchid=@ranchid", param)
+                MySQL.query.await("UPDATE ranch SET chicken_coop='true' WHERE ranchid = ?", { ranchId })
+                MySQL.query.await("UPDATE ranch SET chicken_coop_coords = ? WHERE ranchid = ?", { json.encode(coords), ranchId })
             end
         }
 
@@ -388,15 +374,15 @@ RegisterServerEvent('bcc-ranch:InsertAnimalRelatedCoords', function(ranchId, coo
     end
 end)
 
+---@param ranchId integer
 ---@param isOut boolean
 RegisterServerEvent('bcc-ranch:UpdateAnimalsOut', function(ranchId, isOut)
     local _source = source
-    local param = { ['ranchid'] = ranchId }
     if RanchersOnline[ranchId] then
         if isOut then
             for k, v in pairs(RanchersOnline[ranchId]) do
                 if _source == v.rancherSource then
-                    MySQL.query.await("UPDATE ranch SET is_any_animals_out='true' WHERE ranchid=@ranchid", param)
+                    MySQL.query.await("UPDATE ranch SET is_any_animals_out='true' WHERE ranchid = ?", { ranchId })
                     v.doesRancherHaveAnimalsOut = true
                     UpdateAllRanchersRanchData(ranchId) break
                 end
@@ -404,7 +390,7 @@ RegisterServerEvent('bcc-ranch:UpdateAnimalsOut', function(ranchId, isOut)
         else
             for k, v in pairs(RanchersOnline[ranchId]) do
                 if _source == v.rancherSource then
-                    MySQL.query.await("UPDATE ranch SET is_any_animals_out='false' WHERE ranchid=@ranchid", param)
+                    MySQL.query.await("UPDATE ranch SET is_any_animals_out='false' WHERE ranchid = ?", { ranchId })
                     v.doesRancherHaveAnimalsOut = false
                     UpdateAllRanchersRanchData(ranchId) break
                 end
@@ -418,22 +404,21 @@ end)
 ---@param incAmount integer
 RegisterServerEvent('bcc-ranch:IncreaseAnimalsCond', function(ranchId, animalType, incAmount)
     local _source = source
-    local param = { ['ranchid'] = ranchId, ['amount'] = incAmount }
     local animalOptionsTable = {
         ['cows'] = function()
-            MySQL.query.await("UPDATE ranch SET cows_cond=cows_cond+@amount WHERE ranchid=@ranchid", param)
+            MySQL.query.await("UPDATE ranch SET cows_cond = cows_cond + ? WHERE ranchid = ?", { incAmount, ranchId})
         end,
         ['pigs'] = function()
-            MySQL.query.await("UPDATE ranch SET pigs_cond=pigs_cond+@amount WHERE ranchid=@ranchid", param)
+            MySQL.query.await("UPDATE ranch SET pigs_cond = pigs_cond + ? WHERE ranchid = ?", { incAmount, ranchId})
         end,
         ['sheeps'] = function()
-            MySQL.query.await("UPDATE ranch SET sheeps_cond= sheeps_cond+@amount WHERE ranchid=@ranchid", param)
+            MySQL.query.await("UPDATE ranch SET sheeps_cond = sheeps_cond + ? WHERE ranchid = ?", { incAmount, ranchId})
         end,
         ['goats'] = function()
-            MySQL.query.await("UPDATE ranch SET goats_cond= goats_cond+@amount WHERE ranchid=@ranchid", param)
+            MySQL.query.await("UPDATE ranch SET goats_cond = goats_cond + ? WHERE ranchid = ?", { incAmount, ranchId})
         end,
         ['chickens'] = function()
-            MySQL.query.await("UPDATE ranch SET chickens_cond= chickens_cond+@amount WHERE ranchid=@ranchid", param)
+            MySQL.query.await("UPDATE ranch SET chickens_cond = chickens_cond + ? WHERE ranchid = ?", { incAmount, ranchId})
         end
     }
 
@@ -448,22 +433,21 @@ end)
 ---@param animalType string
 ---@param incAmount integer
 RegisterServerEvent("bcc-ranch:IncreaseAnimalAge", function(ranchId, animalType, incAmount)
-    local param = { ['ranchid'] = ranchId, ['amount'] = incAmount }
     local animalOptionsTable = {
         ['cows'] = function()
-            MySQL.query.await("UPDATE ranch SET cows_age=cows_age+@amount WHERE ranchid=@ranchid", param)
+            MySQL.query.await("UPDATE ranch SET cows_age = cows_age + ? WHERE ranchid = ?", { incAmount, ranchId })
         end,
         ['pigs'] = function()
-            MySQL.query.await("UPDATE ranch SET pigs_age=pigs_age+@amount WHERE ranchid=@ranchid", param)
+            MySQL.query.await("UPDATE ranch SET pigs_age = pigs_age + ? WHERE ranchid = ?", { incAmount, ranchId })
         end,
         ['sheeps'] = function()
-            MySQL.query.await("UPDATE ranch SET sheeps_age= sheeps_age+@amount WHERE ranchid=@ranchid", param)
+            MySQL.query.await("UPDATE ranch SET sheeps_age = sheeps_age + ? WHERE ranchid = ?", { incAmount, ranchId })
         end,
         ['goats'] = function()
-            MySQL.query.await("UPDATE ranch SET goats_age= goats_age+@amount WHERE ranchid=@ranchid", param)
+            MySQL.query.await("UPDATE ranch SET goats_age = goats_age + ? WHERE ranchid = ?", { incAmount, ranchId })
         end,
         ['chickens'] = function()
-            MySQL.query.await("UPDATE ranch SET chickens_age= chickens_age+@amount WHERE ranchid=@ranchid", param)
+            MySQL.query.await("UPDATE ranch SET chickens_age = chickens_age + ? WHERE ranchid = ?", { incAmount, ranchId })
         end
     }
 
@@ -475,26 +459,25 @@ end)
 
 ---@param ranchId integer
 ---@param animalType string
----@param incAmount integer
+---@param table table
 RegisterServerEvent('bcc-ranch:ButcherAnimalHandler', function(animalType, ranchId, table)
-    local param = { ['ranchid'] = ranchId }
     local _source = source
 
     local butcherFuncts = {
         ['cows'] = function()
-            MySQL.query.await('UPDATE ranch SET `cows`="false", `cows_cond`=0, `cows_age`=0 WHERE ranchid=@ranchid', param)
+            MySQL.query.await('UPDATE ranch SET `cows` = "false", `cows_cond` = 0, `cows_age` = 0 WHERE ranchid = ?', { ranchId })
         end,
         ['chickens'] = function()
-            MySQL.query.await('UPDATE ranch SET `chickens`="false", `chickens_cond`=0, `chickens_age`=0 WHERE ranchid=@ranchid', param)
+            MySQL.query.await('UPDATE ranch SET `chickens` = "false", `chickens_cond` = 0, `chickens_age` = 0 WHERE ranchid = ?', { ranchId })
         end,
         ['pigs'] = function()
-            MySQL.query.await('UPDATE ranch SET `pigs`="false", `pigs_cond`=0, `pigs_age`=0 WHERE ranchid=@ranchid', param)
+            MySQL.query.await('UPDATE ranch SET `pigs` = "false", `pigs_cond` = 0, `pigs_age` = 0 WHERE ranchid = ?', { ranchId })
         end,
         ['sheeps'] = function()
-            MySQL.query.await('UPDATE ranch SET `sheeps`="false", `sheeps_cond`=0, `sheeps_age`=0 WHERE ranchid=@ranchid', param)
+            MySQL.query.await('UPDATE ranch SET `sheeps` = "false", `sheeps_cond` = 0, `sheeps_age` = 0 WHERE ranchid = ?', { ranchId })
         end,
         ['goats'] = function()
-            MySQL.query.await('UPDATE ranch SET `goats`="false", `goats_cond`=0, `goats_age`=0 WHERE ranchid=@ranchid', param)
+            MySQL.query.await('UPDATE ranch SET `goats` = "false", `goats_cond` = 0, `goats_age` = 0 WHERE ranchid = ?', { ranchId })
         end
     }
     if butcherFuncts[animalType] then
@@ -509,26 +492,26 @@ end)
 
 ---@param ranchId integer
 ---@param animalType string
----@param incAmount integer
+---@param payAmount integer
 RegisterServerEvent('bcc-ranch:AnimalSold', function(payAmount, ranchId, animalType)
-    local ranch = MySQL.query.await("SELECT * FROM ranch WHERE ranchid=@ranchid", { ['ranchid'] = ranchId })
+    local ranch = MySQL.query.await("SELECT * FROM ranch WHERE ranchid = ?", { ranchId })
     if #ranch > 0 then
-        MySQL.query.await("UPDATE ranch SET ledger= ledger+@payAmount WHERE ranchid=@ranchid", { ['ranchid'] = ranchId, ['payAmount'] = payAmount })
+        MySQL.query.await("UPDATE ranch SET ledger = ledger + ? WHERE ranchid = ?", { payAmount, ranchId })
         local soldFuncts = {
             ['cows'] = function()
-                MySQL.query.await('UPDATE ranch SET `cows`="false", `cows_cond`=0, `cows_age`=0 WHERE ranchid=@ranchid', { ['ranchid'] = ranchId })
+                MySQL.query.await('UPDATE ranch SET `cows` = "false", `cows_cond` = 0, `cows_age` = 0 WHERE ranchid = ?', { ranchId })
             end,
             ['chickens'] = function()
-                MySQL.query.await('UPDATE ranch SET `chickens`="false", `chickens_cond`=0, `chickens_age`=0 WHERE ranchid=@ranchid', { ['ranchid'] = ranchId })
+                MySQL.query.await('UPDATE ranch SET `chickens` = "false", `chickens_cond` = 0, `chickens_age` = 0 WHERE ranchid = ?', { ranchId })
             end,
             ['pigs'] = function()
-                MySQL.query.await('UPDATE ranch SET `pigs`="false", `pigs_cond`=0, `pigs_age`=0 WHERE ranchid=@ranchid', { ['ranchid'] = ranchId })
+                MySQL.query.await('UPDATE ranch SET `pigs` = "false", `pigs_cond` = 0, `pigs_age` = 0 WHERE ranchid = ?', { ranchId })
             end,
             ['sheeps'] = function()
-                MySQL.query.await('UPDATE ranch SET `sheeps`="false", `sheeps_cond`=0, `sheeps_age`=0 WHERE ranchid=@ranchid', { ['ranchid'] = ranchId })
+                MySQL.query.await('UPDATE ranch SET `sheeps` = "false", `sheeps_cond` = 0, `sheeps_age` = 0 WHERE ranchid = ?', { ranchId })
             end,
             ['goats'] = function()
-                MySQL.query.await('UPDATE ranch SET `goats`="false", `goats_cond`=0, `goats_age`=0 WHERE ranchid=@ranchid', { ['ranchid'] = ranchId })
+                MySQL.query.await('UPDATE ranch SET `goats` = "false", `goats_cond` = 0, `goats_age` = 0 WHERE ranchid = ?', { ranchId })
             end
         }
         if soldFuncts[animalType] then

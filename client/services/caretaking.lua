@@ -173,7 +173,7 @@ RegisterNetEvent("bcc-ranch:StartChoreClient", function(choreType)
     end
 
     VORPcore.NotifyRightTip(_U("gotoChoreLocation"), 4000)
-    local blip = BccUtils.Blip:SetBlip(_U("choreLocation"), 960467426, 0.2, choreCoords.x, choreCoords.y, choreCoords.z)
+    blip = BccUtils.Blip:SetBlip(_U("choreLocation"), 960467426, 0.2, choreCoords.x, choreCoords.y, choreCoords.z)
     local PromptGroup = VORPutils.Prompts:SetupPromptGroup()
     local firstprompt = PromptGroup:RegisterPrompt(_U("startChore"), 0x760A9C6F, 1, 1, true, 'hold', {timedeventhash = "MEDIUM_TIMED_EVENT"})
     while true do

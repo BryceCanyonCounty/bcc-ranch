@@ -1,11 +1,10 @@
----@param ranchId integer
----@param choreType string
 local choreCooldowns = {}
 local choreDoneCount = {}
+---@param ranchId integer
+---@param choreType string
 RegisterServerEvent('bcc-ranch:ChoreCheckRanchCond/Cooldown', function(ranchId, choreType)
     local _source = source
-    local param = { ['ranchid'] = ranchId }
-    local ranch = MySQL.query.await("SELECT * FROM ranch WHERE ranchid=@ranchid", param)
+    local ranch = MySQL.query.await("SELECT * FROM ranch WHERE ranchid = ?", { ranchId })
     if #ranch > 0 then
         if ranch[1].ranchCondition >= 100 then
             VORPcore.NotifyRightTip(_source, _U("conditionMax"), 4000)
@@ -29,10 +28,11 @@ RegisterServerEvent('bcc-ranch:ChoreCheckRanchCond/Cooldown', function(ranchId, 
 end)
 
 local herdingCooldown = {}
+---@param ranchId integer
+---@param animalType string
 RegisterServerEvent('bcc-ranch:HerdingCooldown', function(ranchId, animalType)
     local _source = source
-    local param = { ['ranchid'] = ranchId }
-    local ranch = MySQL.query.await("SELECT * FROM ranch WHERE ranchid=@ranchid", param)
+    local ranch = MySQL.query.await("SELECT * FROM ranch WHERE ranchid = ?", { ranchId })
     if #ranch > 0 then
         if not herdingCooldown[ranchId] then
             herdingCooldown[ranchId] = os.time()
@@ -47,10 +47,11 @@ RegisterServerEvent('bcc-ranch:HerdingCooldown', function(ranchId, animalType)
 end)
 
 local feedingCooldown = {}
+---@param ranchId integer
+---@param animalType string
 RegisterServerEvent('bcc-ranch:FeedingCooldown', function(ranchId, animalType)
     local _source = source
-    local param = { ['ranchid'] = ranchId }
-    local ranch = MySQL.query.await("SELECT * FROM ranch WHERE ranchid=@ranchid", param)
+    local ranch = MySQL.query.await("SELECT * FROM ranch WHERE ranchid = ?", { ranchId })
     if #ranch > 0 then
         if not feedingCooldown[ranchId] then
             feedingCooldown[ranchId] = os.time()
@@ -65,10 +66,10 @@ RegisterServerEvent('bcc-ranch:FeedingCooldown', function(ranchId, animalType)
 end)
 
 local harvestingEggsCooldown = {}
+---@param ranchId  integer
 RegisterServerEvent('bcc-ranch:HarvestEggsCooldown', function(ranchId)
     local _source = source
-    local param = { ['ranchid'] = ranchId }
-    local ranch = MySQL.query.await("SELECT * FROM ranch WHERE ranchid=@ranchid", param)
+    local ranch = MySQL.query.await("SELECT * FROM ranch WHERE ranchid = ?", { ranchId })
     if #ranch > 0 then
         if not harvestingEggsCooldown[ranchId] then
             harvestingEggsCooldown[ranchId] = os.time()
@@ -83,10 +84,10 @@ RegisterServerEvent('bcc-ranch:HarvestEggsCooldown', function(ranchId)
 end)
 
 local milkingCowsCooldown = {}
+---@param ranchId  integer
 RegisterServerEvent('bcc-ranch:MilkingCowsCooldown', function(ranchId)
     local _source = source
-    local param = { ['ranchid'] = ranchId }
-    local ranch = MySQL.query.await("SELECT * FROM ranch WHERE ranchid=@ranchid", param)
+    local ranch = MySQL.query.await("SELECT * FROM ranch WHERE ranchid = ?", { ranchId })
     if #ranch > 0 then
         if not milkingCowsCooldown[ranchId] then
             milkingCowsCooldown[ranchId] = os.time()
@@ -101,10 +102,10 @@ RegisterServerEvent('bcc-ranch:MilkingCowsCooldown', function(ranchId)
 end)
 
 local shearingSheepsCooldown = {}
+---@param ranchId  integer
 RegisterServerEvent('bcc-ranch:ShearingSheepsCooldown', function(ranchId)
     local _source = source
-    local param = { ['ranchid'] = ranchId }
-    local ranch = MySQL.query.await("SELECT * FROM ranch WHERE ranchid=@ranchid", param)
+    local ranch = MySQL.query.await("SELECT * FROM ranch WHERE ranchid = ?", { ranchId })
     if #ranch > 0 then
         if not shearingSheepsCooldown[ranchId] then
             shearingSheepsCooldown[ranchId] = os.time()
