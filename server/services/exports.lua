@@ -1,8 +1,6 @@
------------- Export Area ------------------
--- Check If player owns ranch exports
+---@param charIdentifier integer
 exports('CheckIfRanchIsOwned', function(charIdentifier) --credit to the whole bcc dev team for help with this
-    local param = { ['charidentifier'] = charIdentifier }
-    local result = MySQL.query.await("SELECT * FROM ranch WHERE charidentifier=@charidentifier", param)
+    local result = MySQL.query.await("SELECT * FROM ranch WHERE charidentifier = ?", { charIdentifier })
     if #result > 0 then
         return true
     else
@@ -10,36 +8,36 @@ exports('CheckIfRanchIsOwned', function(charIdentifier) --credit to the whole bc
     end
 end)
 
---Increase Ranch Condition Export
+---@param charIdentifier integer
+---@param amount integer
+---@return boolean
 exports('IncreaseRanchCondition', function(charIdentifier, amount)
-    local param = { ['charidentifier'] = charIdentifier, ['amount'] = amount }
-    local result = MySQL.query.await("SELECT * FROM ranch WHERE charidentifier=@charidentifier", param)
+    local result = MySQL.query.await("SELECT * FROM ranch WHERE charidentifier = ?", { charIdentifier })
     if #result > 0 then
         local ranchId = result[1].ranchid
-        MySQL.query.await('UPDATE ranch SET `ranchCondition`=ranchCondition+@amount WHERE charidentifier=@charidentifier', param)
+        MySQL.query.await('UPDATE ranch SET ranchCondition = ranchCondition + ? WHERE charidentifier = ?', { amount, charIdentifier })
         UpdateAllRanchersRanchData(ranchId)
     else
         return false
     end
 end)
 
---Decrease Ranch Condition Export
+---@param charIdentifier integer
+---@param amount integer
 exports('DecreaseRanchCondition', function(charIdentifier, amount)
-    local param = { ['charidentifier'] = charIdentifier, ['amount'] = amount }
-    local result = MySQL.query.await("SELECT * FROM ranch WHERE charidentifier=@charidentifier", param)
+    local result = MySQL.query.await("SELECT * FROM ranch WHERE charidentifier = ?", { charIdentifier })
     if #result > 0 then
         local ranchId = result[1].ranchid
-        MySQL.query.await('UPDATE ranch SET `ranchCondition`=ranchCondition-@amount WHERE charidentifier=@charidentifier', param)
+        MySQL.query.await('UPDATE ranch SET ranchCondition = ranchCondition - ? WHERE charidentifier = ?', { amount, charIdentifier})
         UpdateAllRanchersRanchData(ranchId)
     else
         return false
     end
 end)
 
---Check if player works at a ranch
+---@param charidentifier integer
 exports('DoesPlayerWorkAtRanch', function(charidentifier)
-    local param = { ['charid'] = charidentifier }
-    local result = MySQL.query.await("SELECT ranchid FROM characters WHERE charidentifier=@charid", param)
+    local result = MySQL.query.await("SELECT ranchid FROM characters WHERE charidentifier = ?", { charidentifier })
     if #result > 0 then
         return true
     else
