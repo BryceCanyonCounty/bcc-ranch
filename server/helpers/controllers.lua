@@ -180,7 +180,7 @@ RegisterServerEvent("bcc-ranch:InsertChoreCoordsIntoDB", function(choreCoords, r
             MySQL.query.await("UPDATE ranch SET water_animal_coords = ? WHERE ranchid = ?", { json.encode(choreCoords), ranchId })
         end,
         ['repairtroughcoords'] = function()
-            MySQL.query.await("UPDATE ranch SET repair_trough_coords = ? WHERE ranchid = ?", { json.ensure(choreCoords), ranchId })
+            MySQL.query.await("UPDATE ranch SET repair_trough_coords = ? WHERE ranchid = ?", { json.encode(choreCoords), ranchId })
         end,
         ['scooppoopcoords'] = function()
             MySQL.query.await("UPDATE ranch SET scoop_poop_coords = ? WHERE ranchid = ?", { json.encode(choreCoords), ranchId })
