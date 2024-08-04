@@ -54,6 +54,7 @@ RegisterNetEvent('bcc-ranch:HerdAnimalClientHandler', function(animalType)
     repeat
         local createdPed = BccUtils.Ped.CreatePed(model, spawnCoords.x + math.random(1, 5), spawnCoords.y + math.random(1, 5), spawnCoords.z, true, true, false)
         SetBlockingOfNonTemporaryEvents(createdPed, true)
+        --SetEntityInvincible(createdPed,true)
         Citizen.InvokeNative(0x9587913B9E772D29, createdPed, true)
         if scale ~= nil then
             SetPedScale(createdPed, scale)
@@ -77,6 +78,9 @@ RegisterNetEvent('bcc-ranch:HerdAnimalClientHandler', function(animalType)
                 animalsNear = false
             end
             if IsEntityDead(v) then
+                for m,s in ipairs(peds) do
+                    DeletePed(s)
+                end
                 count = count - 1
             end
         end
