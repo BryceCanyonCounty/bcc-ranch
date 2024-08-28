@@ -81,19 +81,68 @@ end)
 ---@param ownerSource integer is owners server id
 RegisterServerEvent("bcc-ranch:RanchCreationInsert", function(charId, ranchName, ranchRadius, taxes, ranchCoords, ownerSource)
     local _source = source
+
+    -- Check if charId is null or nil
+    if not charId or charId == 0 then
+        print("Error: charId is null or 0")
+        VORPcore.NotifyRightTip(_source, _U("ownerNotSet"), 4000)  -- Localization key
+        return
+    end
+
+    -- Validate other parameters
+    if ranchName == "" then
+        VORPcore.NotifyRightTip(_source, _U("ranchNameEmpty"), 4000)  -- Localization key
+        return
+    end
+
+    ranchRadius = tonumber(ranchRadius)
+    taxes = tonumber(taxes)
+
+    if not ranchRadius or ranchRadius <= 0 then
+        VORPcore.NotifyRightTip(_source, _U("ranchRadiusInvalid"), 4000)  -- Localization key
+        return
+    end
+
+    if not taxes or taxes < 0 then
+        VORPcore.NotifyRightTip(_source, _U("taxAmountInvalid"), 4000)  -- Localization key
+        return
+    end
+
+    -- Fetch character data with existing ranchid
     local result = MySQL.query.await('SELECT * FROM characters WHERE charidentifier = ? AND ranchid != 0', { charId })
-    if #result > 1 then
-        VORPcore.NotifyRightTip(_source, _U("alreadyOwnsRanch"), 4000)
-    else
-        local ranchId = MySQL.insert.await("INSERT INTO ranch (`charidentifier`,`ranchcoords`,`ranchname`,`ranch_radius_limit` ,`taxamount`) VALUES (?, ?, ?, ?, ?)", { charId, json.encode(ranchCoords), ranchName, ranchRadius, taxes })
+    
+    if #result > 0 then
+        -- Fetch ranch data to verify if the ranch exists
+        local existingRanch = MySQL.query.await("SELECT * FROM ranch WHERE ranchid = ?", { result[1].ranchid })
+        
+        if #existingRanch == 0 then
+            -- Ranch doesn't exist in ranch table, so set ranchid to 0 in characters table
+            MySQL.query.await("UPDATE characters SET ranchid = 0 WHERE charidentifier = ?", { charId })
+            VORPcore.NotifyRightTip(_source, _U("ranchNotFound"), 4000)  -- Localization key
+        else
+            VORPcore.NotifyRightTip(_source, _U("ranchAlreadyExists"), 4000)  -- Localization key
+            return
+        end
+    end
+
+    -- Proceed with ranch creation if no existing ranch is found
+    local ranchId = MySQL.insert.await("INSERT INTO ranch (charidentifier,ranchcoords,ranchname,ranch_radius_limit,taxamount) VALUES (?, ?, ?, ?, ?)", { charId, json.encode(ranchCoords), ranchName, ranchRadius, taxes })
+    if ranchId then
         MySQL.query.await("UPDATE characters SET ranchid = ? WHERE charidentifier = ?", { ranchId, charId })
 
         local ranchCreatedData = MySQL.query.await("SELECT * FROM ranch WHERE ranchid = ?", { ranchId })
-        TriggerClientEvent("bcc-ranch:PlayerOwnsARanch", ownerSource, ranchCreatedData[1], true)
-        newRancherOnline(ownerSource, ranchId)
-        VORPcore.NotifyRightTip(_source, _U("ranchCreated"), 4000)
+        if #ranchCreatedData > 0 then
+            TriggerClientEvent("bcc-ranch:PlayerOwnsARanch", ownerSource, ranchCreatedData[1], true)
+            newRancherOnline(ownerSource, ranchId)
+            VORPcore.NotifyRightTip(_source, _U("ranchCreated"), 4000)  -- Localization key
+        else
+            VORPcore.NotifyRightTip(_source, _U("ranchCreationFailed"), 4000)  -- Localization key
+        end
+    else
+        VORPcore.NotifyRightTip(_source, _U("ranchCreationFailed"), 4000)  -- Localization key
     end
 end)
+
 
 RegisterServerEvent('bcc-ranch:CheckIfPlayerOwnsARanch', function()
     local _source = source

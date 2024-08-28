@@ -115,5 +115,12 @@ Locales["en_lang"] = {
     changeRanchCond = "Change Ranch Condition",
     ranchCondChanged = "Ranch Condition Changed!",
     openRanchInv = "Open Ranch Inventory",
-    noEmployees = "No Employees"
+    noEmployees = "No Employees",
+    ownerNotSet = "You need to assign a valid owner for the ranch.",
+    ranchNameEmpty = "Ranch name cannot be empty. Please provide a name for the ranch.",
+    ranchRadiusInvalid = "Ranch radius must be a positive number. Please enter a valid radius.",
+    taxAmountInvalid = "Taxes must be a non-negative number. Please enter a valid tax amount.",
+    ranchNotFound = "Previous ranch not found. The ranch ID has been reset.",
+    ranchAlreadyExists = "You already own a ranch. Only one ranch per character is allowed.",
+    ranchCreationFailed = "Ranch creation failed. Please try again later.",
 }
