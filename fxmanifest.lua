@@ -13,6 +13,7 @@ shared_scripts {
 
 server_scripts {
     '@oxmysql/lib/MySQL.lua',
+    '/server/helpers/database_init.lua',
     '/server/helpers/functions.lua',
     '/server/helpers/controllers.lua',
     '/server/main.lua',
