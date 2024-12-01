@@ -59,15 +59,29 @@ function SellAnimals(animalType, animalCond)
     if selectAnimalFuncts[animalType] then
         selectAnimalFuncts[animalType]()
     end
+
+    -- Check if spawnCoords is nil, notify the player if true
+    if not spawnCoords or not spawnCoords.x or not spawnCoords.y or not spawnCoords.z then
+        VORPcore.NotifyRightTip(_U("noCoordsSet"), 4000)
+        return
+    end
+
     IsInMission = true
 
     --Detecting Closest Sale Barn Setup Credit to vorp_core for this bit of code, and jannings for pointing this out to me
-    TriggerServerEvent('bcc-ranch:UpdateAnimalsOut', RanchData.ranchid, true)
+    BccUtils.RPC:Call("bcc-ranch:UpdateAnimalsOut", { ranchId = RanchData.ranchid, isOut = true }, function(success)
+        if success then
+            print("Animals out status updated successfully!")
+        else
+            print("Failed to update animals out status!")
+        end
+    end)
     local finalSaleCoords
     local closestDistance = math.huge
     for k, v in pairs(Config.saleLocations) do
         local pCoords = GetEntityCoords(PlayerPedId())
-        local currentDistance = GetDistanceBetweenCoords(v.Coords.x, v.Coords.y, v.Coords.z, pCoords.x, pCoords.y, pCoords.z, true)
+        local currentDistance = GetDistanceBetweenCoords(v.Coords.x, v.Coords.y, v.Coords.z, pCoords.x, pCoords.y,
+            pCoords.z, true)
 
         if currentDistance < closestDistance then
             closestDistance = currentDistance
@@ -77,7 +91,8 @@ function SellAnimals(animalType, animalCond)
 
     local catch = 0
     repeat
-        local createdPed = BccUtils.Ped.CreatePed(model, spawnCoords.x + math.random(1, 5), spawnCoords.y + math.random(1, 5), spawnCoords.z, true, true, false)
+        local createdPed = BccUtils.Ped.CreatePed(model, spawnCoords.x + math.random(1, 5),
+            spawnCoords.y + math.random(1, 5), spawnCoords.z, true, true, false)
         SetBlockingOfNonTemporaryEvents(createdPed, true)
         Citizen.InvokeNative(0x9587913B9E772D29, createdPed, true)
         SetEntityHealth(createdPed, tables.animalHealth, 0)
@@ -87,7 +102,8 @@ function SellAnimals(animalType, animalCond)
     SetRelAndFollowPlayer(peds)
     VORPcore.NotifyRightTip(_U("leadAnimalsToSaleLocation"), 4000)
     BccUtils.Misc.SetGps(finalSaleCoords.x, finalSaleCoords.y, finalSaleCoords.z)
-    local blip = BccUtils.Blip:SetBlip(_U("saleLocationBlip"), Config.ranchSetup.ranchBlip, 0.2, finalSaleCoords.x, finalSaleCoords.y, finalSaleCoords.z)
+    local blip = BccUtils.Blip:SetBlip(_U("saleLocationBlip"), Config.ranchSetup.ranchBlip, 0.2, finalSaleCoords.x,
+        finalSaleCoords.y, finalSaleCoords.z)
 
     local animalsNear = false
     while true do
@@ -117,8 +133,20 @@ function SellAnimals(animalType, animalCond)
             if catch ~= tables.spawnAmount then
                 pay = tables.lowPay
             end
-            TriggerServerEvent('bcc-ranch:AnimalSold', pay, RanchData.ranchid, animalType)
-            VORPcore.NotifyRightTip(_U("animalSold"), 4000) break
+            BccUtils.RPC:Call("bcc-ranch:AnimalSold", {
+                payAmount = pay,
+                ranchId = RanchData.ranchid,
+                animalType = animalType
+            }, function(success)
+                if success then
+                    devPrint("Animal sold successfully for ranchId: " ..
+                    RanchData.ranchid .. " with animalType: " .. animalType)
+                else
+                    devPrint("Failed to sell animal for ranchId: " .. RanchData.ranchid)
+                end
+            end)
+            VORPcore.NotifyRightTip(_U("animalSold"), 4000)
+            break
         end
     end
     ClearGpsMultiRoute()
@@ -131,7 +159,13 @@ function SellAnimals(animalType, animalCond)
     end
     blip:Remove()
     IsInMission = false
-    TriggerServerEvent('bcc-ranch:UpdateAnimalsOut', RanchData.ranchid, false)
+    BccUtils.RPC:Call("bcc-ranch:UpdateAnimalsOut", { ranchId = RanchData.ranchid, isOut = false }, function(success)
+        if success then
+            print("Animals out status updated successfully!")
+        else
+            print("Failed to update animals out status!")
+        end
+    end)
 end
 
 AddEventHandler('onResourceStop', function(resource)

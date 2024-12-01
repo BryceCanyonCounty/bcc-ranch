@@ -31,6 +31,7 @@
 - Ranch Managment menu for admins to delete ranch's, rename, and change thier radius!
 - Hire employees to work at your ranch!
 - Harvest eggs from chickens, and milk cows!
+- Animals will only age if their max condition has reached, if the maximum not achieve aging will not start
 
 # How it works
 - Admins can make a ranch by entering the command, they will be greeted with a menu to name the ranch, insert the ranches radius, and the owners static id!

@@ -1,32 +1,35 @@
----@param ranchId integer
 RegisterServerEvent('bcc-ranch:DeleteRanchFromDB', function(ranchId)
-    exports.oxmysql:execute("DELETE FROM ranch WHERE ranchid = ?", { ranchId })
+    MySQL.update("DELETE FROM ranch WHERE ranchid = ?", { ranchId })
 end)
 
----@param ranchId integer
----@param cond integer
 RegisterServerEvent('bcc-ranch:ChangeRanchCondAdminMenu', function(ranchId, cond)
-    exports.oxmysql:execute("UPDATE ranch SET ranchCondition = ? WHERE ranchid = ?", { cond, ranchId })
+    MySQL.update("UPDATE ranch SET ranchCondition = ? WHERE ranchid = ?", { cond, ranchId })
 end)
 
----@param ranchId integer
----@param radius integer
 RegisterServerEvent('bcc-ranch:ChangeRanchRadius', function(ranchId, radius)
-    exports.oxmysql:execute('UPDATE ranch SET ranch_radius_limit = ? WHERE ranchid = ?', { radius, ranchId })
+    MySQL.update('UPDATE ranch SET ranch_radius_limit = ? WHERE ranchid = ?', { radius, ranchId })
 end)
 
----@param ranchId integer
----@param name string
 RegisterServerEvent('bcc-ranch:ChangeRanchname', function(ranchId, name)
-    exports.oxmysql:execute('UPDATE ranch SET ranchname = ? WHERE ranchid = ?', { name, ranchId })
+    MySQL.update('UPDATE ranch SET ranchname = ? WHERE ranchid = ?', { name, ranchId })
 end)
 
-RegisterServerEvent('bcc-ranch:GetAllRanches', function()
+-- Registering the RPC on the server-side for fetching all ranches
+BccUtils.RPC:Register("bcc-ranch:GetAllRanches", function(params, cb)
     local _source = source
-    local result = MySQL.query.await("SELECT * FROM ranch")
-    if #result > 0 then
-        TriggerClientEvent('bcc-ranch:CatchAllRanches', _source, result)
+    local success, result = pcall(MySQL.query.await, "SELECT * FROM ranch")
+
+    if not success then
+        print("^1[ERROR] Failed to fetch ranches: ^4" .. result)
+        VORPcore.NotifyRightTip(_source, _U("DatabaseError"), 4000)
+        return cb(false)  -- Indicate failure
+    end
+
+    if result and #result > 0 then
+        -- Send the result back to the client using the callback
+        cb(true, result)  -- Success: return ranch data
     else
         VORPcore.NotifyRightTip(_source, _U("NoRanches"), 4000)
+        cb(false)  -- No data found
     end
 end)

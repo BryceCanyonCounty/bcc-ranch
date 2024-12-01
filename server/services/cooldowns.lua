@@ -1,35 +1,75 @@
 local choreCooldowns = {}
 local choreDoneCount = {}
----@param ranchId integer
----@param choreType string
-RegisterServerEvent('bcc-ranch:ChoreCheckRanchCond/Cooldown', function(ranchId, choreType)
-    local _source = source
+
+BccUtils.RPC:Register("bcc-ranch:ChoreCheckRanchCond", function(params, cb, source)
+    local ranchId = params.ranchId
+    local choreType = params.choreType
+
+    -- Fetch the ranch data
     local ranch = MySQL.query.await("SELECT * FROM ranch WHERE ranchid = ?", { ranchId })
+
+    -- Validate if ranch exists
     if #ranch > 0 then
-        if ranch[1].ranchCondition >= 100 then
-            VORPcore.NotifyRightTip(_source, _U("conditionMax"), 4000)
-        else
-            if not choreCooldowns[ranchId] then
-                choreCooldowns[ranchId] = os.time()
-                choreDoneCount[ranchId] = 1
-                TriggerClientEvent('bcc-ranch:StartChoreClient', _source, choreType)
-            elseif choreCooldowns[ranchId] ~= nil and choreDoneCount[ranchId] < 4 then
-                choreDoneCount[ranchId] = choreDoneCount[ranchId] + 1
-                TriggerClientEvent('bcc-ranch:StartChoreClient', _source, choreType)
-            elseif os.difftime(os.time(), choreCooldowns[ranchId]) >= Config.ranchSetup.choreSetup.choreCooldown then
-                choreCooldowns[ranchId] = os.time()
-                choreDoneCount[ranchId] = 1
-                TriggerClientEvent('bcc-ranch:StartChoreClient', _source, choreType)
-            else
-                VORPcore.NotifyRightTip(_source, _U("cooldown") .. tostring(Config.ranchSetup.choreSetup.choreCooldown - os.difftime(os.time(), choreCooldowns[ranchId])), 4000)
-            end
+        local ranchData = ranch[1]
+        local coordsKey = nil
+
+        -- Determine the coordinates key based on chore type
+        local validChoreTypes = {
+            shovelhay = "shovel_hay_coords",
+            wateranimal = "water_animal_coords",
+            repairfeedtrough = "repair_trough_coords",
+            scooppoop = "scoop_poop_coords"
+        }
+
+        coordsKey = validChoreTypes[choreType]
+
+        -- Validate if chore type is valid and coordinates exist
+        if not coordsKey or not ranchData[coordsKey] or ranchData[coordsKey] == "" then
+            devPrint("Invalid choreType or missing coordinates for choreType: " .. tostring(choreType))
+            VORPcore.NotifyRightTip(source, _U("invalidChoreOrCoords"), 4000)
+            cb(false)
+            return
         end
+
+        -- Check if ranch condition is maxed out
+        if ranchData.ranchCondition >= 100 then
+            VORPcore.NotifyRightTip(source, _U("conditionMax"), 4000)
+            cb(false)
+            return
+        end
+
+        -- Handle cooldown logic
+        if not choreCooldowns[ranchId] then
+            choreCooldowns[ranchId] = os.time()
+            choreDoneCount[ranchId] = 1
+        elseif choreDoneCount[ranchId] < 4 then
+            choreDoneCount[ranchId] = choreDoneCount[ranchId] + 1
+        elseif os.difftime(os.time(), choreCooldowns[ranchId]) >= Config.ranchSetup.choreSetup.choreCooldown then
+            choreCooldowns[ranchId] = os.time()
+            choreDoneCount[ranchId] = 1
+        else
+            VORPcore.NotifyRightTip(source, _U("cooldown") .. tostring(Config.ranchSetup.choreSetup.choreCooldown - os.difftime(os.time(), choreCooldowns[ranchId])), 4000)
+            cb(false)
+            return
+        end
+
+        -- Call the client-side procedure to start the chore
+        BccUtils.RPC:Call("bcc-ranch:StartChoreClient", { choreType = choreType }, function(success)
+            if success then
+                cb(true)
+            else
+                cb(false)
+            end
+        end, source)
+    else
+        -- Ranch does not exist
+        VORPcore.NotifyRightTip(source, _U("invalidRanchId"), 4000)
+        cb(false)
     end
 end)
 
 local herdingCooldown = {}
----@param ranchId integer
----@param animalType string
+
 RegisterServerEvent('bcc-ranch:HerdingCooldown', function(ranchId, animalType)
     local _source = source
     local ranch = MySQL.query.await("SELECT * FROM ranch WHERE ranchid = ?", { ranchId })

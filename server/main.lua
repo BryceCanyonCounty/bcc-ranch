@@ -23,9 +23,9 @@ AddEventHandler('bcc-ranch:GetPlayers', function()
     for _, player in ipairs(AllPlayersTable) do
         local User = VORPcore.getUser(player)
         if User then
-            local Character = User.getUsedCharacter                             --get player info
+            local Character = User.getUsedCharacter
 
-            local playername = Character.firstname .. ' ' .. Character.lastname --player char name
+            local playername = Character.firstname .. ' ' .. Character.lastname
 
             data[tostring(player)] = {
                 serverId = player,
@@ -38,25 +38,45 @@ AddEventHandler('bcc-ranch:GetPlayers', function()
 end)
 
 CreateThread(function()
+    -- Ensure a valid interval is set
+    if Config.ranchSetup.ranchConditionDecreaseInterval <= 0 then
+        devPrint("Ranch condition decrease interval is not set or invalid. Exiting thread.")
+        return
+    end
+
     while true do
-        if Config.ranchSetup.ranchConditionDecreaseInterval <= 0 then break end
-        Wait(Config.ranchSetup.ranchConditionDecreaseInterval * 1000)
-        local allRanches = MySQL.query.await("SELECT * FROM ranch")
-        if #allRanches > 0 then
-            for k, v in pairs(allRanches) do
-                if tonumber(v.ranchCondition) > 0 then
-                    MySQL.query.await("UPDATE ranch SET ranchCondition = ranchCondition - ? WHERE ranchid = ?", { Config.ranchSetup.ranchConditionDecreaseAmount, v.ranchid })
-                    if RanchersOnline[v.ranchid] ~= nil then
-                        if #RanchersOnline[v.ranchid] > 0 then
-                            UpdateAllRanchersRanchData(v.ranchid)
-                        end
+        -- Wait for the configured interval
+        Wait(Config.ranchSetup.ranchConditionDecreaseInterval)
+
+        -- Fetch all ranches with relevant fields
+        local allRanches = MySQL.query.await("SELECT ranchid, ranchCondition FROM ranch")
+        if not allRanches or #allRanches == 0 then
+            devPrint("No ranches found. Retrying in 15 seconds.")
+            Wait(15000)
+        else
+            for _, ranch in pairs(allRanches) do
+                local currentCondition = tonumber(ranch.ranchCondition)
+                if currentCondition > 0 then
+                    -- Decrease ranch condition in the database
+                    MySQL.update.await(
+                        "UPDATE ranch SET ranchCondition = ranchCondition - ? WHERE ranchid = ?",
+                        { Config.ranchSetup.ranchConditionDecreaseAmount, ranch.ranchid }
+                    )
+                    devPrint("RanchID: " ..
+                    ranch.ranchid .. " condition decreased by " .. Config.ranchSetup.ranchConditionDecreaseAmount)
+
+                    -- Update online ranchers if they exist
+                    local onlineRanchers = RanchersOnline[ranch.ranchid]
+                    if onlineRanchers and #onlineRanchers > 0 then
+                        devPrint("Updating online ranchers for RanchID: " .. ranch.ranchid)
+                        UpdateAllRanchersRanchData(ranch.ranchid)
                     end
+                else
+                    devPrint("RanchID: " .. ranch.ranchid .. " already has a condition of 0. Skipping.")
                 end
             end
-        else
-            Wait(15000)
         end
     end
 end)
 
-BccUtils.Versioner.checkRelease(GetCurrentResourceName(), 'https://github.com/BryceCanyonCounty/bcc-ranch')
+BccUtils.Versioner.checkFile(GetCurrentResourceName(), 'https://github.com/BryceCanyonCounty/bcc-ranch')

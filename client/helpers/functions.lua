@@ -1,12 +1,17 @@
--- Pulling Essentials Here As Global Variables So No Need To Pull Them In Every File
-VORPcore = {}
-TriggerEvent("getCore", function(core)
-  VORPcore = core
-end)
-VORPutils = {}
-TriggerEvent("getUtils", function(utils)
-  VORPutils = utils
-end)
+VORPcore = exports.vorp_core:GetCore()
+BccUtils = exports['bcc-utils'].initiate()
+
+if Config.devMode then
+  -- Helper function for debugging
+  function devPrint(message)
+      print("^1[DEV MODE] ^4" .. message.."^0")
+  end
+else
+  -- Define devPrint as a no-op function if DevMode is not enabled
+  function devPrint(message)
+  end
+end
+
 FeatherMenu =  exports['feather-menu'].initiate()
 BccUtils = exports['bcc-utils'].initiate()
 MiniGame = exports['bcc-minigames'].initiate()

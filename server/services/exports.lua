@@ -15,7 +15,7 @@ exports('IncreaseRanchCondition', function(charIdentifier, amount)
     local result = MySQL.query.await("SELECT * FROM ranch WHERE charidentifier = ?", { charIdentifier })
     if #result > 0 then
         local ranchId = result[1].ranchid
-        MySQL.query.await('UPDATE ranch SET ranchCondition = ranchCondition + ? WHERE charidentifier = ?', { amount, charIdentifier })
+        MySQL.update.await('UPDATE ranch SET ranchCondition = ranchCondition + ? WHERE charidentifier = ?', { amount, charIdentifier })
         UpdateAllRanchersRanchData(ranchId)
     else
         return false
@@ -28,7 +28,7 @@ exports('DecreaseRanchCondition', function(charIdentifier, amount)
     local result = MySQL.query.await("SELECT * FROM ranch WHERE charidentifier = ?", { charIdentifier })
     if #result > 0 then
         local ranchId = result[1].ranchid
-        MySQL.query.await('UPDATE ranch SET ranchCondition = ranchCondition - ? WHERE charidentifier = ?', { amount, charIdentifier})
+        MySQL.update.await('UPDATE ranch SET ranchCondition = ranchCondition - ? WHERE charidentifier = ?', { amount, charIdentifier})
         UpdateAllRanchersRanchData(ranchId)
     else
         return false

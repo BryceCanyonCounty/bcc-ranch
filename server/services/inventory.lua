@@ -1,12 +1,15 @@
 ---@param ranchid integer
 RegisterServerEvent('bcc-ranch:OpenInv', function(ranchid)
     local _source = source
-    VORPInv.OpenInv(_source, 'Player_' .. ranchid .. '_bcc-ranchinv')
+    exports.vorp_inventory:openInventory(source, 'Player_' .. ranchid .. '_bcc-ranchinv')
 end)
 
----@param item string
----@param amount integer
-RegisterServerEvent('bcc-ranch:AddItem', function(item, amount)
-    local _source = source
-    VORPInv.addItem(_source, item, amount)
+BccUtils.RPC:Register("bcc-ranch:AddItem", function(params, cb, recSource)
+    local item = params.item
+    local amount = params.amount
+
+    devPrint("Adding item: " .. item .. " with amount: " .. amount .. " for source: " .. recSource)
+    exports.vorp_inventory:addItem(recSource, item, amount, {})
+
+    cb(true)
 end)

@@ -11,33 +11,37 @@ AddEventHandler('vorp:SelectedCharacter', function()
 end)
 
 RegisterCommand(Config.commands.devModeCommand, function()
-    if Config.devMode then
-        TriggerServerEvent('bcc-ranch:AdminCheck')
-        local player = GetPlayerServerId(tonumber(PlayerId()))
-        TriggerServerEvent("bcc-ranch:StoreAllPlayers", player)
-        TriggerServerEvent('bcc-ranch:CheckIfPlayerOwnsARanch')
-        TriggerServerEvent('bcc-ranch:CheckIfPlayerIsEmployee')
-    end
+if Config.devMode then
+    TriggerServerEvent('bcc-ranch:AdminCheck')
+    local player = GetPlayerServerId(tonumber(PlayerId()))
+    TriggerServerEvent("bcc-ranch:StoreAllPlayers", player)
+    TriggerServerEvent('bcc-ranch:CheckIfPlayerOwnsARanch')
+    TriggerServerEvent('bcc-ranch:CheckIfPlayerIsEmployee')
+end
 end)
 
--- Handling Initial Ranch Startup
----@param ranchData table
----@param isOwnerOfRanch boolean
-RegisterNetEvent("bcc-ranch:PlayerOwnsARanch", function(ranchData, isOwnerOfRanch)
+-- Handle ranch ownership notification
+BccUtils.RPC:Register("bcc-ranch:PlayerOwnsARanch", function(params)
+    local ranchData = params.ranchData
+    local isOwnerOfRanch = params.isOwnerOfRanch
+
     RanchData = ranchData
     if isOwnerOfRanch then
         IsOwnerOfRanch = true
     end
 
-    -- Having to setup the coords to work, as they are encoded when recieved
+    -- Decode ranch coordinates
     RanchData.ranchcoords = json.decode(RanchData.ranchcoords)
     RanchData.ranchcoordsVector3 = vector3(RanchData.ranchcoords.x, RanchData.ranchcoords.y, RanchData.ranchcoords.z)
 
+    -- Create ranch blip
     ranchBlip = BccUtils.Blip:SetBlip(RanchData.ranchname, Config.ranchSetup.ranchBlip, 0.2, RanchData.ranchcoords.x, RanchData.ranchcoords.y, RanchData.ranchcoords.z)
 
-    local promptGroup = VORPutils.Prompts:SetupPromptGroup()
+    -- Set up ranch management prompt
+    local promptGroup = BccUtils.Prompts:SetupPromptGroup()
     local firstprompt = promptGroup:RegisterPrompt(_U("manage"), Config.ranchSetup.manageRanchKey, 1, 1, true, 'hold', {timedeventhash = "MEDIUM_TIMED_EVENT"})
 
+    -- Command for managing the ranch
     if Config.commands.manageMyRanchCommand then
         RegisterCommand(Config.commands.manageMyRanchCommandName, function()
             local dist = #(RanchData.ranchcoordsVector3 - GetEntityCoords(PlayerPedId()))
@@ -82,12 +86,10 @@ RegisterNetEvent("bcc-ranch:PlayerOwnsARanch", function(ranchData, isOwnerOfRanc
     end
 end)
 
----@param admin boolean
 RegisterNetEvent("bcc-ranch:IsAdminClientReceiver", function(admin)
     IsAdmin = admin
 end)
 
----@param ranchData table
 RegisterNetEvent('bcc-ranch:UpdateRanchData', function (ranchData)
     if not IsInMission then
         IsInMission = true -- This is to stop the player from being able to manage their ranch while the Ranchdata is updating
@@ -115,5 +117,6 @@ AddEventHandler('onResourceStop', function(resourceName)
         if ranchBlip then
             ranchBlip:Remove()
         end
+        BCCRanchMenu:Close()
     end
 end)
