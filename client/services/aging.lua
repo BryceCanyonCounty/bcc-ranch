@@ -1,80 +1,35 @@
 local agingActive = false
----@param firstIteration boolean
-RegisterNetEvent('bcc-ranch:AgingTriggered', function(firstIteration, resetAging)
-    if not firstIteration then
-        if not agingActive then
-            agingActive = true
-        else
-            agingActive = false
-        end
-    else --done as on first iteration it will always stop aging and restart it so we make a dif if for it
-        if not agingActive then
-            agingActive = true
-        end
-    end
-    if resetAging then --done so we can allow the RanchData time to update before we start aging again (Used to sync when we buy new animals)
-        agingActive = false
-        Wait(1000)
-        agingActive = true
-    end
-end)
+RanchData = {}
 
--- Cow Thread
 CreateThread(function()
     while true do
-        if not agingActive or RanchData.cows ~= "true" or IsInMission then
+        -- Check if aging is active and if we're not in a mission
+        if not agingActive or IsInMission then
             Wait(2000)
-        else
-            Wait(Config.animalSetup.cows.ageTimer)
-            TriggerServerEvent('bcc-ranch:IncreaseAnimalAge', RanchData.ranchid, 'cows', Config.animalSetup.cows.ageIncrease)
         end
-    end
-end)
 
--- Pig Thread
-CreateThread(function()
-    while true do
-        if not agingActive or RanchData.pigs ~= 'true' or IsInMission then
-            Wait(2000)
-        else
-            Wait(Config.animalSetup.pigs.ageTimer)
-            TriggerServerEvent('bcc-ranch:IncreaseAnimalAge', RanchData.ranchid, 'pigs', Config.animalSetup.pigs.ageIncrease)
-        end
-    end
-end)
+        -- Loop through all animal types (cows, pigs, sheep, goats, chickens)
+        for animalType, config in pairs(Config.animalSetup) do
+            if RanchData[animalType] == "true" then
+                devPrint(animalType .. " aging thread: Waiting for ageTimer")
+                Wait(config.ageTimer)  -- Wait for the specified timer for the current animal
 
--- Sheep Thread
-CreateThread(function()
-    while true do
-        if not agingActive or RanchData.sheeps ~= "true" or IsInMission then
-            Wait(2000)
-        else
-            Wait(Config.animalSetup.sheeps.ageTimer)
-            TriggerServerEvent('bcc-ranch:IncreaseAnimalAge', RanchData.ranchid, 'sheeps', Config.animalSetup.sheeps.ageIncrease)
+                -- Trigger the RPC to increase the animal age
+                BccUtils.RPC:Call("bcc-ranch:IncreaseAnimalAge", {
+                    ranchId = RanchData.ranchid,
+                    animalType = animalType,
+                    incAmount = config.ageIncrease
+                }, function(success)
+                    if success then
+                        devPrint("Successfully increased age for " .. animalType .. " in ranch: " .. RanchData.ranchid)
+                    else
+                        devPrint("Failed to increase age for " .. animalType .. " in ranch: " .. RanchData.ranchid)
+                    end
+                end)
+            end
         end
-    end
-end)
 
--- Goat Thread
-CreateThread(function()
-    while true do
-        if not agingActive or RanchData.goats ~= "true" or IsInMission then
-            Wait(2000)
-        else
-            Wait(Config.animalSetup.goats.ageTimer)
-            TriggerServerEvent('bcc-ranch:IncreaseAnimalAge', RanchData.ranchid, 'goats', Config.animalSetup.goats.ageIncrease)
-        end
-    end
-end)
-
--- Chicken Thread
-CreateThread(function()
-    while true do
-        if not agingActive or RanchData.chickens ~= "true" or IsInMission then
-            Wait(2000)
-        else
-            Wait(Config.animalSetup.chickens.ageTimer)
-            TriggerServerEvent('bcc-ranch:IncreaseAnimalAge', RanchData.ranchid, 'chickens', Config.animalSetup.chickens.ageIncrease)
-        end
+        -- Wait before checking again
+        Wait(1000)  -- Check again every second for any changes
     end
 end)

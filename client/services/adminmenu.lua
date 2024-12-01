@@ -111,11 +111,21 @@ function RanchSelected(ranchTable)
     })
 end
 
-CreateThread(function ()
+CreateThread(function()
     if Config.commands.manageRanches then
         RegisterCommand(Config.commands.manageRanches, function(source, args, rawCommand)
+            -- Check for admin permissions (or use whatever method you need)
             if IsAdmin then
-                TriggerServerEvent('bcc-ranch:GetAllRanches')
+                -- Calling the server-side RPC
+                BccUtils.RPC:Call("bcc-ranch:GetAllRanches", {}, function(success, ranches)
+                    if success then
+                        TriggerEvent('bcc-ranch:ShowAllRanchesMenu', ranches)
+                    else
+                        VORPcore.NotifyRightTip(source, _U("FailedToFetchRanches"), 4000)
+                    end
+                end)
+            else
+                VORPcore.NotifyRightTip(source, _U("NoPermission"), 4000)
             end
         end)
     end

@@ -77,6 +77,12 @@ function spawnWanderingAnimals(animalType)
     if selectedAnimal[animalType] then
         selectedAnimal[animalType]()
     end
+
+    if not spawnCoords or not spawnCoords.x or not spawnCoords.y or not spawnCoords.z then
+        VORPcore.NotifyRightTip(_U("noCoordsSet"), 4000)
+        return
+    end
+
 end
 
 function spawnpedsroam(coords, model, roamDist)

@@ -12,9 +12,9 @@ RegisterNetEvent('bcc-ranch:HarvestEggs', function()
     Citizen.InvokeNative(0x9587913B9E772D29, chickenCoop) -- PlaceEntityOnGroundProperly
     VORPcore.NotifyRightTip(_U("harvestEggs"), 4000)
     BccUtils.Misc.SetGps(coopCoords.x, coopCoords.y, coopCoords.z)
-    local blip = VORPutils.Blips:SetBlip(_U("harvestEggs"), 'blip_teamsters', 0.2, coopCoords.x, coopCoords.y, coopCoords.z)
+    local blip = BccUtils.Blips:SetBlip(_U("harvestEggs"), 'blip_teamsters', 0.2, coopCoords.x, coopCoords.y, coopCoords.z)
     coopCoords = GetEntityCoords(chickenCoop)
-    local PromptGroup = VORPutils.Prompts:SetupPromptGroup()
+    local PromptGroup = BccUtils.Prompts:SetupPromptGroup()
     local firstprompt = PromptGroup:RegisterPrompt(_U("harvestEggs"), 0x760A9C6F, 1, 1, true, 'hold', { timedeventhash = "MEDIUM_TIMED_EVENT" })
     while true do
         Wait(5)
@@ -25,15 +25,21 @@ RegisterNetEvent('bcc-ranch:HarvestEggs', function()
                 if Config.ranchSetup.choreSetup.choreMinigames then
                     MiniGame.Start('skillcheck', Config.ranchSetup.choreSetup.choreMinigameSettings, function(result)
                         if result.passed then
-                            TriggerServerEvent('bcc-ranch:AddItem', Config.animalSetup.chickens.eggItem, Config.animalSetup.chickens.eggItemAmount)
+                            BccUtils.RPC:Call("bcc-ranch:AddItem", { item = Config.animalSetup.chickens.eggItem, amount = Config.animalSetup.chickens.eggItemAmount }, function(success)
+                                if success then
+                                    devPrint("Item added successfully.")
+                                else
+                                    devPrint("Failed to add the item.")
+                                end
+                            end)
                             VORPcore.NotifyRightTip(_U("eggsHarvested"), 4000)
                             IsInMission = false
-                            VORPutils.Blips:RemoveBlip(blip.rawblip)
+                            BccUtils.Blips:RemoveBlip(blip.rawblip)
                             DeleteObject(chickenCoop)
                             return
                         else
                             IsInMission = false
-                            VORPutils.Blips:RemoveBlip(blip.rawblip)
+                            BccUtils.Blips:RemoveBlip(blip.rawblip)
                             DeleteObject(chickenCoop)
                             VORPcore.NotifyRightTip(_U("failed"), 4000)
                             return
@@ -41,10 +47,16 @@ RegisterNetEvent('bcc-ranch:HarvestEggs', function()
                     end)
                     break
                 else
-                    TriggerServerEvent('bcc-ranch:AddItem', Config.animalSetup.chickens.eggItem, Config.animalSetup.chickens.eggItemAmount)
+                    BccUtils.RPC:Call("bcc-ranch:AddItem", { item = Config.animalSetup.chickens.eggItem, amount = Config.animalSetup.chickens.eggItemAmount }, function(success)
+                        if success then
+                            devPrint("Item added successfully.")
+                        else
+                            devPrint("Failed to add the item.")
+                        end
+                    end)
                     VORPcore.NotifyRightTip(_U("eggsHarvested"), 4000)
                     IsInMission = false
-                    VORPutils.Blips:RemoveBlip(blip.rawblip)
+                    BccUtils.Blips:RemoveBlip(blip.rawblip)
                     DeleteObject(chickenCoop)
                     break
                 end
@@ -69,7 +81,7 @@ RegisterNetEvent('bcc-ranch:MilkCows', function()
     local cowCoords = json.decode(RanchData.cow_coords)
     createdPed = BccUtils.Ped.CreatePed(model, cowCoords.x, cowCoords.y, cowCoords.z - 1, true, true, false)
     BccUtils.Ped.SetStatic(createdPed)
-    local PromptGroup = VORPutils.Prompts:SetupPromptGroup()
+    local PromptGroup = BccUtils.Prompts:SetupPromptGroup()
     local firstprompt = PromptGroup:RegisterPrompt(_U("milkAnimal"), 0x760A9C6F, 1, 1, true, 'hold', { timedeventhash = "MEDIUM_TIMED_EVENT" })
     local cowDead = false
     while true do
@@ -98,7 +110,13 @@ RegisterNetEvent('bcc-ranch:MilkCows', function()
         MiniGame.Start('cowmilker', Config.ranchSetup.choreSetup.milkingMinigameConfig, function(result)
             if result.collected >= Config.animalSetup.cows.milkToCollect then
                 VORPcore.NotifyRightTip(_U("animalMilked"), 4000)
-                TriggerServerEvent('bcc-ranch:AddItem', Config.animalSetup.cows.milkItem, Config.animalSetup.cows.milkItemAmount)
+                BccUtils.RPC:Call("bcc-ranch:AddItem", { item = Config.animalSetup.cows.milkItem, amount = Config.animalSetup.cows.milkItemAmount }, function(success)
+                    if success then
+                        devPrint("Item added successfully.")
+                    else
+                        devPrint("Failed to add the item.")
+                    end
+                end)
                 DeletePed(createdPed)
                 IsInMission = false
             else
@@ -113,7 +131,13 @@ RegisterNetEvent('bcc-ranch:MilkCows', function()
         PlayAnim('script_rc@rch1@ig@ig_1_milkingthecow', 'milkingloop_john', 15000)
         Wait(16500)
         VORPcore.NotifyRightTip(_U("animalMilked"), 4000)
-        TriggerServerEvent('bcc-ranch:AddItem', Config.animalSetup.cows.milkItem, Config.animalSetup.cows.milkItemAmount)
+        BccUtils.RPC:Call("bcc-ranch:AddItem", { item = Config.animalSetup.cows.milkItem, amount = Config.animalSetup.cows.milkItemAmount }, function(success)
+            if success then
+                devPrint("Item added successfully.")
+            else
+                devPrint("Failed to add the item.")
+            end
+        end)
         DeletePed(createdPed)
     end
 end)
@@ -129,7 +153,7 @@ RegisterNetEvent('bcc-ranch:ShearSheeps', function()
     local Sheepcoords = json.decode(RanchData.sheep_coords)
     createdPed = BccUtils.Ped.CreatePed(model, Sheepcoords.x, Sheepcoords.y, Sheepcoords.z - 1, true, true, false)
     FreezeEntityPosition(createdPed, true)
-    local PromptGroup = VORPutils.Prompts:SetupPromptGroup()
+    local PromptGroup = BccUtils.Prompts:SetupPromptGroup()
     local firstprompt = PromptGroup:RegisterPrompt(_U("shearAnimal"), 0x760A9C6F, 1, 1, true, 'hold', { timedeventhash = "MEDIUM_TIMED_EVENT" })
     local sheepDead = false
     while true do
@@ -159,7 +183,13 @@ RegisterNetEvent('bcc-ranch:ShearSheeps', function()
         MiniGame.Start('skillcheck', Config.ranchSetup.choreSetup.choreMinigameSettings, function(result)
             if result.passed then
                 Wait(5000)
-                TriggerServerEvent('bcc-ranch:AddItem', Config.animalSetup.sheeps.sheepItem, Config.animalSetup.sheeps.sheepItemAmount)
+                BccUtils.RPC:Call("bcc-ranch:AddItem", { item = Config.animalSetup.sheeps.sheepItem, amount = Config.animalSetup.sheeps.sheepItemAmount }, function(success)
+                    if success then
+                        devPrint("Item added successfully.")
+                    else
+                        devPrint("Failed to add the item.")
+                    end
+                end)
                 VORPcore.NotifyRightTip(_U("animalSheared"), 4000)
                 IsInMission = false
                 DeletePed(createdPed)
@@ -178,7 +208,13 @@ RegisterNetEvent('bcc-ranch:ShearSheeps', function()
         PlayAnim('mech_inventory@crafting@fallbacks@in_hand@male_a', 'craft_trans_hold', 15000)
         Wait(16500)
         VORPcore.NotifyRightTip(_U("animalSheared"), 4000)
-        TriggerServerEvent('bcc-ranch:AddItem', Config.animalSetup.sheeps.sheepItem, Config.animalSetup.sheeps.sheepItemAmount)
+        BccUtils.RPC:Call("bcc-ranch:AddItem", { item = Config.animalSetup.sheeps.sheepItem, amount = Config.animalSetup.sheeps.sheepItemAmount }, function(success)
+            if success then
+                devPrint("Item added successfully.")
+            else
+                devPrint("Failed to add the item.")
+            end
+        end)
         DeletePed(createdPed)
     end
 end)

@@ -109,9 +109,30 @@ RegisterNetEvent('bcc-ranch:HerdAnimalClientHandler', function(animalType)
         if animalsNear then
             ClearGpsMultiRoute()
             if RanchData.ranchCondition ~= Config.ranchSetup.maxRanchCondition or count ~= tables.spawnAmount then
-                TriggerServerEvent('bcc-ranch:IncreaseAnimalsCond', RanchData.ranchid, animalType, tables.condIncreasePerHerd)
+                BccUtils.RPC:Call("bcc-ranch:IncreaseAnimalsCond", {
+                    ranchId = RanchData.ranchid,
+                    animalType = animalType,
+                    incAmount = tables.condIncreasePerHerd
+                }, function(success)
+                    if success then
+                        devPrint("Successfully increased animal condition for: " .. animalType .. " in ranch: " .. RanchData.ranchid)
+                    else
+                        devPrint("Failed to increase animal condition for: " .. animalType .. " in ranch: " .. RanchData.ranchid)
+                    end
+                end)
+                
             else
-                TriggerServerEvent('bcc-ranch:IncreaseAnimalsCond', RanchData.ranchid, animalType, tables.condIncreasePerHerdMaxRanchCond)
+                BccUtils.RPC:Call("bcc-ranch:IncreaseAnimalsCond", {
+                    ranchId = RanchData.ranchid,
+                    animalType = animalType,
+                    incAmount = tables.condIncreasePerHerdMaxRanchCond
+                }, function(success)
+                    if success then
+                        devPrint("Successfully increased animal condition for: " .. animalType .. " in ranch: " .. RanchData.ranchid)
+                    else
+                        devPrint("Failed to increase animal condition for: " .. animalType .. " in ranch: " .. RanchData.ranchid)
+                    end
+                end)
             end
             for k, v in pairs(peds) do
                 DeletePed(v)
@@ -123,5 +144,11 @@ RegisterNetEvent('bcc-ranch:HerdAnimalClientHandler', function(animalType)
         end
     end
     IsInMission = false
-    TriggerServerEvent('bcc-ranch:UpdateAnimalsOut', RanchData.ranchid, false)
+    BccUtils.RPC:Call("bcc-ranch:UpdateAnimalsOut", { ranchId = RanchData.ranchid, isOut = false }, function(success)
+        if success then
+            print("Animals out status updated successfully!")
+        else
+            print("Failed to update animals out status!")
+        end
+    end)
 end)

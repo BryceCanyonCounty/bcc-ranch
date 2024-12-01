@@ -12,7 +12,38 @@ function MainRanchMenu()
         label = _U("checkRanchCondition"),
         style = {}
     }, function()
-        VORPcore.NotifyRightTip(tostring(RanchData.ranchCondition) .. "/" .. Config.ranchSetup.maxRanchCondition, 4000)
+        local ranchCondMenu = BCCRanchMenu:RegisterPage("bcc-ranch:ranch:Cond:Menu")
+        ranchCondMenu:RegisterElement("header", {
+            value = _U("checkRanchCondition"),
+            slot = "header",
+            style = {}
+        })
+        ranchCondMenu:RegisterElement('line', {
+            slot = "header",
+            style = {}
+        })
+        TextDisplay = ranchCondMenu:RegisterElement('textdisplay', {
+            value = tostring(RanchData.ranchCondition) .. "/" .. Config.ranchSetup.maxRanchCondition,
+            style = {}
+        })
+        ranchCondMenu:RegisterElement('line', {
+            slot = "footer",
+            style = {}
+        })
+        ranchCondMenu:RegisterElement("button", {
+            label = _U("back"),
+            slot = "footer",
+            style = {}
+        }, function()
+            mainMenuPage:RouteTo()
+        end)
+        ranchCondMenu:RegisterElement('bottomline', {
+            slot = "footer",
+            style = {}
+        })
+        BCCRanchMenu:Open({
+            startupPage = ranchCondMenu
+        })
     end)
     mainMenuPage:RegisterElement("button", {
         label = _U("caretaking"),
