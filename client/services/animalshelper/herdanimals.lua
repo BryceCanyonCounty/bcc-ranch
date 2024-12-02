@@ -6,42 +6,42 @@ RegisterNetEvent('bcc-ranch:HerdAnimalClientHandler', function(animalType)
 
     local selectAnimalFuncts = {
         ['cows'] = function()
-            tables = Config.animalSetup.cows
+            tables = ConfigAnimals.animalSetup.cows
             spawnCoords = json.decode(RanchData.cow_coords)
             model = 'a_c_cow'
-            if tonumber(RanchData.cows_age) < Config.animalSetup.cows.AnimalGrownAge then
+            if tonumber(RanchData.cows_age) < ConfigAnimals.animalSetup.cows.AnimalGrownAge then
                 scale = 0.5
             end
         end,
         ['pigs'] = function()
-            tables = Config.animalSetup.pigs
+            tables = ConfigAnimals.animalSetup.pigs
             spawnCoords = json.decode(RanchData.pig_coords)
             model = 'a_c_pig_01'
-            if tonumber(RanchData.pigs_age) < Config.animalSetup.pigs.AnimalGrownAge then
+            if tonumber(RanchData.pigs_age) < ConfigAnimals.animalSetup.pigs.AnimalGrownAge then
                 scale = 0.5
             end
         end,
         ['sheeps'] = function()
-            tables = Config.animalSetup.sheeps
+            tables = ConfigAnimals.animalSetup.sheeps
             spawnCoords = json.decode(RanchData.sheep_coords)
             model = 'a_c_sheep_01'
-            if tonumber(RanchData.sheeps_age) < Config.animalSetup.sheeps.AnimalGrownAge then
+            if tonumber(RanchData.sheeps_age) < ConfigAnimals.animalSetup.sheeps.AnimalGrownAge then
                 scale = 0.5
             end
         end,
         ['goats'] = function()
-            tables = Config.animalSetup.goats
+            tables = ConfigAnimals.animalSetup.goats
             spawnCoords = json.decode(RanchData.goat_coords)
             model = 'a_c_goat_01'
-            if tonumber(RanchData.goats_age) < Config.animalSetup.goats.AnimalGrownAge then
+            if tonumber(RanchData.goats_age) < ConfigAnimals.animalSetup.goats.AnimalGrownAge then
                 scale = 0.5
             end
         end,
         ['chickens'] = function()
-            tables = Config.animalSetup.chickens
+            tables = ConfigAnimals.animalSetup.chickens
             spawnCoords = json.decode(RanchData.chicken_coords)
             model = 'a_c_chicken_01'
-            if tonumber(RanchData.chickens_age) < Config.animalSetup.chickens.AnimalGrownAge then
+            if tonumber(RanchData.chickens_age) < ConfigAnimals.animalSetup.chickens.AnimalGrownAge then
                 scale = 0.5
             end
         end
@@ -66,7 +66,7 @@ RegisterNetEvent('bcc-ranch:HerdAnimalClientHandler', function(animalType)
     SetRelAndFollowPlayer(peds)
     local herdLocation = json.decode(RanchData.herd_coords)
     BccUtils.Misc.SetGps(herdLocation.x, herdLocation.y, herdLocation.z)
-    local blip = BccUtils.Blip:SetBlip(_U("herdLocation"), Config.ranchSetup.ranchBlip, 0.2, herdLocation.x, herdLocation.y, herdLocation.z)
+    local blip = BccUtils.Blip:SetBlip(_U("herdLocation"), ConfigRanch.ranchSetup.ranchBlip, 0.2, herdLocation.x, herdLocation.y, herdLocation.z)
     VORPcore.NotifyRightTip(_U("herdAnimalsToLocation"), 4000)
 
     local count, animalsNear = tables.spawnAmount, false
@@ -108,7 +108,7 @@ RegisterNetEvent('bcc-ranch:HerdAnimalClientHandler', function(animalType)
         checkforDeadAnimal(RanchData.ranchcoordsVector3)
         if animalsNear then
             ClearGpsMultiRoute()
-            if RanchData.ranchCondition ~= Config.ranchSetup.maxRanchCondition or count ~= tables.spawnAmount then
+            if RanchData.ranchCondition ~= ConfigRanch.ranchSetup.maxRanchCondition or count ~= tables.spawnAmount then
                 BccUtils.RPC:Call("bcc-ranch:IncreaseAnimalsCond", {
                     ranchId = RanchData.ranchid,
                     animalType = animalType,

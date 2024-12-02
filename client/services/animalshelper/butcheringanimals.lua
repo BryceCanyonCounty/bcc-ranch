@@ -5,47 +5,47 @@ function ButcherAnimals(animalType)
 
     local selectAnimalFuncts = {
         ['cows'] = function()
-            if tonumber(RanchData.cows_age) < Config.animalSetup.cows.AnimalGrownAge then
+            if tonumber(RanchData.cows_age) < ConfigAnimals.animalSetup.cows.AnimalGrownAge then
                 VORPcore.NotifyRightTip(_U("tooYoung"), 4000)
                 return
             end
-            tables = Config.animalSetup.cows
+            tables = ConfigAnimals.animalSetup.cows
             model = 'a_c_cow'
             spawnCoords = json.decode(RanchData.cow_coords)
         end,
         ['pigs'] = function()
-            if tonumber(RanchData.pigs_age) < Config.animalSetup.pigs.AnimalGrownAge then
+            if tonumber(RanchData.pigs_age) < ConfigAnimals.animalSetup.pigs.AnimalGrownAge then
                 VORPcore.NotifyRightTip(_U("tooYoung"), 4000)
                 return
             end
-            tables = Config.animalSetup.pigs
+            tables = ConfigAnimals.animalSetup.pigs
             model = 'a_c_pig_01'
             spawnCoords = json.decode(RanchData.pig_coords)
         end,
         ['sheeps'] = function()
-            if tonumber(RanchData.sheeps_age) < Config.animalSetup.sheeps.AnimalGrownAge then
+            if tonumber(RanchData.sheeps_age) < ConfigAnimals.animalSetup.sheeps.AnimalGrownAge then
                 VORPcore.NotifyRightTip(_U("tooYoung"), 4000)
                 return
             end
-            tables = Config.animalSetup.sheeps
+            tables = ConfigAnimals.animalSetup.sheeps
             model = 'a_c_sheep_01'
             spawnCoords = json.decode(RanchData.sheep_coords)
         end,
         ['goats'] = function()
-            if tonumber(RanchData.goats_age) < Config.animalSetup.goats.AnimalGrownAge then
+            if tonumber(RanchData.goats_age) < ConfigAnimals.animalSetup.goats.AnimalGrownAge then
                 VORPcore.NotifyRightTip(_U("tooYoung"), 4000)
                 return
             end
-            tables = Config.animalSetup.goats
+            tables = ConfigAnimals.animalSetup.goats
             model = 'a_c_goat_01'
             spawnCoords = json.decode(RanchData.goat_coords)
         end,
         ['chickens'] = function()
-            if tonumber(RanchData.chickens_age) < Config.animalSetup.chickens.AnimalGrownAge then
+            if tonumber(RanchData.chickens_age) < ConfigAnimals.animalSetup.chickens.AnimalGrownAge then
                 VORPcore.NotifyRightTip(_U("tooYoung"), 4000)
                 return
             end
-            tables = Config.animalSetup.chickens
+            tables = ConfigAnimals.animalSetup.chickens
             model = 'a_c_chicken_01'
             spawnCoords = json.decode(RanchData.chicken_coords)
         end
@@ -80,7 +80,7 @@ function ButcherAnimals(animalType)
     end
 
     local PromptGroup = BccUtils.Prompts:SetupPromptGroup()
-    local firstprompt = PromptGroup:RegisterPrompt(_U("skinAnimal"), 0x760A9C6F, 1, 1, true, 'hold', { timedeventhash = "MEDIUM_TIMED_EVENT" })
+    local firstprompt = PromptGroup:RegisterPrompt(_U("skinAnimal"), BccUtils.Keys[ConfigRanch.ranchSetup.skinKey], 1, 1, true, 'hold', { timedeventhash = "MEDIUM_TIMED_EVENT" })
     while true do
         Wait(5)
         if IsEntityDead(PlayerPedId()) then break end

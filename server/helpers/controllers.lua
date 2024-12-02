@@ -10,7 +10,7 @@ local function checkOnlineRanchers(ranchId)
             if not GetPlayerPed(v.rancherSource) then
                 devPrint("Rancher with source " .. v.rancherSource .. " is offline. Removing from RanchersOnline.")
                 if v.doesRancherHaveAnimalsOut then
-                    MySQL.update.await("UPDATE ranch SET is_any_animals_out = 'false' WHERE ranchid = ?", { ranchId })
+                    MySQL.update.await("UPDATE bcc_ranch SET is_any_animals_out = 'false' WHERE ranchid = ?", { ranchId })
                 end
                 table.remove(RanchersOnline[ranchId], k)
             end
@@ -53,7 +53,7 @@ function UpdateAllRanchersRanchData(ranchId)
     checkOnlineRanchers(ranchId)
 
     -- Fetch ranch data
-    local ranchData = MySQL.query.await("SELECT * FROM ranch WHERE ranchid = ?", { ranchId })
+    local ranchData = MySQL.query.await("SELECT * FROM bcc_ranch WHERE ranchid = ?", { ranchId })
     if not ranchData or #ranchData == 0 or not ranchData[1].ranchcoords then
         devPrint("Invalid ranch data for ranchId: " .. ranchId)
         return
@@ -81,20 +81,20 @@ BccUtils.RPC:Register("bcc-ranch:GetAnimalCondition", function(params, cb)
 
     -- Define the query based on the animal type and get the max condition from Config
     if animalType == 'cows' then
-        conditionQuery = "SELECT cows_cond FROM ranch WHERE ranchid = ?"
-        maxCondition = Config.animalSetup.cows.maxCondition  -- Get max condition from config
+        conditionQuery = "SELECT cows_cond FROM bcc_ranch WHERE ranchid = ?"
+        maxCondition = ConfigAnimals.animalSetup.cows.maxCondition  -- Get max condition from config
     elseif animalType == 'chickens' then
-        conditionQuery = "SELECT chickens_cond FROM ranch WHERE ranchid = ?"
-        maxCondition = Config.animalSetup.chickens.maxCondition
+        conditionQuery = "SELECT chickens_cond FROM bcc_ranch WHERE ranchid = ?"
+        maxCondition = ConfigAnimals.animalSetup.chickens.maxCondition
     elseif animalType == 'pigs' then
-        conditionQuery = "SELECT pigs_cond FROM ranch WHERE ranchid = ?"
-        maxCondition = Config.animalSetup.pigs.maxCondition
+        conditionQuery = "SELECT pigs_cond FROM bcc_ranch WHERE ranchid = ?"
+        maxCondition = ConfigAnimals.animalSetup.pigs.maxCondition
     elseif animalType == 'sheeps' then
-        conditionQuery = "SELECT sheeps_cond FROM ranch WHERE ranchid = ?"
-        maxCondition = Config.animalSetup.sheeps.maxCondition
+        conditionQuery = "SELECT sheeps_cond FROM bcc_ranch WHERE ranchid = ?"
+        maxCondition = ConfigAnimals.animalSetup.sheeps.maxCondition
     elseif animalType == 'goats' then
-        conditionQuery = "SELECT goats_cond FROM ranch WHERE ranchid = ?"
-        maxCondition = Config.animalSetup.goats.maxCondition
+        conditionQuery = "SELECT goats_cond FROM bcc_ranch WHERE ranchid = ?"
+        maxCondition = ConfigAnimals.animalSetup.goats.maxCondition
     else
         devPrint("Error: Invalid animal type provided: " .. tostring(animalType))
         cb(nil)  -- Return nil to indicate an error
@@ -143,14 +143,14 @@ BccUtils.RPC:Register("bcc-ranch:CreateRanch", function(params, cb, source)
     end
 
     -- Check if the owner already owns a ranch
-    local ownerHasRanch = MySQL.query.await("SELECT * FROM ranch WHERE charidentifier = ?", { ownerCharId })
+    local ownerHasRanch = MySQL.query.await("SELECT * FROM bcc_ranch WHERE charidentifier = ?", { ownerCharId })
     if #ownerHasRanch > 0 then
         VORPcore.NotifyRightTip(source, _U("alreadyOwnsRanch"), 4000)
         cb(false) -- Indicate failure to the client
         return
     end
     -- Check for duplicate ranch names
-    local ranchNameExists = MySQL.query.await("SELECT * FROM ranch WHERE ranchname = ?", { ranchName })
+    local ranchNameExists = MySQL.query.await("SELECT * FROM bcc_ranch WHERE ranchname = ?", { ranchName })
     if #ranchNameExists > 0 then
         VORPcore.NotifyRightTip(_source, _U("ranchNameAlreadyExists"), 4000)
         cb(false)
@@ -158,13 +158,13 @@ BccUtils.RPC:Register("bcc-ranch:CreateRanch", function(params, cb, source)
     end
 
     -- Create the ranch
-    local insertSuccess = MySQL.insert.await("INSERT INTO ranch (ranchname, charidentifier, taxamount, ranch_radius_limit, ranchcoords) VALUES (?, ?, ?, ?, ?)", {
+    local insertSuccess = MySQL.insert.await("INSERT INTO bcc_ranch (ranchname, charidentifier, taxamount, ranch_radius_limit, ranchcoords) VALUES (?, ?, ?, ?, ?)", {
         ranchName, ownerCharId, ranchTaxAmount, ranchRadius, json.encode(coords)
     })
 
     if insertSuccess then
         -- Retrieve newly created ranch data
-        local insertedRanch = MySQL.query.await("SELECT * FROM ranch WHERE ranchname = ? AND charidentifier = ?", { ranchName, ownerCharId })
+        local insertedRanch = MySQL.query.await("SELECT * FROM bcc_ranch WHERE ranchname = ? AND charidentifier = ?", { ranchName, ownerCharId })
         if #insertedRanch > 0 then
             local ranch = insertedRanch[1]
             -- Update the owner's character with the ranch ID
@@ -192,13 +192,13 @@ RegisterServerEvent('bcc-ranch:CheckIfPlayerOwnsARanch', function()
     local _source = source
     devPrint("Checking if player owns a ranch for source: " .. _source)
     local character = VORPcore.getUser(_source).getUsedCharacter
-    local result = MySQL.query.await("SELECT * FROM ranch WHERE charidentifier = ?", { character.charIdentifier })
+    local result = MySQL.query.await("SELECT * FROM bcc_ranch WHERE charidentifier = ?", { character.charIdentifier })
     if #result > 0 then
         Wait(50)
         local data = {
             id = 'Player_' .. result[1].ranchid .. '_bcc-ranchinv',
             name = _U("inventoryName"),
-            limit = Config.ranchSetup.ranchInvLimit,
+            limit = ConfigRanch.ranchSetup.ranchInvLimit,
             acceptWeapons = true,
             shared = true,
             ignoreItemStackLimit = true,
@@ -232,13 +232,13 @@ AddEventHandler('bcc-ranch:CheckIfPlayerIsEmployee', function(recSource)
     local result = MySQL.query.await("SELECT ranchid FROM characters WHERE charidentifier = ?", { character.charIdentifier })
     if #result > 0 then
         if result[1].ranchid ~= nil and 0 then
-            local ranchEmployedAt = MySQL.query.await("SELECT * FROM ranch WHERE ranchid = ?", { result[1].ranchid })
+            local ranchEmployedAt = MySQL.query.await("SELECT * FROM bcc_ranch WHERE ranchid = ?", { result[1].ranchid })
             if #ranchEmployedAt > 0 then
                 Wait(50)
                 local data = {
                     id = 'Player_' .. result[1].ranchid .. '_bcc-ranchinv',
                     name = _U("inventoryName"),
-                    limit = Config.ranchSetup.ranchInvLimit,
+                    limit = ConfigRanch.ranchSetup.ranchInvLimit,
                     acceptWeapons = true,
                     shared = true,
                     ignoreItemStackLimit = true,
@@ -274,11 +274,11 @@ RegisterServerEvent('bcc-ranch:AffectLedger', function(ranchId, type, amount)
     local _source = source
     devPrint("Affecting ledger for ranchId: " .. ranchId .. " with type: " .. type .. " and amount: " .. amount)
     local character = VORPcore.getUser(_source).getUsedCharacter
-    local ranch = MySQL.query.await("SELECT * FROM ranch WHERE ranchid = ?", { ranchId })
+    local ranch = MySQL.query.await("SELECT * FROM bcc_ranch WHERE ranchid = ?", { ranchId })
     if #ranch > 0 then
         if type == "withdraw" then
             if tonumber(amount) <= tonumber(ranch[1].ledger) then
-                MySQL.update.await("UPDATE ranch SET ledger = ledger - ? WHERE ranchid = ?", { tonumber(amount), ranchId })
+                MySQL.update.await("UPDATE bcc_ranch SET ledger = ledger - ? WHERE ranchid = ?", { tonumber(amount), ranchId })
                 character.addCurrency(0, tonumber(amount))
                 VORPcore.NotifyRightTip(_source, _U("withdrewFromLedger") .. " " .. amount, 4000)
                 UpdateAllRanchersRanchData(ranchId)
@@ -287,7 +287,7 @@ RegisterServerEvent('bcc-ranch:AffectLedger', function(ranchId, type, amount)
             end
         else
             if tonumber(character.money) >= tonumber(amount) then
-                MySQL.update.await("UPDATE ranch SET ledger = ledger + ? WHERE ranchid = ?", { tonumber(amount), ranchId })
+                MySQL.update.await("UPDATE bcc_ranch SET ledger = ledger + ? WHERE ranchid = ?", { tonumber(amount), ranchId })
                 character.removeCurrency(0, tonumber(amount))
                 VORPcore.NotifyRightTip(_source, _U("depositedToLedger") .. " " .. amount, 4000)
                 UpdateAllRanchersRanchData(ranchId)
@@ -304,16 +304,16 @@ RegisterServerEvent("bcc-ranch:InsertChoreCoordsIntoDB", function(choreCoords, r
     devPrint("Inserting chore coords for ranchId: " .. ranchId .. " with choreType: " .. choreType)
     local databaseUpdate = {
         ['shovehaycoords'] = function()
-            MySQL.update.await("UPDATE ranch SET shovel_hay_coords = ? WHERE ranchid = ?", { json.encode(choreCoords), ranchId })
+            MySQL.update.await("UPDATE bcc_ranch SET shovel_hay_coords = ? WHERE ranchid = ?", { json.encode(choreCoords), ranchId })
         end,
         ['wateranimalcoords'] = function()
-            MySQL.update.await("UPDATE ranch SET water_animal_coords = ? WHERE ranchid = ?", { json.encode(choreCoords), ranchId })
+            MySQL.update.await("UPDATE bcc_ranch SET water_animal_coords = ? WHERE ranchid = ?", { json.encode(choreCoords), ranchId })
         end,
         ['repairtroughcoords'] = function()
-            MySQL.update.await("UPDATE ranch SET repair_trough_coords = ? WHERE ranchid = ?", { json.encode(choreCoords), ranchId })
+            MySQL.update.await("UPDATE bcc_ranch SET repair_trough_coords = ? WHERE ranchid = ?", { json.encode(choreCoords), ranchId })
         end,
         ['scooppoopcoords'] = function()
-            MySQL.update.await("UPDATE ranch SET scoop_poop_coords = ? WHERE ranchid = ?", { json.encode(choreCoords), ranchId })
+            MySQL.update.await("UPDATE bcc_ranch SET scoop_poop_coords = ? WHERE ranchid = ?", { json.encode(choreCoords), ranchId })
         end
     }
 
@@ -326,7 +326,7 @@ end)
 
 RegisterServerEvent("bcc-ranch:IncreaseRanchCond", function(ranchId, amount)
     devPrint("Increasing ranch condition for ranchId: " .. ranchId .. " by amount: " .. amount)
-    MySQL.update("UPDATE ranch SET ranchCondition = ranchCondition + ? WHERE ranchid = ?", { tonumber(amount), ranchId })
+    MySQL.update("UPDATE bcc_ranch SET ranchCondition = ranchCondition + ? WHERE ranchid = ?", { tonumber(amount), ranchId })
     UpdateAllRanchersRanchData(ranchId)
 end)
 
@@ -363,7 +363,7 @@ BccUtils.RPC:Register("bcc-ranch:AnimalBought", function(params, cb, source)
     devPrint("Animal bought for ranchId: " .. ranchId .. " with animalType: " .. animalType)
 
     local character = VORPcore.getUser(source).getUsedCharacter
-    local ranch = MySQL.query.await("SELECT * FROM ranch WHERE ranchid = ?", { ranchId })
+    local ranch = MySQL.query.await("SELECT * FROM bcc_ranch WHERE ranchid = ?", { ranchId })
     
     if #ranch > 0 then
         local function animalBoughtLogic(cost)
@@ -373,10 +373,10 @@ BccUtils.RPC:Register("bcc-ranch:AnimalBought", function(params, cb, source)
 
         local buyAnimalOptions = {
             ['cows'] = function()
-                if character.money >= Config.animalSetup.cows.cost then
+                if character.money >= ConfigAnimals.animalSetup.cows.cost then
                     if ranch[1].cows == "false" then
-                        animalBoughtLogic(Config.animalSetup.cows.cost)
-                        MySQL.update.await("UPDATE ranch SET cows='true' WHERE ranchid = ?", { ranchId })
+                        animalBoughtLogic(ConfigAnimals.animalSetup.cows.cost)
+                        MySQL.update.await("UPDATE bcc_ranch SET cows='true' WHERE ranchid = ?", { ranchId })
                         UpdateAllRanchersRanchData(ranchId)
                     else
                         VORPcore.NotifyRightTip(source, _U("alreadyOwnsAnimal"), 4000)
@@ -386,10 +386,10 @@ BccUtils.RPC:Register("bcc-ranch:AnimalBought", function(params, cb, source)
                 end
             end,
             ['pigs'] = function()
-                if character.money >= Config.animalSetup.pigs.cost then
+                if character.money >= ConfigAnimals.animalSetup.pigs.cost then
                     if ranch[1].pigs == "false" then
-                        animalBoughtLogic(Config.animalSetup.pigs.cost)
-                        MySQL.update.await("UPDATE ranch SET pigs='true' WHERE ranchid = ?", { ranchId })
+                        animalBoughtLogic(ConfigAnimals.animalSetup.pigs.cost)
+                        MySQL.update.await("UPDATE bcc_ranch SET pigs='true' WHERE ranchid = ?", { ranchId })
                         UpdateAllRanchersRanchData(ranchId)
                     else
                         VORPcore.NotifyRightTip(source, _U("alreadyOwnsAnimal"), 4000)
@@ -399,10 +399,10 @@ BccUtils.RPC:Register("bcc-ranch:AnimalBought", function(params, cb, source)
                 end
             end,
             ['sheeps'] = function()
-                if character.money >= Config.animalSetup.sheeps.cost then
+                if character.money >= ConfigAnimals.animalSetup.sheeps.cost then
                     if ranch[1].sheeps == "false" then
-                        animalBoughtLogic(Config.animalSetup.sheeps.cost)
-                        MySQL.update.await("UPDATE ranch SET sheeps='true' WHERE ranchid = ?", { ranchId })
+                        animalBoughtLogic(ConfigAnimals.animalSetup.sheeps.cost)
+                        MySQL.update.await("UPDATE bcc_ranch SET sheeps='true' WHERE ranchid = ?", { ranchId })
                         UpdateAllRanchersRanchData(ranchId)
                     else
                         VORPcore.NotifyRightTip(source, _U("alreadyOwnsAnimal"), 4000)
@@ -412,10 +412,10 @@ BccUtils.RPC:Register("bcc-ranch:AnimalBought", function(params, cb, source)
                 end
             end,
             ['goats'] = function()
-                if character.money >= Config.animalSetup.goats.cost then
+                if character.money >= ConfigAnimals.animalSetup.goats.cost then
                     if ranch[1].goats == "false" then
-                        animalBoughtLogic(Config.animalSetup.goats.cost)
-                        MySQL.update.await("UPDATE ranch SET goats='true' WHERE ranchid = ?", { ranchId })
+                        animalBoughtLogic(ConfigAnimals.animalSetup.goats.cost)
+                        MySQL.update.await("UPDATE bcc_ranch SET goats='true' WHERE ranchid = ?", { ranchId })
                         UpdateAllRanchersRanchData(ranchId)
                     else
                         VORPcore.NotifyRightTip(source, _U("alreadyOwnsAnimal"), 4000)
@@ -425,10 +425,10 @@ BccUtils.RPC:Register("bcc-ranch:AnimalBought", function(params, cb, source)
                 end
             end,
             ['chickens'] = function()
-                if character.money >= Config.animalSetup.chickens.cost then
+                if character.money >= ConfigAnimals.animalSetup.chickens.cost then
                     if ranch[1].chickens == "false" then
-                        animalBoughtLogic(Config.animalSetup.chickens.cost)
-                        MySQL.update.await("UPDATE ranch SET chickens='true' WHERE ranchid = ?", { ranchId })
+                        animalBoughtLogic(ConfigAnimals.animalSetup.chickens.cost)
+                        MySQL.update.await("UPDATE bcc_ranch SET chickens='true' WHERE ranchid = ?", { ranchId })
                         UpdateAllRanchersRanchData(ranchId)
                     else
                         VORPcore.NotifyRightTip(source, _U("alreadyOwnsAnimal"), 4000)
@@ -462,7 +462,7 @@ BccUtils.RPC:Register("bcc-ranch:InsertAnimalRelatedCoords", function(params)
     devPrint("Inserting animal-related coords for ranchId: " .. ranchId .. ", Type: " .. type)
 
     -- Fetch ranch data
-    local ranch = MySQL.query.await("SELECT * FROM ranch WHERE ranchid = ?", { ranchId })
+    local ranch = MySQL.query.await("SELECT * FROM bcc_ranch WHERE ranchid = ?", { ranchId })
     if not ranch or #ranch == 0 then
         devPrint("Error: No ranch found for ranchId: " .. ranchId)
         return { success = false, error = "No ranch found" }
@@ -473,36 +473,36 @@ BccUtils.RPC:Register("bcc-ranch:InsertAnimalRelatedCoords", function(params)
     local updateTable = {
         ['herdCoords'] = function()
             devPrint("Updating herdCoords for ranchId: " .. ranchId)
-            MySQL.update("UPDATE ranch SET herd_coords = ? WHERE ranchid = ?", { json.encode(coords), ranchId })
+            MySQL.update("UPDATE bcc_ranch SET herd_coords = ? WHERE ranchid = ?", { json.encode(coords), ranchId })
         end,
         ['feedWagonCoords'] = function()
             devPrint("Updating feedWagonCoords for ranchId: " .. ranchId)
-            MySQL.update("UPDATE ranch SET feed_wagon_coords = ? WHERE ranchid = ?", { json.encode(coords), ranchId })
+            MySQL.update("UPDATE bcc_ranch SET feed_wagon_coords = ? WHERE ranchid = ?", { json.encode(coords), ranchId })
         end,
         ['cowCoords'] = function()
             devPrint("Updating cowCoords for ranchId: " .. ranchId)
-            MySQL.update("UPDATE ranch SET cow_coords = ? WHERE ranchid = ?", { json.encode(coords), ranchId })
+            MySQL.update("UPDATE bcc_ranch SET cow_coords = ? WHERE ranchid = ?", { json.encode(coords), ranchId })
         end,
         ['pigCoords'] = function()
             devPrint("Updating pigCoords for ranchId: " .. ranchId)
-            MySQL.update("UPDATE ranch SET pig_coords = ? WHERE ranchid = ?", { json.encode(coords), ranchId })
+            MySQL.update("UPDATE bcc_ranch SET pig_coords = ? WHERE ranchid = ?", { json.encode(coords), ranchId })
         end,
         ['sheepCoords'] = function()
             devPrint("Updating sheepCoords for ranchId: " .. ranchId)
-            MySQL.update("UPDATE ranch SET sheep_coords = ? WHERE ranchid = ?", { json.encode(coords), ranchId })
+            MySQL.update("UPDATE bcc_ranch SET sheep_coords = ? WHERE ranchid = ?", { json.encode(coords), ranchId })
         end,
         ['goatCoords'] = function()
             devPrint("Updating goatCoords for ranchId: " .. ranchId)
-            MySQL.update("UPDATE ranch SET goat_coords = ? WHERE ranchid = ?", { json.encode(coords), ranchId })
+            MySQL.update("UPDATE bcc_ranch SET goat_coords = ? WHERE ranchid = ?", { json.encode(coords), ranchId })
         end,
         ['chickenCoords'] = function()
             devPrint("Updating chickenCoords for ranchId: " .. ranchId)
-            MySQL.update("UPDATE ranch SET chicken_coords = ? WHERE ranchid = ?", { json.encode(coords), ranchId })
+            MySQL.update("UPDATE bcc_ranch SET chicken_coords = ? WHERE ranchid = ?", { json.encode(coords), ranchId })
         end,
         ['coopCoords'] = function()
             devPrint("Updating coopCoords for ranchId: " .. ranchId)
-            MySQL.update("UPDATE ranch SET chicken_coop='true' WHERE ranchid = ?", { ranchId })
-            MySQL.update("UPDATE ranch SET chicken_coop_coords = ? WHERE ranchid = ?", { json.encode(coords), ranchId })
+            MySQL.update("UPDATE bcc_ranch SET chicken_coop='true' WHERE ranchid = ?", { ranchId })
+            MySQL.update("UPDATE bcc_ranch SET chicken_coop_coords = ? WHERE ranchid = ?", { json.encode(coords), ranchId })
         end
     }
 
@@ -552,11 +552,11 @@ BccUtils.RPC:Register("bcc-ranch:UpdateAnimalsOut", function(params, cb, recSour
             if recSource == v.rancherSource then
                 if isOut then
                     devPrint("Setting is_any_animals_out to true for ranchId: " .. ranchId)
-                    MySQL.update.await("UPDATE ranch SET is_any_animals_out='true' WHERE ranchid = ?", { ranchId })
+                    MySQL.update.await("UPDATE bcc_ranch SET is_any_animals_out='true' WHERE ranchid = ?", { ranchId })
                     v.doesRancherHaveAnimalsOut = true
                 else
                     devPrint("Setting is_any_animals_out to false for ranchId: " .. ranchId)
-                    MySQL.update.await("UPDATE ranch SET is_any_animals_out='false' WHERE ranchid = ?", { ranchId })
+                    MySQL.update.await("UPDATE bcc_ranch SET is_any_animals_out='false' WHERE ranchid = ?", { ranchId })
                     v.doesRancherHaveAnimalsOut = false
                 end
                 UpdateAllRanchersRanchData(ranchId)
@@ -584,19 +584,19 @@ BccUtils.RPC:Register("bcc-ranch:IncreaseAnimalsCond", function(params, cb, recS
     -- Animal condition update logic
     local animalOptionsTable = {
         ['cows'] = function()
-            MySQL.update("UPDATE ranch SET cows_cond = cows_cond + ? WHERE ranchid = ?", { incAmount, ranchId })
+            MySQL.update("UPDATE bcc_ranch SET cows_cond = cows_cond + ? WHERE ranchid = ?", { incAmount, ranchId })
         end,
         ['pigs'] = function()
-            MySQL.update("UPDATE ranch SET pigs_cond = pigs_cond + ? WHERE ranchid = ?", { incAmount, ranchId })
+            MySQL.update("UPDATE bcc_ranch SET pigs_cond = pigs_cond + ? WHERE ranchid = ?", { incAmount, ranchId })
         end,
         ['sheeps'] = function()
-            MySQL.update("UPDATE ranch SET sheeps_cond = sheeps_cond + ? WHERE ranchid = ?", { incAmount, ranchId })
+            MySQL.update("UPDATE bcc_ranch SET sheeps_cond = sheeps_cond + ? WHERE ranchid = ?", { incAmount, ranchId })
         end,
         ['goats'] = function()
-            MySQL.update("UPDATE ranch SET goats_cond = goats_cond + ? WHERE ranchid = ?", { incAmount, ranchId })
+            MySQL.update("UPDATE bcc_ranch SET goats_cond = goats_cond + ? WHERE ranchid = ?", { incAmount, ranchId })
         end,
         ['chickens'] = function()
-            MySQL.update("UPDATE ranch SET chickens_cond = chickens_cond + ? WHERE ranchid = ?", { incAmount, ranchId })
+            MySQL.update("UPDATE bcc_ranch SET chickens_cond = chickens_cond + ? WHERE ranchid = ?", { incAmount, ranchId })
         end
     }
 
@@ -628,11 +628,11 @@ BccUtils.RPC:Register("bcc-ranch:IncreaseAnimalAge", function(params, cb, source
 
     -- Define the animal types and their respective columns, max age, and max condition
     local animalTypes = {
-        ['cows'] = {column = "cows_age", conditionColumn = "cows_cond", maxAge = Config.animalSetup.cows.maxAge, maxCondition = Config.animalSetup.cows.maxCondition},
-        ['pigs'] = {column = "pigs_age", conditionColumn = "pigs_cond", maxAge = Config.animalSetup.pigs.maxAge, maxCondition = Config.animalSetup.pigs.maxCondition},
-        ['sheeps'] = {column = "sheeps_age", conditionColumn = "sheeps_cond", maxAge = Config.animalSetup.sheeps.maxAge, maxCondition = Config.animalSetup.sheeps.maxCondition},
-        ['goats'] = {column = "goats_age", conditionColumn = "goats_cond", maxAge = Config.animalSetup.goats.maxAge, maxCondition = Config.animalSetup.goats.maxCondition},
-        ['chickens'] = {column = "chickens_age", conditionColumn = "chickens_cond", maxAge = Config.animalSetup.chickens.maxAge, maxCondition = Config.animalSetup.chickens.maxCondition}
+        ['cows'] = {column = "cows_age", conditionColumn = "cows_cond", maxAge = ConfigAnimals.animalSetup.cows.maxAge, maxCondition = ConfigAnimals.animalSetup.cows.maxCondition},
+        ['pigs'] = {column = "pigs_age", conditionColumn = "pigs_cond", maxAge = ConfigAnimals.animalSetup.pigs.maxAge, maxCondition = ConfigAnimals.animalSetup.pigs.maxCondition},
+        ['sheeps'] = {column = "sheeps_age", conditionColumn = "sheeps_cond", maxAge = ConfigAnimals.animalSetup.sheeps.maxAge, maxCondition = ConfigAnimals.animalSetup.sheeps.maxCondition},
+        ['goats'] = {column = "goats_age", conditionColumn = "goats_cond", maxAge = ConfigAnimals.animalSetup.goats.maxAge, maxCondition = ConfigAnimals.animalSetup.goats.maxCondition},
+        ['chickens'] = {column = "chickens_age", conditionColumn = "chickens_cond", maxAge = ConfigAnimals.animalSetup.chickens.maxAge, maxCondition = ConfigAnimals.animalSetup.chickens.maxCondition}
     }
 
     -- Check if animalType exists in the animalTypes table
@@ -644,7 +644,7 @@ BccUtils.RPC:Register("bcc-ranch:IncreaseAnimalAge", function(params, cb, source
     end
 
     -- Query the current age and condition for the specific animal
-    MySQL.query("SELECT " .. animal.column .. ", " .. animal.conditionColumn .. " FROM ranch WHERE ranchid = ?", { ranchId }, function(results)
+    MySQL.query("SELECT " .. animal.column .. ", " .. animal.conditionColumn .. " FROM bcc_ranch WHERE ranchid = ?", { ranchId }, function(results)
         if results and #results > 0 then
             local result = results[1] -- Get the first result row
 
@@ -666,7 +666,7 @@ BccUtils.RPC:Register("bcc-ranch:IncreaseAnimalAge", function(params, cb, source
                 -- Only update the animal's age if it has not reached max age
                 if currentAge < animal.maxAge then
                     -- Update the animal's age in the database
-                    MySQL.update("UPDATE ranch SET " .. animal.column .. " = " .. animal.column .. " + ? WHERE ranchid = ?", { incAmount, ranchId })
+                    MySQL.update("UPDATE bcc_ranch SET " .. animal.column .. " = " .. animal.column .. " + ? WHERE ranchid = ?", { incAmount, ranchId })
                     UpdateAllRanchersRanchData(ranchId)
                     devPrint("Successfully increased age for " .. animalType .. " at ranchId: " .. ranchId)
                     cb(true) -- Return success callback
@@ -694,19 +694,19 @@ BccUtils.RPC:Register("bcc-ranch:ButcherAnimalHandler", function(params, cb, rec
 
     local butcherFuncts = {
         ['cows'] = function()
-            MySQL.update.await('UPDATE ranch SET cows = "false", cows_cond = 0, cows_age = 0 WHERE ranchid = ?', { ranchId })
+            MySQL.update.await('UPDATE bcc_ranch SET cows = "false", cows_cond = 0, cows_age = 0 WHERE ranchid = ?', { ranchId })
         end,
         ['chickens'] = function()
-            MySQL.update.await('UPDATE ranch SET chickens = "false", chickens_cond = 0, chickens_age = 0 WHERE ranchid = ?', { ranchId })
+            MySQL.update.await('UPDATE bcc_ranch SET chickens = "false", chickens_cond = 0, chickens_age = 0 WHERE ranchid = ?', { ranchId })
         end,
         ['pigs'] = function()
-            MySQL.update.await('UPDATE ranch SET pigs = "false", pigs_cond = 0, pigs_age = 0 WHERE ranchid = ?', { ranchId })
+            MySQL.update.await('UPDATE bcc_ranch SET pigs = "false", pigs_cond = 0, pigs_age = 0 WHERE ranchid = ?', { ranchId })
         end,
         ['sheeps'] = function()
-            MySQL.update.await('UPDATE ranch SET sheeps = "false", sheeps_cond = 0, sheeps_age = 0 WHERE ranchid = ?', { ranchId })
+            MySQL.update.await('UPDATE bcc_ranch SET sheeps = "false", sheeps_cond = 0, sheeps_age = 0 WHERE ranchid = ?', { ranchId })
         end,
         ['goats'] = function()
-            MySQL.update.await('UPDATE ranch SET goats = "false", goats_cond = 0, goats_age = 0 WHERE ranchid = ?', { ranchId })
+            MySQL.update.await('UPDATE bcc_ranch SET goats = "false", goats_cond = 0, goats_age = 0 WHERE ranchid = ?', { ranchId })
         end
     }
 
@@ -730,37 +730,36 @@ BccUtils.RPC:Register("bcc-ranch:AnimalSold", function(params, cb, recSource)
     local animalType = params.animalType
 
     -- Fetch the ranch data from the database
-    local ranch = MySQL.query.await("SELECT * FROM ranch WHERE ranchid = ?", { ranchId })
+    local ranch = MySQL.query.await("SELECT * FROM bcc_ranch WHERE ranchid = ?", { ranchId })
 
     if #ranch > 0 then
         devPrint("Animal sold for ranchId: " .. ranchId .. " with animalType: " .. animalType .. " and payAmount: " .. payAmount)
 
         -- Update ledger with the sale amount
-        MySQL.update.await("UPDATE ranch SET ledger = ledger + ? WHERE ranchid = ?", { payAmount, ranchId })
+        MySQL.update.await("UPDATE bcc_ranch SET ledger = ledger + ? WHERE ranchid = ?", { payAmount, ranchId })
 
         -- Define functions for each animal type that resets animal data
         local soldFuncts = {
             ['cows'] = function()
-                MySQL.update.await('UPDATE ranch SET cows = "false", cows_cond = 0, cows_age = 0 WHERE ranchid = ?', { ranchId })
+                MySQL.update.await('UPDATE bcc_ranch SET cows = "false", cows_cond = 0, cows_age = 0 WHERE ranchid = ?', { ranchId })
             end,
             ['chickens'] = function()
-                MySQL.update.await('UPDATE ranch SET chickens = "false", chickens_cond = 0, chickens_age = 0 WHERE ranchid = ?', { ranchId })
+                MySQL.update.await('UPDATE bcc_ranch SET chickens = "false", chickens_cond = 0, chickens_age = 0 WHERE ranchid = ?', { ranchId })
             end,
             ['pigs'] = function()
-                MySQL.update.await('UPDATE ranch SET pigs = "false", pigs_cond = 0, pigs_age = 0 WHERE ranchid = ?', { ranchId })
+                MySQL.update.await('UPDATE bcc_ranch SET pigs = "false", pigs_cond = 0, pigs_age = 0 WHERE ranchid = ?', { ranchId })
             end,
             ['sheeps'] = function()
-                MySQL.update.await('UPDATE ranch SET sheeps = "false", sheeps_cond = 0, sheeps_age = 0 WHERE ranchid = ?', { ranchId })
+                MySQL.update.await('UPDATE bcc_ranch SET sheeps = "false", sheeps_cond = 0, sheeps_age = 0 WHERE ranchid = ?', { ranchId })
             end,
             ['goats'] = function()
-                MySQL.update.await('UPDATE ranch SET goats = "false", goats_cond = 0, goats_age = 0 WHERE ranchid = ?', { ranchId })
+                MySQL.update.await('UPDATE bcc_ranch SET goats = "false", goats_cond = 0, goats_age = 0 WHERE ranchid = ?', { ranchId })
             end
         }
 
         -- Execute the corresponding function for the given animal type
         if soldFuncts[animalType] then
             soldFuncts[animalType]()
-            -- Update ranch data for all ranchers
             UpdateAllRanchersRanchData(ranchId)
         end
 
@@ -777,6 +776,6 @@ end)
 -- Cleanup --
 AddEventHandler('onResourceStop', function(resourceName)
     if (GetCurrentResourceName() == resourceName) then
-        MySQL.update.await("UPDATE ranch SET is_any_animals_out = 'false'")
+        MySQL.update.await("UPDATE bcc_ranch SET is_any_animals_out = 'false'")
     end
 end)
