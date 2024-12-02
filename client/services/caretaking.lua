@@ -181,33 +181,33 @@ BccUtils.RPC:Register("bcc-ranch:StartChoreClient", function(params)
     local selectedChoreFunc = {
         ['shovelhay'] = function()
             choreCoords = json.decode(RanchData.shovel_hay_coords)
-            incAmount = Config.ranchSetup.choreSetup.shovelHayCondInc
-            animTime = Config.ranchSetup.choreSetup.shovelHayAnimTime
+            incAmount = ConfigRanch.ranchSetup.choreSetup.shovelHayCondInc
+            animTime = ConfigRanch.ranchSetup.choreSetup.shovelHayAnimTime
             miniGame = 'skillcheck'
-            miniGameCfg = Config.ranchSetup.choreSetup.choreMinigameSettings
+            miniGameCfg = ConfigRanch.ranchSetup.choreSetup.choreMinigameSettings
         end,
         ['wateranimal'] = function()
             choreCoords = json.decode(RanchData.water_animal_coords)
             choreAnim = joaat('WORLD_HUMAN_BUCKET_POUR_LOW')
-            incAmount = Config.ranchSetup.choreSetup.waterAnimalsCondInc
-            animTime = Config.ranchSetup.choreSetup.waterAnimalsAnimTime
+            incAmount = ConfigRanch.ranchSetup.choreSetup.waterAnimalsCondInc
+            animTime = ConfigRanch.ranchSetup.choreSetup.waterAnimalsAnimTime
             miniGame = 'skillcheck'
-            miniGameCfg = Config.ranchSetup.choreSetup.choreMinigameSettings
+            miniGameCfg = ConfigRanch.ranchSetup.choreSetup.choreMinigameSettings
         end,
         ['repairfeedtrough'] = function()
             choreCoords = json.decode(RanchData.repair_trough_coords)
             choreAnim = joaat('PROP_HUMAN_REPAIR_WAGON_WHEEL_ON_SMALL')
-            incAmount = Config.ranchSetup.choreSetup.repairFeedTroughCondInc
-            animTime = Config.ranchSetup.choreSetup.repairFeedTroughAnimTime
+            incAmount = ConfigRanch.ranchSetup.choreSetup.repairFeedTroughCondInc
+            animTime = ConfigRanch.ranchSetup.choreSetup.repairFeedTroughAnimTime
             miniGame = 'hammertime'
             miniGameCfg = hammerTimeCfg
         end,
         ['scooppoop'] = function()
             choreCoords = json.decode(RanchData.scoop_poop_coords)
-            incAmount = Config.ranchSetup.choreSetup.shovelPoopCondInc
-            animTime = Config.ranchSetup.choreSetup.shovelPoopAnimTime
+            incAmount = ConfigRanch.ranchSetup.choreSetup.shovelPoopCondInc
+            animTime = ConfigRanch.ranchSetup.choreSetup.shovelPoopAnimTime
             miniGame = 'skillcheck'
-            miniGameCfg = Config.ranchSetup.choreSetup.choreMinigameSettings
+            miniGameCfg = ConfigRanch.ranchSetup.choreSetup.choreMinigameSettings
         end
     }
 
@@ -235,7 +235,7 @@ BccUtils.RPC:Register("bcc-ranch:StartChoreClient", function(params)
     VORPcore.NotifyRightTip(_U("gotoChoreLocation"), 4000)
     blip = BccUtils.Blip:SetBlip(_U("choreLocation"), 960467426, 0.2, choreCoords.x, choreCoords.y, choreCoords.z)
     local PromptGroup = BccUtils.Prompts:SetupPromptGroup()
-    local firstprompt = PromptGroup:RegisterPrompt(_U("startChore"), 0x760A9C6F, 1, 1, true, 'hold', {timedeventhash = "MEDIUM_TIMED_EVENT"})
+    local firstprompt = PromptGroup:RegisterPrompt(_U("startChore"), BccUtils.Keys[ConfigRanch.ranchSetup.choreKey], 1, 1, true, 'hold', {timedeventhash = "MEDIUM_TIMED_EVENT"})
 
     -- Monitor player interaction with the chore
     while true do
@@ -255,7 +255,7 @@ BccUtils.RPC:Register("bcc-ranch:StartChoreClient", function(params)
         local dist = GetDistanceBetweenCoords(choreCoords.x, choreCoords.y, choreCoords.z, pCoords.x, pCoords.y, pCoords.z, true)
 
         if dist < 5 then
-            PromptGroup:ShowGroup("Chore")
+            PromptGroup:ShowGroup(_U('chore'))
             if firstprompt:HasCompleted() then
                 -- Play the chore
                 local function playChore()
@@ -267,7 +267,7 @@ BccUtils.RPC:Register("bcc-ranch:StartChoreClient", function(params)
                             cb(false)
                         else
                             if choreType == 'scooppoop' then
-                                BccUtils.RPC:Call("bcc-ranch:AddItem", { item = Config.ranchSetup.choreSetup.shovelPoopRewardItem, amount = Config.ranchSetup.choreSetup.shovelPoopRewardAmount }, function(success)
+                                BccUtils.RPC:Call("bcc-ranch:AddItem", { item = ConfigRanch.ranchSetup.choreSetup.shovelPoopRewardItem, amount = ConfigRanch.ranchSetup.choreSetup.shovelPoopRewardAmount }, function(success)
                                     if success then
                                         devPrint("Item added successfully.")
                                     else
@@ -307,7 +307,7 @@ BccUtils.RPC:Register("bcc-ranch:StartChoreClient", function(params)
                 end
 
                 -- Handle minigame or direct execution
-                if Config.ranchSetup.choreSetup.choreMinigames then
+                if ConfigRanch.ranchSetup.choreSetup.choreMinigames then
                     MiniGame.Start(miniGame, miniGameCfg, function(result)
                         if result.result or result.passed then
                             playChore()

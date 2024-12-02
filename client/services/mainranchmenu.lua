@@ -8,43 +8,19 @@ function MainRanchMenu()
         slot = "header",
         style = {}
     })
-    mainMenuPage:RegisterElement("button", {
-        label = _U("checkRanchCondition"),
+    mainMenuPage:RegisterElement('line', {
+        slot = "header",
         style = {}
-    }, function()
-        local ranchCondMenu = BCCRanchMenu:RegisterPage("bcc-ranch:ranch:Cond:Menu")
-        ranchCondMenu:RegisterElement("header", {
-            value = _U("checkRanchCondition"),
-            slot = "header",
-            style = {}
-        })
-        ranchCondMenu:RegisterElement('line', {
-            slot = "header",
-            style = {}
-        })
-        TextDisplay = ranchCondMenu:RegisterElement('textdisplay', {
-            value = tostring(RanchData.ranchCondition) .. "/" .. Config.ranchSetup.maxRanchCondition,
-            style = {}
-        })
-        ranchCondMenu:RegisterElement('line', {
-            slot = "footer",
-            style = {}
-        })
-        ranchCondMenu:RegisterElement("button", {
-            label = _U("back"),
-            slot = "footer",
-            style = {}
-        }, function()
-            mainMenuPage:RouteTo()
-        end)
-        ranchCondMenu:RegisterElement('bottomline', {
-            slot = "footer",
-            style = {}
-        })
-        BCCRanchMenu:Open({
-            startupPage = ranchCondMenu
-        })
-    end)
+    })
+    TextDisplay = mainMenuPage:RegisterElement('textdisplay', {
+        value = _U("checkRanchCondition") .. tostring(RanchData.ranchCondition) .. "/" .. ConfigRanch.ranchSetup.maxRanchCondition ,
+        slot = "header",
+        style = {}
+    })
+    mainMenuPage:RegisterElement('line', {
+        slot = "header",
+        style = {}
+    })
     mainMenuPage:RegisterElement("button", {
         label = _U("caretaking"),
         style = {}

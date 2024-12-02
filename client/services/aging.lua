@@ -9,7 +9,7 @@ CreateThread(function()
         end
 
         -- Loop through all animal types (cows, pigs, sheep, goats, chickens)
-        for animalType, config in pairs(Config.animalSetup) do
+        for animalType, config in pairs(ConfigAnimals.animalSetup) do
             if RanchData[animalType] == "true" then
                 devPrint(animalType .. " aging thread: Waiting for ageTimer")
                 Wait(config.ageTimer)  -- Wait for the specified timer for the current animal
