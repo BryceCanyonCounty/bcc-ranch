@@ -1,4 +1,4 @@
-{\rtf1}Config = {
+Config = {
     defaultlang = "en_lang", -- set your language
     devMode = false, -- Leave false on live server
     adminGroup = "admin", --Name of the group to set admin (in order to be an admin you must have the group admin on the characters table)
