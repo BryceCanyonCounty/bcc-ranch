@@ -35,11 +35,11 @@ BccUtils.RPC:Register("bcc-ranch:PlayerOwnsARanch", function(params)
     RanchData.ranchcoordsVector3 = vector3(RanchData.ranchcoords.x, RanchData.ranchcoords.y, RanchData.ranchcoords.z)
 
     -- Create ranch blip
-    ranchBlip = BccUtils.Blip:SetBlip(RanchData.ranchname, Config.ranchSetup.ranchBlip, 0.2, RanchData.ranchcoords.x, RanchData.ranchcoords.y, RanchData.ranchcoords.z)
+    ranchBlip = BccUtils.Blip:SetBlip(RanchData.ranchname, ConfigRanch.ranchSetup.ranchBlip, 0.2, RanchData.ranchcoords.x, RanchData.ranchcoords.y, RanchData.ranchcoords.z)
 
     -- Set up ranch management prompt
     local promptGroup = BccUtils.Prompts:SetupPromptGroup()
-    local firstprompt = promptGroup:RegisterPrompt(_U("manage"), Config.ranchSetup.manageRanchKey, 1, 1, true, 'hold', {timedeventhash = "MEDIUM_TIMED_EVENT"})
+    local firstprompt = promptGroup:RegisterPrompt(_U("manage"), BccUtils.Keys[ConfigRanch.ranchSetup.manageRanchKey], 1, 1, true, 'hold', {timedeventhash = "MEDIUM_TIMED_EVENT"})
 
     -- Command for managing the ranch
     if Config.commands.manageMyRanchCommand then

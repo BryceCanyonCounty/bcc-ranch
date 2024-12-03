@@ -67,8 +67,8 @@ end
 function SetRelAndFollowPlayer(table) --will set the peds relation with player and then have ped follow player
   for k, v in pairs(table) do
     relationshipsetup(v, 1)
-    TaskFollowToOffsetOfEntity(v, PlayerPedId(), Config.ranchSetup.animalFollowSettings.offsetX,
-      Config.ranchSetup.animalFollowSettings.offsetY, Config.ranchSetup.animalFollowSettings.offsetZ, 1, -1, 5, true,
-      true, Config.ranchSetup.animalsWalkOnly, true, true, true)
+    TaskFollowToOffsetOfEntity(v, PlayerPedId(), ConfigRanch.ranchSetup.animalFollowSettings.offsetX,
+      ConfigRanch.ranchSetup.animalFollowSettings.offsetY, ConfigRanch.ranchSetup.animalFollowSettings.offsetZ, 1, -1, 5, true,
+      true, ConfigRanch.ranchSetup.animalsWalkOnly, true, true, true)
   end
 end

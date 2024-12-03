@@ -39,17 +39,17 @@ end)
 
 CreateThread(function()
     -- Ensure a valid interval is set
-    if Config.ranchSetup.ranchConditionDecreaseInterval <= 0 then
+    if ConfigRanch.ranchSetup.ranchConditionDecreaseInterval <= 0 then
         devPrint("Ranch condition decrease interval is not set or invalid. Exiting thread.")
         return
     end
 
     while true do
         -- Wait for the configured interval
-        Wait(Config.ranchSetup.ranchConditionDecreaseInterval)
+        Wait(ConfigRanch.ranchSetup.ranchConditionDecreaseInterval)
 
         -- Fetch all ranches with relevant fields
-        local allRanches = MySQL.query.await("SELECT ranchid, ranchCondition FROM ranch")
+        local allRanches = MySQL.query.await("SELECT ranchid, ranchCondition FROM bcc_ranch")
         if not allRanches or #allRanches == 0 then
             devPrint("No ranches found. Retrying in 15 seconds.")
             Wait(15000)
@@ -59,11 +59,11 @@ CreateThread(function()
                 if currentCondition > 0 then
                     -- Decrease ranch condition in the database
                     MySQL.update.await(
-                        "UPDATE ranch SET ranchCondition = ranchCondition - ? WHERE ranchid = ?",
-                        { Config.ranchSetup.ranchConditionDecreaseAmount, ranch.ranchid }
+                        "UPDATE bcc_ranch SET ranchCondition = ranchCondition - ? WHERE ranchid = ?",
+                        { ConfigRanch.ranchSetup.ranchConditionDecreaseAmount, ranch.ranchid }
                     )
                     devPrint("RanchID: " ..
-                    ranch.ranchid .. " condition decreased by " .. Config.ranchSetup.ranchConditionDecreaseAmount)
+                    ranch.ranchid .. " condition decreased by " .. ConfigRanch.ranchSetup.ranchConditionDecreaseAmount)
 
                     -- Update online ranchers if they exist
                     local onlineRanchers = RanchersOnline[ranch.ranchid]
@@ -72,7 +72,7 @@ CreateThread(function()
                         UpdateAllRanchersRanchData(ranch.ranchid)
                     end
                 else
-                    devPrint("RanchID: " .. ranch.ranchid .. " already has a condition of 0. Skipping.")
+                    --devPrint("RanchID: " .. ranch.ranchid .. " already has a condition of 0. Skipping.")
                 end
             end
         end

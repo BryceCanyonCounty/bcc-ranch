@@ -22,7 +22,7 @@ end
 -- function for getting the hay off the wagon and placing on the ground
 local function pickUpAndDropHay(crate, vehicle)
     local PromptGroup2 = BccUtils.Prompts:SetupPromptGroup()
-    local firstprompt2 = PromptGroup2:RegisterPrompt(_U("dropHay"), 0x760A9C6F, 1, 1, true, 'hold',
+    local firstprompt2 = PromptGroup2:RegisterPrompt(_U("dropHay"), BccUtils.Keys[ConfigRanch.ranchSetup.dropHayKey], 1, 1, true, 'hold',
         { timedeventhash = "MEDIUM_TIMED_EVENT" })
     while true do
         Wait(5)
@@ -58,47 +58,47 @@ RegisterNetEvent('bcc-ranch:FeedAnimals', function(animalType)
 
     local selectAnimalFuncts = {
         ['cows'] = function()
-            tables = Config.animalSetup.cows
+            tables = ConfigAnimals.animalSetup.cows
             model = 'a_c_cow'
             eatAnim = joaat("WORLD_ANIMAL_COW_EATING_GROUND")
             spawnCoords = json.decode(RanchData.cow_coords)
-            if tonumber(RanchData.cows_age) < Config.animalSetup.cows.AnimalGrownAge then
+            if tonumber(RanchData.cows_age) < ConfigAnimals.animalSetup.cows.AnimalGrownAge then
                 scale = 0.5
             end
         end,
         ['pigs'] = function()
-            tables = Config.animalSetup.pigs
+            tables = ConfigAnimals.animalSetup.pigs
             model = 'a_c_pig_01'
             spawnCoords = json.decode(RanchData.pig_coords)
             eatAnim = joaat("WORLD_ANIMAL_PIG_EAT_CARCASS")
-            if tonumber(RanchData.pigs_age) < Config.animalSetup.pigs.AnimalGrownAge then
+            if tonumber(RanchData.pigs_age) < ConfigAnimals.animalSetup.pigs.AnimalGrownAge then
                 scale = 0.5
             end
         end,
         ['sheeps'] = function()
-            tables = Config.animalSetup.sheeps
+            tables = ConfigAnimals.animalSetup.sheeps
             model = 'a_c_sheep_01'
             spawnCoords = json.decode(RanchData.sheep_coords)
             eatAnim = joaat("WORLD_ANIMAL_SHEEP_EATING_GROUND")
-            if tonumber(RanchData.sheeps_age) < Config.animalSetup.sheeps.AnimalGrownAge then
+            if tonumber(RanchData.sheeps_age) < ConfigAnimals.animalSetup.sheeps.AnimalGrownAge then
                 scale = 0.5
             end
         end,
         ['goats'] = function()
-            tables = Config.animalSetup.goats
+            tables = ConfigAnimals.animalSetup.goats
             model = 'a_c_goat_01'
             spawnCoords = json.decode(RanchData.goat_coords)
             eatAnim = joaat("PROP_ANIMAL_GOAT_EAT_TROUGH")
-            if tonumber(RanchData.goats_age) < Config.animalSetup.goats.AnimalGrownAge then
+            if tonumber(RanchData.goats_age) < ConfigAnimals.animalSetup.goats.AnimalGrownAge then
                 scale = 0.5
             end
         end,
         ['chickens'] = function()
-            tables = Config.animalSetup.chickens
+            tables = ConfigAnimals.animalSetup.chickens
             model = 'a_c_chicken_01'
             eatAnim = joaat("WORLD_ANIMAL_CHICKEN_EATING")
             spawnCoords = json.decode(RanchData.chicken_coords)
-            if tonumber(RanchData.chickens_age) < Config.animalSetup.chickens.AnimalGrownAge then
+            if tonumber(RanchData.chickens_age) < ConfigAnimals.animalSetup.chickens.AnimalGrownAge then
                 scale = 0.5
             end
         end
@@ -212,7 +212,7 @@ RegisterNetEvent('bcc-ranch:FeedAnimals', function(animalType)
 
     local repAmount = 0
     local PromptGroup2 = BccUtils.Prompts:SetupPromptGroup()
-    local firstprompt2 = PromptGroup2:RegisterPrompt(_U("pickupHay"), 0x760A9C6F, 1, 1, true, 'hold',
+    local firstprompt2 = PromptGroup2:RegisterPrompt(_U("pickupHay"), BccUtils.Keys[ConfigRanch.ranchSetup.pickupHayKey], 1, 1, true, 'hold',
         { timedeventhash = "MEDIUM_TIMED_EVENT" })
     repeat
         while true do

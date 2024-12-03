@@ -15,17 +15,17 @@ RegisterNetEvent('bcc-ranch:HarvestEggs', function()
     local blip = BccUtils.Blips:SetBlip(_U("harvestEggs"), 'blip_teamsters', 0.2, coopCoords.x, coopCoords.y, coopCoords.z)
     coopCoords = GetEntityCoords(chickenCoop)
     local PromptGroup = BccUtils.Prompts:SetupPromptGroup()
-    local firstprompt = PromptGroup:RegisterPrompt(_U("harvestEggs"), 0x760A9C6F, 1, 1, true, 'hold', { timedeventhash = "MEDIUM_TIMED_EVENT" })
+    local firstprompt = PromptGroup:RegisterPrompt(_U("harvestEggs"), BccUtils.Keys[ConfigRanch.ranchSetup.harvestEggsKey], 1, 1, true, 'hold', { timedeventhash = "MEDIUM_TIMED_EVENT" })
     while true do
         Wait(5)
         if IsEntityDead(PlayerPedId()) then break end
         if #(GetEntityCoords(PlayerPedId()) - coopCoords) < 3 then
             PromptGroup:ShowGroup('')
             if firstprompt:HasCompleted() then
-                if Config.ranchSetup.choreSetup.choreMinigames then
-                    MiniGame.Start('skillcheck', Config.ranchSetup.choreSetup.choreMinigameSettings, function(result)
+                if ConfigRanch.ranchSetup.choreSetup.choreMinigames then
+                    MiniGame.Start('skillcheck', ConfigRanch.ranchSetup.choreSetup.choreMinigameSettings, function(result)
                         if result.passed then
-                            BccUtils.RPC:Call("bcc-ranch:AddItem", { item = Config.animalSetup.chickens.eggItem, amount = Config.animalSetup.chickens.eggItemAmount }, function(success)
+                            BccUtils.RPC:Call("bcc-ranch:AddItem", { item = ConfigAnimals.animalSetup.chickens.eggItem, amount = ConfigAnimals.animalSetup.chickens.eggItemAmount }, function(success)
                                 if success then
                                     devPrint("Item added successfully.")
                                 else
@@ -47,7 +47,7 @@ RegisterNetEvent('bcc-ranch:HarvestEggs', function()
                     end)
                     break
                 else
-                    BccUtils.RPC:Call("bcc-ranch:AddItem", { item = Config.animalSetup.chickens.eggItem, amount = Config.animalSetup.chickens.eggItemAmount }, function(success)
+                    BccUtils.RPC:Call("bcc-ranch:AddItem", { item = ConfigAnimals.animalSetup.chickens.eggItem, amount = ConfigAnimals.animalSetup.chickens.eggItemAmount }, function(success)
                         if success then
                             devPrint("Item added successfully.")
                         else
@@ -82,7 +82,7 @@ RegisterNetEvent('bcc-ranch:MilkCows', function()
     createdPed = BccUtils.Ped.CreatePed(model, cowCoords.x, cowCoords.y, cowCoords.z - 1, true, true, false)
     BccUtils.Ped.SetStatic(createdPed)
     local PromptGroup = BccUtils.Prompts:SetupPromptGroup()
-    local firstprompt = PromptGroup:RegisterPrompt(_U("milkAnimal"), 0x760A9C6F, 1, 1, true, 'hold', { timedeventhash = "MEDIUM_TIMED_EVENT" })
+    local firstprompt = PromptGroup:RegisterPrompt(_U("milkAnimal"), BccUtils.Keys[ConfigRanch.ranchSetup.milkAnimalKey], 1, 1, true, 'hold', { timedeventhash = "MEDIUM_TIMED_EVENT" })
     local cowDead = false
     while true do
         Wait(5)
@@ -104,13 +104,13 @@ RegisterNetEvent('bcc-ranch:MilkCows', function()
         return
     end
 
-    if Config.ranchSetup.choreSetup.choreMinigames then
+    if ConfigRanch.ranchSetup.choreSetup.choreMinigames then
         PlayAnim('script_rc@rch1@ig@ig_1_milkingthecow', 'milkingloop_john', -1)
         VORPcore.NotifyRightTip(_U("milkingCow"), 4000)
-        MiniGame.Start('cowmilker', Config.ranchSetup.choreSetup.milkingMinigameConfig, function(result)
-            if result.collected >= Config.animalSetup.cows.milkToCollect then
+        MiniGame.Start('cowmilker', ConfigRanch.ranchSetup.choreSetup.milkingMinigameConfig, function(result)
+            if result.collected >= ConfigAnimals.animalSetup.cows.milkToCollect then
                 VORPcore.NotifyRightTip(_U("animalMilked"), 4000)
-                BccUtils.RPC:Call("bcc-ranch:AddItem", { item = Config.animalSetup.cows.milkItem, amount = Config.animalSetup.cows.milkItemAmount }, function(success)
+                BccUtils.RPC:Call("bcc-ranch:AddItem", { item = ConfigAnimals.animalSetup.cows.milkItem, amount = ConfigAnimals.animalSetup.cows.milkItemAmount }, function(success)
                     if success then
                         devPrint("Item added successfully.")
                     else
@@ -131,7 +131,7 @@ RegisterNetEvent('bcc-ranch:MilkCows', function()
         PlayAnim('script_rc@rch1@ig@ig_1_milkingthecow', 'milkingloop_john', 15000)
         Wait(16500)
         VORPcore.NotifyRightTip(_U("animalMilked"), 4000)
-        BccUtils.RPC:Call("bcc-ranch:AddItem", { item = Config.animalSetup.cows.milkItem, amount = Config.animalSetup.cows.milkItemAmount }, function(success)
+        BccUtils.RPC:Call("bcc-ranch:AddItem", { item = ConfigAnimals.animalSetup.cows.milkItem, amount = ConfigAnimals.animalSetup.cows.milkItemAmount }, function(success)
             if success then
                 devPrint("Item added successfully.")
             else
@@ -154,7 +154,7 @@ RegisterNetEvent('bcc-ranch:ShearSheeps', function()
     createdPed = BccUtils.Ped.CreatePed(model, Sheepcoords.x, Sheepcoords.y, Sheepcoords.z - 1, true, true, false)
     FreezeEntityPosition(createdPed, true)
     local PromptGroup = BccUtils.Prompts:SetupPromptGroup()
-    local firstprompt = PromptGroup:RegisterPrompt(_U("shearAnimal"), 0x760A9C6F, 1, 1, true, 'hold', { timedeventhash = "MEDIUM_TIMED_EVENT" })
+    local firstprompt = PromptGroup:RegisterPrompt(_U("shearAnimal"), BccUtils.Keys[ConfigRanch.ranchSetup.shearAnimalKey], 1, 1, true, 'hold', { timedeventhash = "MEDIUM_TIMED_EVENT" })
     local sheepDead = false
     while true do
         Wait(5)
@@ -176,14 +176,14 @@ RegisterNetEvent('bcc-ranch:ShearSheeps', function()
         return
     end
 
-    if Config.ranchSetup.choreSetup.choreMinigames then
+    if ConfigRanch.ranchSetup.choreSetup.choreMinigames then
         PlayAnim('mech_inventory@crafting@fallbacks@in_hand@male_a', 'craft_trans_hold', -1)
         VORPcore.NotifyRightTip(_U("shearingAnimal"), 4000)
         Wait(5000)
-        MiniGame.Start('skillcheck', Config.ranchSetup.choreSetup.choreMinigameSettings, function(result)
+        MiniGame.Start('skillcheck', ConfigRanch.ranchSetup.choreSetup.choreMinigameSettings, function(result)
             if result.passed then
                 Wait(5000)
-                BccUtils.RPC:Call("bcc-ranch:AddItem", { item = Config.animalSetup.sheeps.sheepItem, amount = Config.animalSetup.sheeps.sheepItemAmount }, function(success)
+                BccUtils.RPC:Call("bcc-ranch:AddItem", { item = ConfigAnimals.animalSetup.sheeps.sheepItem, amount = ConfigAnimals.animalSetup.sheeps.sheepItemAmount }, function(success)
                     if success then
                         devPrint("Item added successfully.")
                     else
@@ -208,7 +208,7 @@ RegisterNetEvent('bcc-ranch:ShearSheeps', function()
         PlayAnim('mech_inventory@crafting@fallbacks@in_hand@male_a', 'craft_trans_hold', 15000)
         Wait(16500)
         VORPcore.NotifyRightTip(_U("animalSheared"), 4000)
-        BccUtils.RPC:Call("bcc-ranch:AddItem", { item = Config.animalSetup.sheeps.sheepItem, amount = Config.animalSetup.sheeps.sheepItemAmount }, function(success)
+        BccUtils.RPC:Call("bcc-ranch:AddItem", { item = ConfigAnimals.animalSetup.sheeps.sheepItem, amount = ConfigAnimals.animalSetup.sheeps.sheepItemAmount }, function(success)
             if success then
                 devPrint("Item added successfully.")
             else
