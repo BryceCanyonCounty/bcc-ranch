@@ -18,13 +18,21 @@ function EmployeesMenu()
     }, function()
         TriggerServerEvent('bcc-ranch:GetEmployeeList', RanchData.ranchid, "fire")
     end)
+    employeesPage:RegisterElement('line', {
+        slot = "footer",
+        style = {}
+    })
     employeesPage:RegisterElement("button", {
         label = _U("back"),
+        slot = "footer",
         style = {}
     }, function()
         MainRanchMenu()
     end)
-
+    employeesPage:RegisterElement('bottomline', {
+        slot = "footer",
+        style = {}
+    })
     BCCRanchMenu:Open({
         startupPage = employeesPage
     })
@@ -48,13 +56,21 @@ RegisterNetEvent('bcc-ranch:FireEmployeesMenu', function(employees)
             TriggerServerEvent('bcc-ranch:FireEmployee', v.charidentifier)
         end)
     end
+    fireEmployeePage:RegisterElement('line', {
+        slot = "footer",
+        style = {}
+    })
     fireEmployeePage:RegisterElement("button", {
         label = _U("back"),
+        slot = "footer",
         style = {}
     }, function()
         EmployeesMenu()
     end)
-
+    fireEmployeePage:RegisterElement('bottomline', {
+        slot = "footer",
+        style = {}
+    })
     BCCRanchMenu:Open({
         startupPage = fireEmployeePage
     })
@@ -91,13 +107,20 @@ RegisterNetEvent('bcc-ranch:HireEmployeeMenu', function(currentEmployees)
             end)
         end
     end
+    hireEmployeePage:RegisterElement('line', {
+        slot = "footer",
+        style = {}
+    })
     hireEmployeePage:RegisterElement("button", {
         label = _U("back"),
         style = {}
     }, function()
         EmployeesMenu()
     end)
-
+    hireEmployeePage:RegisterElement('bottomline', {
+        slot = "footer",
+        style = {}
+    })
     BCCRanchMenu:Open({
         startupPage = hireEmployeePage
     })

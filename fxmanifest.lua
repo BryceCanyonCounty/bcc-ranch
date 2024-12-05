@@ -6,7 +6,7 @@ lua54 'yes'
 author 'BCC Team @Jake2k4'
 
 shared_scripts {
-    'config.lua',
+    '/configs/*.lua',
     'locale.lua',
     'languages/*.lua'
 }
@@ -36,4 +36,4 @@ dependency {
     'bcc-minigames',
 }
 
-version '2.2.3'
+version '2.3.3'

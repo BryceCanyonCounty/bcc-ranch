@@ -10,46 +10,46 @@ function SellAnimals(animalType, animalCond)
 
     local selectAnimalFuncts = {
         ['cows'] = function()
-            if tonumber(RanchData.cows_age) < Config.animalSetup.cows.AnimalGrownAge then
+            if tonumber(RanchData.cows_age) < ConfigAnimals.animalSetup.cows.AnimalGrownAge then
                 VORPcore.NotifyRightTip(_U("tooYoung"), 4000)
             else
-                tables = Config.animalSetup.cows
+                tables = ConfigAnimals.animalSetup.cows
                 model = 'a_c_cow'
                 spawnCoords = json.decode(RanchData.cow_coords)
             end
         end,
         ['pigs'] = function()
-            if tonumber(RanchData.pigs_age) < Config.animalSetup.pigs.AnimalGrownAge then
+            if tonumber(RanchData.pigs_age) < ConfigAnimals.animalSetup.pigs.AnimalGrownAge then
                 VORPcore.NotifyRightTip(_U("tooYoung"), 4000)
             else
-                tables = Config.animalSetup.pigs
+                tables = ConfigAnimals.animalSetup.pigs
                 model = 'a_c_pig_01'
                 spawnCoords = json.decode(RanchData.pig_coords)
             end
         end,
         ['sheeps'] = function()
-            if tonumber(RanchData.sheeps_age) < Config.animalSetup.sheeps.AnimalGrownAge then
+            if tonumber(RanchData.sheeps_age) < ConfigAnimals.animalSetup.sheeps.AnimalGrownAge then
                 VORPcore.NotifyRightTip(_U("tooYoung"), 4000)
             else
-                tables = Config.animalSetup.sheeps
+                tables = ConfigAnimals.animalSetup.sheeps
                 model = 'a_c_sheep_01'
                 spawnCoords = json.decode(RanchData.sheep_coords)
             end
         end,
         ['goats'] = function()
-            if tonumber(RanchData.goats_age) < Config.animalSetup.goats.AnimalGrownAge then
+            if tonumber(RanchData.goats_age) < ConfigAnimals.animalSetup.goats.AnimalGrownAge then
                 VORPcore.NotifyRightTip(_U("tooYoung"), 4000)
             else
-                tables = Config.animalSetup.goats
+                tables = ConfigAnimals.animalSetup.goats
                 model = 'a_c_goat_01'
                 spawnCoords = json.decode(RanchData.goat_coords)
             end
         end,
         ['chickens'] = function()
-            if tonumber(RanchData.chickens_age) < Config.animalSetup.chickens.AnimalGrownAge then
+            if tonumber(RanchData.chickens_age) < ConfigAnimals.animalSetup.chickens.AnimalGrownAge then
                 VORPcore.NotifyRightTip(_U("tooYoung"), 4000)
             else
-                tables = Config.animalSetup.chickens
+                tables = ConfigAnimals.animalSetup.chickens
                 model = 'a_c_chicken_01'
                 spawnCoords = json.decode(RanchData.chicken_coords)
             end
@@ -102,7 +102,7 @@ function SellAnimals(animalType, animalCond)
     SetRelAndFollowPlayer(peds)
     VORPcore.NotifyRightTip(_U("leadAnimalsToSaleLocation"), 4000)
     BccUtils.Misc.SetGps(finalSaleCoords.x, finalSaleCoords.y, finalSaleCoords.z)
-    local blip = BccUtils.Blip:SetBlip(_U("saleLocationBlip"), Config.ranchSetup.ranchBlip, 0.2, finalSaleCoords.x,
+    local blip = BccUtils.Blip:SetBlip(_U("saleLocationBlip"), ConfigRanch.ranchSetup.ranchBlip, 0.2, finalSaleCoords.x,
         finalSaleCoords.y, finalSaleCoords.z)
 
     local animalsNear = false

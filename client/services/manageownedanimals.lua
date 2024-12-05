@@ -81,7 +81,7 @@ function ManageOwnedAnimalsMenu()
         label = _U("setHerd"),
         style = {}
     }, function()
-        setCoords('herdCoords', Config.animalSetup.minHerdCoords)
+        setCoords('herdCoords', ConfigAnimals.animalSetup.minHerdCoords)
     end)
     manageOwnedAnimalsPage:RegisterElement("button", {
         label = _U('setFeedWagon'),
@@ -100,18 +100,27 @@ function ManageOwnedAnimalsMenu()
                 slot = "header",
                 style = {}
             })
+            manageCowsPage:RegisterElement('line', {
+                slot = "header",
+                style = {}
+            })
+
+            TextDisplay = manageCowsPage:RegisterElement('textdisplay', {
+                value = _U("checkAnimalCond") .. tostring(RanchData.cows_cond) ,
+                slot = "header",
+                style = {}
+            })
+            manageCowsPage:RegisterElement('line', {
+                slot = "header",
+                style = {}
+            })
             manageCowsPage:RegisterElement('button', {
                 label = _U("setCoords"),
                 style = {}
             }, function()
                 setCoords('cowCoords', tonumber(RanchData.ranch_radius_limit))
             end)
-            manageCowsPage:RegisterElement('button', {
-                label = _U("checkAnimalCond"),
-                style = {}
-            }, function()
-                VORPcore.NotifyRightTip(tostring(RanchData.cows_cond), 4000)
-            end)
+
             manageCowsPage:RegisterElement('button', {
                 label = _U("herdAnimal"),
                 style = {}
@@ -140,7 +149,7 @@ function ManageOwnedAnimalsMenu()
                 label = _U("butcherAnimal"),
                 style = {}
             }, function()
-                if tonumber(RanchData.cows_age) < Config.animalSetup.cows.AnimalGrownAge then
+                if tonumber(RanchData.cows_age) < ConfigAnimals.animalSetup.cows.AnimalGrownAge then
                     VORPcore.NotifyRightTip(_U("tooYoung"), 4000)
                 else
                     ButcherAnimals('cows')
@@ -151,7 +160,7 @@ function ManageOwnedAnimalsMenu()
                 style = {}
             }, function()
                 if RanchData.cow_coords ~= "none" then
-                    if tonumber(RanchData.cows_age) < Config.animalSetup.cows.AnimalGrownAge then
+                    if tonumber(RanchData.cows_age) < ConfigAnimals.animalSetup.cows.AnimalGrownAge then
                         VORPcore.NotifyRightTip(_U("tooYoung"), 4000)
                     else
                         SellAnimals('cows', RanchData.cows_cond)
@@ -205,17 +214,25 @@ function ManageOwnedAnimalsMenu()
                 slot = "header",
                 style = {}
             })
+            managePigsPage:RegisterElement('line', {
+                slot = "header",
+                style = {}
+            })
+
+            TextDisplay = managePigsPage:RegisterElement('textdisplay', {
+                value = _U("checkAnimalCond") .. tostring(RanchData.pigs_cond) ,
+                slot = "header",
+                style = {}
+            })
+            managePigsPage:RegisterElement('line', {
+                slot = "header",
+                style = {}
+            })
             managePigsPage:RegisterElement('button', {
                 label = _U("setCoords"),
                 style = {}
             }, function()
                 setCoords('pigCoords', tonumber(RanchData.ranch_radius_limit))
-            end)
-            managePigsPage:RegisterElement("button", {
-                label = _U("checkAnimalCond"),
-                style = {}
-            }, function()
-                VORPcore.NotifyRightTip(tostring(RanchData.pigs_cond), 4000)
             end)
             managePigsPage:RegisterElement('button', {
                 label = _U("herdAnimal"),
@@ -245,7 +262,7 @@ function ManageOwnedAnimalsMenu()
                 label = _U("butcherAnimal"),
                 style = {}
             }, function()
-                if tonumber(RanchData.pigs_age) < Config.animalSetup.pigs.AnimalGrownAge then
+                if tonumber(RanchData.pigs_age) < ConfigAnimals.animalSetup.pigs.AnimalGrownAge then
                     VORPcore.NotifyRightTip(_U("tooYoung"), 4000)
                 else
                     ButcherAnimals('pigs')
@@ -256,7 +273,7 @@ function ManageOwnedAnimalsMenu()
                 style = {}
             }, function()
                 if RanchData.pig_coords ~= "none" then
-                    if tonumber(RanchData.pigs_age) < Config.animalSetup.pigs.AnimalGrownAge then
+                    if tonumber(RanchData.pigs_age) < ConfigAnimals.animalSetup.pigs.AnimalGrownAge then
                         VORPcore.NotifyRightTip(_U("tooYoung"), 4000)
                     else
                         SellAnimals('pigs', RanchData.pigs_cond)
@@ -300,17 +317,24 @@ function ManageOwnedAnimalsMenu()
                 slot = "header",
                 style = {}
             })
+            manageSheepsPage:RegisterElement('line', {
+                slot = "header",
+                style = {}
+            })
+            TextDisplay = manageSheepsPage:RegisterElement('textdisplay', {
+                value = _U("checkAnimalCond") .. tostring(RanchData.sheeps_cond) ,
+                slot = "header",
+                style = {}
+            })
+            manageSheepsPage:RegisterElement('line', {
+                slot = "header",
+                style = {}
+            })
             manageSheepsPage:RegisterElement('button', {
                 label = _U("setCoords"),
                 style = {}
             }, function()
                 setCoords('sheepCoords', tonumber(RanchData.ranch_radius_limit))
-            end)
-            manageSheepsPage:RegisterElement('button', {
-                label = _U("checkAnimalCond"),
-                style = {}
-            }, function()
-                VORPcore.NotifyRightTip(tostring(RanchData.sheeps_cond), 4000)
             end)
             manageSheepsPage:RegisterElement('button', {
                 label = _U("herdAnimal"),
@@ -340,7 +364,7 @@ function ManageOwnedAnimalsMenu()
                 label = _U("butcherAnimal"),
                 style = {}
             }, function()
-                if tonumber(RanchData.sheeps_age) < Config.animalSetup.sheeps.AnimalGrownAge then
+                if tonumber(RanchData.sheeps_age) < ConfigAnimals.animalSetup.sheeps.AnimalGrownAge then
                     VORPcore.NotifyRightTip(_U("tooYoung"), 4000)
                 else
                     ButcherAnimals('sheeps')
@@ -351,7 +375,7 @@ function ManageOwnedAnimalsMenu()
                 style = {}
             }, function()
                 if RanchData.sheep_coords ~= "none" then
-                    if tonumber(RanchData.sheeps_age) < Config.animalSetup.sheeps.AnimalGrownAge then
+                    if tonumber(RanchData.sheeps_age) < ConfigAnimals.animalSetup.sheeps.AnimalGrownAge then
                         VORPcore.NotifyRightTip(_U("tooYoung"), 4000)
                     else
                         SellAnimals('sheeps', RanchData.sheeps_cond)
@@ -405,17 +429,24 @@ function ManageOwnedAnimalsMenu()
                 slot = "header",
                 style = {}
             })
+            manageGoatsPage:RegisterElement('line', {
+                slot = "header",
+                style = {}
+            })
+            TextDisplay = manageGoatsPage:RegisterElement('textdisplay', {
+                value = _U("checkAnimalCond") .. tostring(RanchData.goats_cond) ,
+                slot = "header",
+                style = {}
+            })
+            manageGoatsPage:RegisterElement('line', {
+                slot = "header",
+                style = {}
+            })
             manageGoatsPage:RegisterElement('button', {
                 label = _U("setCoords"),
                 style = {}
             }, function()
                 setCoords('goatCoords', tonumber(RanchData.ranch_radius_limit))
-            end)
-            manageGoatsPage:RegisterElement('button', {
-                label = _U("checkAnimalCond"),
-                style = {}
-            }, function()
-                VORPcore.NotifyRightTip(tostring(RanchData.goats_cond), 4000)
             end)
             manageGoatsPage:RegisterElement('button', {
                 label = _U("herdAnimal"),
@@ -445,7 +476,7 @@ function ManageOwnedAnimalsMenu()
                 label = _U("butcherAnimal"),
                 style = {}
             }, function()
-                if tonumber(RanchData.goats_age) < Config.animalSetup.goats.AnimalGrownAge then
+                if tonumber(RanchData.goats_age) < ConfigAnimals.animalSetup.goats.AnimalGrownAge then
                     VORPcore.NotifyRightTip(_U("tooYoung"), 4000)
                 else
                     ButcherAnimals('goats')
@@ -456,7 +487,7 @@ function ManageOwnedAnimalsMenu()
                 style = {}
             }, function()
                 if RanchData.goat_coords ~= "none" then
-                    if tonumber(RanchData.goats_age) < Config.animalSetup.goats.AnimalGrownAge then
+                    if tonumber(RanchData.goats_age) < ConfigAnimals.animalSetup.goats.AnimalGrownAge then
                         VORPcore.NotifyRightTip(_U("tooYoung"), 4000)
                     else
                         SellAnimals('goats', RanchData.goats_cond)
@@ -500,17 +531,24 @@ function ManageOwnedAnimalsMenu()
                 slot = "header",
                 style = {}
             })
+            manageChickensPage:RegisterElement('line', {
+                slot = "header",
+                style = {}
+            })
+            TextDisplay = manageChickensPage:RegisterElement('textdisplay', {
+                value = _U("checkAnimalCond") .. tostring(RanchData.chickens_cond) ,
+                slot = "header",
+                style = {}
+            })
+            manageChickensPage:RegisterElement('line', {
+                slot = "header",
+                style = {}
+            })
             manageChickensPage:RegisterElement('button', {
                 label = _U("setCoords"),
                 style = {}
             }, function()
                 setCoords('chickenCoords', tonumber(RanchData.ranch_radius_limit))
-            end)
-            manageChickensPage:RegisterElement('button', {
-                label = _U("checkAnimalCond"),
-                style = {}
-            }, function()
-                VORPcore.NotifyRightTip(tostring(RanchData.chickens_cond), 4000)
             end)
             manageChickensPage:RegisterElement('button', {
                 label = _U("herdAnimal"),
@@ -540,7 +578,7 @@ function ManageOwnedAnimalsMenu()
                 label = _U("butcherAnimal"),
                 style = {}
             }, function()
-                if tonumber(RanchData.chickens_age) < Config.animalSetup.chickens.AnimalGrownAge then
+                if tonumber(RanchData.chickens_age) < ConfigAnimals.animalSetup.chickens.AnimalGrownAge then
                     VORPcore.NotifyRightTip(_U("tooYoung"), 4000)
                 else
                     ButcherAnimals('chickens')
@@ -551,7 +589,7 @@ function ManageOwnedAnimalsMenu()
                 style = {}
             }, function()
                 if RanchData.chicken_coords ~= "none" then
-                    if tonumber(RanchData.chickens_age) < Config.animalSetup.chickens.AnimalGrownAge then
+                    if tonumber(RanchData.chickens_age) < ConfigAnimals.animalSetup.chickens.AnimalGrownAge then
                         VORPcore.NotifyRightTip(_U("tooYoung"), 4000)
                     else
                         SellAnimals('chickens', RanchData.chickens_cond)
@@ -562,10 +600,10 @@ function ManageOwnedAnimalsMenu()
             end)
             if RanchData.chicken_coop == "false" then
                 manageChickensPage:RegisterElement("button", {
-                    label = _U("buyChickenCoop") .. Config.animalSetup.chickens.coopCost,
+                    label = _U("buyChickenCoop") .. ConfigAnimals.animalSetup.chickens.coopCost,
                     style = {}
                 }, function()
-                    setCoords('coopCoords', tonumber(RanchData.ranch_radius_limit), Config.animalSetup.chickens.coopCost)
+                    setCoords('coopCoords', tonumber(RanchData.ranch_radius_limit), ConfigAnimals.animalSetup.chickens.coopCost)
                 end)
             else
                 manageChickensPage:RegisterElement('button', {
