@@ -1,11 +1,15 @@
 AllPlayersTable = {}
 
-RegisterServerEvent("bcc-ranch:AdminCheck", function()
-    local _source = source
-    local character = VORPcore.getUser(_source).getUsedCharacter
-    if character.group == "admin" then
-        TriggerClientEvent("bcc-ranch:IsAdminClientReceiver", _source, true)
+BccUtils.RPC:Register("bcc-ranch:AdminCheck", function(params, cb, recSource)
+    local user = VORPcore.getUser(recSource)
+    local character = user.getUsedCharacter
+    if not character then
+        return cb(false)
     end
+    if character.group == Config.adminGroup then
+        return cb(true)
+    end
+    return cb(false)
 end)
 
 ---@param source integer
@@ -62,8 +66,7 @@ CreateThread(function()
                         "UPDATE bcc_ranch SET ranchCondition = ranchCondition - ? WHERE ranchid = ?",
                         { ConfigRanch.ranchSetup.ranchConditionDecreaseAmount, ranch.ranchid }
                     )
-                    devPrint("RanchID: " ..
-                    ranch.ranchid .. " condition decreased by " .. ConfigRanch.ranchSetup.ranchConditionDecreaseAmount)
+                    devPrint("RanchID: " .. ranch.ranchid .. " condition decreased by " .. ConfigRanch.ranchSetup.ranchConditionDecreaseAmount)
 
                     -- Update online ranchers if they exist
                     local onlineRanchers = RanchersOnline[ranch.ranchid]

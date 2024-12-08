@@ -176,7 +176,7 @@ BccUtils.RPC:Register("bcc-ranch:CreateRanch", function(params, cb, source)
                 _U("ranchCreatedBy") .. (creatorChar.firstname or "Unknown") .. " " .. (creatorChar.lastname or "Unknown") ..
                 _U("ranchName") .. ranchName .. _U("ranchOwner") .. (ownerChar.firstname or "Unknown") .. " " .. (ownerChar.lastname or "Unknown")
             )
-            BccUtils.RPC:Call("bcc-ranch:PlayerOwnsARanch", { ranchData = ranch, isOwnerOfRanch = true }, ownerSource)
+            TriggerClientEvent("bcc-ranch:PlayerOwnsARanch", ownerSource, insertedRanch[1], true)
             cb(true)
         else
             VORPcore.NotifyRightTip(_source, _U("databaseError"), 4000)
@@ -211,7 +211,7 @@ RegisterServerEvent('bcc-ranch:CheckIfPlayerOwnsARanch', function()
         -- Register the ranch inventory
         exports.vorp_inventory:registerInventory(data)
 
-        BccUtils.RPC:Call("bcc-ranch:PlayerOwnsARanch", { ranchData = result[1], isOwnerOfRanch = true}, _source)
+        TriggerClientEvent("bcc-ranch:PlayerOwnsARanch", _source, result[1], true)
         if not RanchersOnline[result[1].ranchid] or not table.contains(RanchersOnline[result[1].ranchid], _source) then
             newRancherOnline(_source, result[1].ranchid)
         end
@@ -250,7 +250,7 @@ AddEventHandler('bcc-ranch:CheckIfPlayerIsEmployee', function(recSource)
                 
                 -- Register the ranch inventory
                 exports.vorp_inventory:registerInventory(data)
-                BccUtils.RPC:Call("bcc-ranch:PlayerOwnsARanch", { ranchData = ranchEmployedAt[1], isOwnerOfRanch = false}, _source)
+                TriggerClientEvent("bcc-ranch:PlayerOwnsARanch", _source, ranchEmployedAt[1], true)
                 if not RanchersOnline[result[1].ranchid] or not table.contains(RanchersOnline[result[1].ranchid], _source) then
                     newRancherOnline(_source, result[1].ranchid)
                 end
@@ -269,65 +269,118 @@ function table.contains(table, element)
     return false
 end
 
--- Ledger Area --
-RegisterServerEvent('bcc-ranch:AffectLedger', function(ranchId, type, amount)
+BccUtils.RPC:Register('bcc-ranch:AffectLedger', function(params, cb, source)
     local _source = source
+    local ranchId = params.ranchId
+    local type = params.type
+    local amount = tonumber(params.amount)
+
     devPrint("Affecting ledger for ranchId: " .. ranchId .. " with type: " .. type .. " and amount: " .. amount)
+
+    -- Retrieve character and ranch data
     local character = VORPcore.getUser(_source).getUsedCharacter
     local ranch = MySQL.query.await("SELECT * FROM bcc_ranch WHERE ranchid = ?", { ranchId })
+
+    -- Check if ranch exists
     if #ranch > 0 then
         if type == "withdraw" then
-            if tonumber(amount) <= tonumber(ranch[1].ledger) then
-                MySQL.update.await("UPDATE bcc_ranch SET ledger = ledger - ? WHERE ranchid = ?", { tonumber(amount), ranchId })
-                character.addCurrency(0, tonumber(amount))
+            -- Handle withdrawal
+            if amount <= tonumber(ranch[1].ledger) then
+                MySQL.update.await("UPDATE bcc_ranch SET ledger = ledger - ? WHERE ranchid = ?", { amount, ranchId })
+                character.addCurrency(0, amount)
                 VORPcore.NotifyRightTip(_source, _U("withdrewFromLedger") .. " " .. amount, 4000)
                 UpdateAllRanchersRanchData(ranchId)
+                cb(true)
             else
                 VORPcore.NotifyRightTip(_source, _U("notEnoughMoney"), 4000)
+                cb(false)
             end
-        else
-            if tonumber(character.money) >= tonumber(amount) then
-                MySQL.update.await("UPDATE bcc_ranch SET ledger = ledger + ? WHERE ranchid = ?", { tonumber(amount), ranchId })
-                character.removeCurrency(0, tonumber(amount))
+        elseif type == "deposit" then
+            -- Handle deposit
+            if tonumber(character.money) >= amount then
+                MySQL.update.await("UPDATE bcc_ranch SET ledger = ledger + ? WHERE ranchid = ?", { amount, ranchId })
+                character.removeCurrency(0, amount)
                 VORPcore.NotifyRightTip(_source, _U("depositedToLedger") .. " " .. amount, 4000)
                 UpdateAllRanchersRanchData(ranchId)
+                cb(true)
             else
                 VORPcore.NotifyRightTip(_source, _U("notEnoughMoney"), 4000)
+                cb(false)
             end
         end
+    else
+        VORPcore.NotifyRightTip(_source, _U("ranchNotFound"), 4000)
+        cb(false)
     end
 end)
 
--- Ranch Condition Area/Caretaking --
-RegisterServerEvent("bcc-ranch:InsertChoreCoordsIntoDB", function(choreCoords, ranchId, choreType)
+BccUtils.RPC:Register("bcc-ranch:InsertChoreCoordsIntoDB", function(params, cb, source)
     local _source = source
+    local choreCoords = params.choreCoords
+    local ranchId = params.ranchId
+    local choreType = params.choreType
+
     devPrint("Inserting chore coords for ranchId: " .. ranchId .. " with choreType: " .. choreType)
+
+    -- Define chore type to database column mapping
     local databaseUpdate = {
         ['shovehaycoords'] = function()
-            MySQL.update.await("UPDATE bcc_ranch SET shovel_hay_coords = ? WHERE ranchid = ?", { json.encode(choreCoords), ranchId })
+            return MySQL.update.await("UPDATE bcc_ranch SET shovel_hay_coords = ? WHERE ranchid = ?", { json.encode(choreCoords), ranchId })
         end,
         ['wateranimalcoords'] = function()
-            MySQL.update.await("UPDATE bcc_ranch SET water_animal_coords = ? WHERE ranchid = ?", { json.encode(choreCoords), ranchId })
+            return MySQL.update.await("UPDATE bcc_ranch SET water_animal_coords = ? WHERE ranchid = ?", { json.encode(choreCoords), ranchId })
         end,
         ['repairtroughcoords'] = function()
-            MySQL.update.await("UPDATE bcc_ranch SET repair_trough_coords = ? WHERE ranchid = ?", { json.encode(choreCoords), ranchId })
+            return MySQL.update.await("UPDATE bcc_ranch SET repair_trough_coords = ? WHERE ranchid = ?", { json.encode(choreCoords), ranchId })
         end,
         ['scooppoopcoords'] = function()
-            MySQL.update.await("UPDATE bcc_ranch SET scoop_poop_coords = ? WHERE ranchid = ?", { json.encode(choreCoords), ranchId })
+            return MySQL.update.await("UPDATE bcc_ranch SET scoop_poop_coords = ? WHERE ranchid = ?", { json.encode(choreCoords), ranchId })
         end
     }
 
+    -- Execute the appropriate database update
     if databaseUpdate[choreType] then
-        VORPcore.NotifyRightTip(_source, _U("coordsSet"), 4000)
-        databaseUpdate[choreType]()
-        UpdateAllRanchersRanchData(ranchId)
+        local result = databaseUpdate[choreType]()
+        if result then
+            VORPcore.NotifyRightTip(_source, _U("coordsSet"), 4000)
+            UpdateAllRanchersRanchData(ranchId)
+            cb(true)
+            devPrint(_U("coordsSet"))
+        else
+            cb(false)
+            devPrint( _U("databaseError"))
+        end
+    else
+        cb(false)
+        devPrint(_U("invalidChoreType"))
     end
 end)
 
-RegisterServerEvent("bcc-ranch:IncreaseRanchCond", function(ranchId, amount)
-    devPrint("Increasing ranch condition for ranchId: " .. ranchId .. " by amount: " .. amount)
-    MySQL.update("UPDATE bcc_ranch SET ranchCondition = ranchCondition + ? WHERE ranchid = ?", { tonumber(amount), ranchId })
-    UpdateAllRanchersRanchData(ranchId)
+BccUtils.RPC:Register("bcc-ranch:IncreaseRanchCond", function(params, cb, source)
+    local ranchId = params.ranchId
+    local amount = tonumber(params.amount)
+
+    -- Validate parameters
+    if not ranchId or not amount then
+        devPrint("[ERROR] Invalid parameters: ranchId:", ranchId, "amount:", amount)
+        cb(false, "Invalid parameters") -- Respond with failure if inputs are invalid
+        return
+    end
+
+    devPrint("[DEBUG] Increasing ranch condition for ranchId: " .. ranchId .. " by amount: " .. amount)
+
+    -- Update the database
+    local result = MySQL.update.await("UPDATE bcc_ranch SET ranchCondition = ranchCondition + ? WHERE ranchid = ?", { amount, ranchId })
+
+    -- Check database operation
+    if result then
+        devPrint("[DEBUG] Ranch condition updated successfully for ranchId: " .. ranchId)
+        UpdateAllRanchersRanchData(ranchId) -- Notify all ranchers of the update
+        cb(true, "Ranch condition updated successfully") -- Respond with success
+    else
+        devPrint("[ERROR] Failed to update ranch condition for ranchId: " .. ranchId)
+        cb(false, "Database update failed") -- Respond with failure
+    end
 end)
 
 -- Employee area --
