@@ -125,5 +125,6 @@ Locales["de_lang"] = {
     taxAmountInvalid = "Taxes must be a non-negative number. Please enter a valid tax amount.",
     ranchNotFound = "Previous ranch not found. The ranch ID has been reset.",
     ranchAlreadyExists = "You already own a ranch. Only one ranch per character is allowed.",
-    ranchCreationFailed = "Ranch creation failed. Please try again later."
+    ranchCreationFailed = "Ranch creation failed. Please try again later.",
+    invalidAmount = "Invalid amount"
 }
