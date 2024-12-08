@@ -250,7 +250,7 @@ AddEventHandler('bcc-ranch:CheckIfPlayerIsEmployee', function(recSource)
                 
                 -- Register the ranch inventory
                 exports.vorp_inventory:registerInventory(data)
-                TriggerClientEvent("bcc-ranch:PlayerOwnsARanch", _source, ranchEmployedAt[1], true)
+                TriggerClientEvent("bcc-ranch:PlayerOwnsARanch", _source, ranchEmployedAt[1], false)
                 if not RanchersOnline[result[1].ranchid] or not table.contains(RanchersOnline[result[1].ranchid], _source) then
                     newRancherOnline(_source, result[1].ranchid)
                 end
