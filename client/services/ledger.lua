@@ -7,63 +7,92 @@ function LedgerMenu()
         slot = "header",
         style = {}
     })
-    mainLedgerPage:RegisterElement("button", {
-        label = _U("ledgerAmount") .. " " .. RanchData.ledger,
+    mainLedgerPage:RegisterElement('subheader', {
+        value = _U("ledgerAmount") .. " " .. RanchData.ledger,
+        slot = "header",
         style = {}
-    }, function()
-        --Leave empty as this is just to dispaly the ledger amount
-    end)
+    })
+    mainLedgerPage:RegisterElement('line', {
+        slot = "content",
+        style = {}
+    })
+
     local depositAmount = ''
     mainLedgerPage:RegisterElement("input", {
         label = _U("deposit"),
         placeholder = _U("amount"),
         style = {}
     }, function(data)
-        if string.find(data.value, "-") or string.find(data.value, "'") or string.find(data.value, '"') then -- checking for ' or " to prevent sql injection and - to prevent negative numbers
-            VORPcore.NotifyRightTip(_U("inputProtectionError"), 4000)
-            depositAmount = ''
-        else
-            depositAmount = data.value
-        end
+        depositAmount = data.value -- Save the input for later validation
     end)
     mainLedgerPage:RegisterElement("button", {
         label = _U("confirm"),
         style = {}
     }, function()
-        if depositAmount ~= "" and depositAmount then -- make sure its not empty or nil
-            TriggerServerEvent('bcc-ranch:AffectLedger', RanchData.ranchid, 'deposit', depositAmount)
-            MainRanchMenu()
+        -- Validate deposit amount on confirmation
+        local sanitizedDeposit = tonumber(depositAmount)
+        if sanitizedDeposit and sanitizedDeposit > 0 then
+            BccUtils.RPC:Call('bcc-ranch:AffectLedger', { ranchId = RanchData.ranchid, type = 'deposit', amount = sanitizedDeposit }, function(success)
+                if success then
+                    devPrint("Successfully deposited to ledger.")
+                    MainRanchMenu()
+                else
+                    devPrint("Failed to deposit to ledger.")
+                end
+            end)
+        else
+            VORPcore.NotifyRightTip(_U("invalidAmount"), 4000)
         end
     end)
+
+    mainLedgerPage:RegisterElement('line', {
+        slot = "content",
+        style = {}
+    })
+
     local withdrawAmount = ''
     mainLedgerPage:RegisterElement("input", {
         label = _U("withdraw"),
         placeholder = _U("amount"),
         style = {}
     }, function(data)
-        if string.find(data.value, "-") or string.find(data.value, "'") or string.find(data.value, '"') then -- checking for ' or " to prevent sql injection and - to prevent negative numbers
-            VORPcore.NotifyRightTip(_U("inputProtectionError"), 4000)
-            withdrawAmount = ''
-        else
-            withdrawAmount = data.value
-        end
+        withdrawAmount = data.value -- Save the input for later validation
     end)
     mainLedgerPage:RegisterElement("button", {
         label = _U("confirm"),
         style = {}
     }, function()
-        if withdrawAmount ~= "" and withdrawAmount then -- make sure its not empty or nil
-            TriggerServerEvent('bcc-ranch:AffectLedger', RanchData.ranchid, "withdraw", withdrawAmount)
-            MainRanchMenu()
+        -- Validate withdraw amount on confirmation
+        local sanitizedWithdraw = tonumber(withdrawAmount)
+        if sanitizedWithdraw and sanitizedWithdraw > 0 then
+            BccUtils.RPC:Call('bcc-ranch:AffectLedger', { ranchId = RanchData.ranchid, type = 'withdraw', amount = sanitizedWithdraw }, function(success)
+                if success then
+                    devPrint("Successfully withdrew from ledger.")
+                    MainRanchMenu()
+                else
+                    devPrint("Failed to withdraw from ledger.")
+                end
+            end)
+        else
+            VORPcore.NotifyRightTip(_U("invalidAmount"), 4000)
         end
     end)
+
+    mainLedgerPage:RegisterElement('line', {
+        slot = "footer",
+        style = {}
+    })
     mainLedgerPage:RegisterElement("button", {
         label = _U("back"),
+        slot = "footer",
         style = {}
     }, function()
         MainRanchMenu()
     end)
-
+    mainLedgerPage:RegisterElement('bottomline', {
+        slot = "footer",
+        style = {}
+    })
     BCCRanchMenu:Open({
         startupPage = mainLedgerPage
     })

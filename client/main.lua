@@ -3,7 +3,8 @@ local ranchBlip = nil
 
 RegisterNetEvent('vorp:SelectedCharacter')
 AddEventHandler('vorp:SelectedCharacter', function()
-    TriggerServerEvent('bcc-ranch:AdminCheck')
+    IsAdmin = BccUtils.RPC:CallAsync("bcc-ranch:AdminCheck")
+    --TriggerServerEvent('bcc-ranch:AdminCheck')
     local player = GetPlayerServerId(tonumber(PlayerId()))
     TriggerServerEvent("bcc-ranch:StoreAllPlayers", player)
     TriggerServerEvent('bcc-ranch:CheckIfPlayerOwnsARanch')
@@ -12,7 +13,8 @@ end)
 
 RegisterCommand(Config.commands.devModeCommand, function()
 if Config.devMode then
-    TriggerServerEvent('bcc-ranch:AdminCheck')
+    IsAdmin = BccUtils.RPC:CallAsync("bcc-ranch:AdminCheck")
+    --TriggerServerEvent('bcc-ranch:AdminCheck')
     local player = GetPlayerServerId(tonumber(PlayerId()))
     TriggerServerEvent("bcc-ranch:StoreAllPlayers", player)
     TriggerServerEvent('bcc-ranch:CheckIfPlayerOwnsARanch')
@@ -21,9 +23,7 @@ end
 end)
 
 -- Handle ranch ownership notification
-BccUtils.RPC:Register("bcc-ranch:PlayerOwnsARanch", function(params)
-    local ranchData = params.ranchData
-    local isOwnerOfRanch = params.isOwnerOfRanch
+RegisterNetEvent("bcc-ranch:PlayerOwnsARanch", function(ranchData, isOwnerOfRanch)
 
     RanchData = ranchData
     if isOwnerOfRanch then
@@ -84,10 +84,6 @@ BccUtils.RPC:Register("bcc-ranch:PlayerOwnsARanch", function(params)
             Wait(500)
         end
     end
-end)
-
-RegisterNetEvent("bcc-ranch:IsAdminClientReceiver", function(admin)
-    IsAdmin = admin
 end)
 
 RegisterNetEvent('bcc-ranch:UpdateRanchData', function (ranchData)

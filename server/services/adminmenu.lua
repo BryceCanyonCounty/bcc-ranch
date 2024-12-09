@@ -17,7 +17,7 @@ end)
 -- Registering the RPC on the server-side for fetching all ranches
 BccUtils.RPC:Register("bcc-ranch:GetAllRanches", function(params, cb)
     local _source = source
-    local success, result = pcall(MySQL.query.await, "SELECT * FROM ranch")
+    local success, result = pcall(MySQL.query.await, "SELECT * FROM bcc_ranch")
 
     if not success then
         print("^1[ERROR] Failed to fetch ranches: ^4" .. result)

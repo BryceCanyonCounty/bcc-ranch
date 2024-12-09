@@ -33,11 +33,16 @@ local function setCoords(choreType) --done inside of a function as you cannot as
             devPrint("Ranch radius limit: " .. RanchData.ranch_radius_limit)
 
             if RanchData.ranchcoordsVector3 and RanchData.ranch_radius_limit and #(RanchData.ranchcoordsVector3 - pCoords) <= tonumber(RanchData.ranch_radius_limit) then
-                TriggerServerEvent('bcc-ranch:InsertChoreCoordsIntoDB', pCoords, RanchData.ranchid, selectedOption)
-                break
+                BccUtils.RPC:Call('bcc-ranch:InsertChoreCoordsIntoDB', { choreCoords = pCoords, ranchId = RanchData.ranchid, choreType = selectedOption }, function(success)
+                    if success then
+                        devPrint("Chore coordinates successfully inserted.")
+                    else
+                        devPrint("Failed to insert chore coordinates.")
+                    end
+                end)
             else
                 VORPcore.NotifyRightTip(_U("tooFarFromRanch"), 4000)
-            end
+            end            
         end
         if IsControlJustReleased(0, 0x9959A6F0) then
             break
@@ -66,8 +71,7 @@ local function choreMenu(choreType, menuTitle)
         label = _U("startChore"),
         style = {}
     }, function()
-        -- Use RPC:Call to communicate with the server
-        BccUtils.RPC:Notify("bcc-ranch:ChoreCheckRanchCond", { ranchId = RanchData.ranchid, choreType = choreType })
+        BccUtils.RPC:Call("bcc-ranch:ChoreCheckRanchCond", { ranchId = RanchData.ranchid, choreType = choreType })
     end)
   
 
@@ -161,7 +165,6 @@ BccUtils.RPC:Register("bcc-ranch:StartChoreClient", function(params)
     if not RanchData or not choreType then
         devPrint("[ERROR] RanchData or choreType is missing.")
         VORPcore.NotifyRightTip(_U("invalidRanchDataOrChoreType"), 4000)
-        cb(false)
         return
     end
 
@@ -217,7 +220,6 @@ BccUtils.RPC:Register("bcc-ranch:StartChoreClient", function(params)
     else
         devPrint("[ERROR] Invalid choreType: " .. tostring(choreType))
         VORPcore.NotifyRightTip(_U("invalidChoreType"), 4000)
-        cb(false)
         IsInMission = false
         return
     end
@@ -227,7 +229,6 @@ BccUtils.RPC:Register("bcc-ranch:StartChoreClient", function(params)
         devPrint("[ERROR] Missing or invalid chore coordinates for choreType: " .. choreType)
         VORPcore.NotifyRightTip("Invalid Coordinates", 4000)
         IsInMission = false
-        cb(false)
         return
     end
 
@@ -246,7 +247,6 @@ BccUtils.RPC:Register("bcc-ranch:StartChoreClient", function(params)
             blip:Remove()
             IsInMission = false
             VORPcore.NotifyRightTip(_U("failed"), 4000)
-            cb(false)
             break
         end
 
@@ -264,7 +264,6 @@ BccUtils.RPC:Register("bcc-ranch:StartChoreClient", function(params)
                             VORPcore.NotifyRightTip(_U("failed"), 4000)
                             blip:Remove()
                             IsInMission = false
-                            cb(false)
                         else
                             if choreType == 'scooppoop' then
                                 BccUtils.RPC:Call("bcc-ranch:AddItem", { item = ConfigRanch.ranchSetup.choreSetup.shovelPoopRewardItem, amount = ConfigRanch.ranchSetup.choreSetup.shovelPoopRewardAmount }, function(success)
@@ -275,20 +274,17 @@ BccUtils.RPC:Register("bcc-ranch:StartChoreClient", function(params)
                                     end
                                 end)
                             end
-                            devPrint("Sending IncreaseRanchCond RPC. RanchId:", RanchData.ranchid, "Amount:", incAmount)
-                            --[[BccUtils.RPC:Call("bcc-ranch:IncreaseRanchCond", { ranchId = RanchData.ranchid, amount = incAmount }, function(success)
-                                devPrint("IncreaseRanchCond RPC Response: success =", success)
+                            devPrint("[DEBUG] Sending IncreaseRanchCond RPC. RanchId:", RanchData.ranchid, "Amount:", incAmount)
+                            BccUtils.RPC:Call('bcc-ranch:IncreaseRanchCond', { ranchId = RanchData.ranchid, amount = incAmount }, function(success, message)
                                 if success then
-                                    VORPcore.NotifyRightTip(_U("choreComplete"), 4000)
+                                    devPrint("[DEBUG] Successfully increased ranch condition. Message:", message)
                                 else
-                                    VORPcore.NotifyRightTip(_U("updateFailed"), 4000)
+                                    devPrint("[ERROR] Failed to increase ranch condition. Message:", message)
                                 end
-                            end)  ]]-- 
-                            TriggerServerEvent('bcc-ranch:IncreaseRanchCond', RanchData.ranchid, incAmount)
+                            end)
                             VORPcore.NotifyRightTip(_U("choreComplete"), 4000)
                             blip:Remove()
                             IsInMission = false
-                            cb(true)
                         end
                     end
 
@@ -315,7 +311,6 @@ BccUtils.RPC:Register("bcc-ranch:StartChoreClient", function(params)
                             IsInMission = false
                             VORPcore.NotifyRightTip(_U("failed"), 4000)
                             SetPedToRagdoll(PlayerPedId(), 1000, 1000, 0, 0, 0, 0)
-                            cb(false)
                         end
                     end)
                 else
