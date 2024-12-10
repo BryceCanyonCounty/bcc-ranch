@@ -71,9 +71,9 @@ function SellAnimals(animalType, animalCond)
     --Detecting Closest Sale Barn Setup Credit to vorp_core for this bit of code, and jannings for pointing this out to me
     BccUtils.RPC:Call("bcc-ranch:UpdateAnimalsOut", { ranchId = RanchData.ranchid, isOut = true }, function(success)
         if success then
-            print("Animals out status updated successfully!")
+            devPrint("Animals out status updated successfully!")
         else
-            print("Failed to update animals out status!")
+            devPrint("Failed to update animals out status!")
         end
     end)
     local finalSaleCoords

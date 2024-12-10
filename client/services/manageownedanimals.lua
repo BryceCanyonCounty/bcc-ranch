@@ -140,9 +140,21 @@ function ManageOwnedAnimalsMenu()
                 style = {}
             }, function()
                 if RanchData.feed_wagon_coords ~= 'none' and RanchData.cow_coords ~= "none" then
-                    TriggerServerEvent('bcc-ranch:FeedingCooldown', RanchData.ranchid, 'cows')
+                    BccUtils.RPC:Call("bcc-ranch:HandleFeedingCooldown", { ranchId = RanchData.ranchid, animalType = "cows" }, function(success)
+                        if success then
+                            TriggerEvent('bcc-ranch:FeedAnimals', 'cows')                            
+                        else
+                            VORPcore.NotifyRightTip("Error", 4000)
+                        end
+                    end)
                 else
-                    VORPcore.NotifyRightTip(_U("noCoordsSet"), 4000)
+                    -- Check for missing specific coordinates
+                    if RanchData.feed_wagon_coords == 'none' then
+                        VORPcore.NotifyRightTip(_U("noCoordsSetForWagon"), 4000)
+                    elseif RanchData.cow_coords == "none" then
+                        manageOwnedAnimalsPage:RouteTo()
+                        VORPcore.NotifyRightTip(_U("noCoordsSet"), 4000)
+                    end
                 end
             end)
             manageCowsPage:RegisterElement("button", {
@@ -253,9 +265,20 @@ function ManageOwnedAnimalsMenu()
                 style = {}
             }, function()
                 if RanchData.feed_wagon_coords ~= 'none' and RanchData.pig_coords ~= "none" then
-                    TriggerServerEvent('bcc-ranch:FeedingCooldown', RanchData.ranchid, 'pigs')
+                    BccUtils.RPC:Call("bcc-ranch:HandleFeedingCooldown", { ranchId = RanchData.ranchid, animalType = "pigs" }, function(success)
+                        if success then
+                            TriggerEvent('bcc-ranch:FeedAnimals', 'pigs')                            
+                        else
+                            VORPcore.NotifyRightTip("Error", 4000)
+                        end
+                    end)
                 else
-                    VORPcore.NotifyRightTip(_U("noCoordsSet"), 4000)
+                    -- Check for missing specific coordinates
+                    if RanchData.feed_wagon_coords == 'none' then
+                        VORPcore.NotifyRightTip(_U("noCoordsSetForWagon"), 4000)
+                    elseif RanchData.pig_coords == "none" then
+                        VORPcore.NotifyRightTip(_U("noCoordsSet"), 4000)
+                    end
                 end
             end)
             managePigsPage:RegisterElement("button", {
@@ -355,9 +378,20 @@ function ManageOwnedAnimalsMenu()
                 style = {}
             }, function()
                 if RanchData.feed_wagon_coords ~= 'none' and RanchData.sheep_coords ~= "none" then
-                    TriggerServerEvent('bcc-ranch:FeedingCooldown', RanchData.ranchid, 'sheeps')
+                    BccUtils.RPC:Call("bcc-ranch:HandleFeedingCooldown", { ranchId = RanchData.ranchid, animalType = "sheeps" }, function(success)
+                        if success then
+                            TriggerEvent('bcc-ranch:FeedAnimals', 'sheeps')                            
+                        else
+                            VORPcore.NotifyRightTip("Error", 4000)
+                        end
+                    end)
                 else
-                    VORPcore.NotifyRightTip(_U("noCoordsSet"), 4000)
+                    -- Check for missing specific coordinates
+                    if RanchData.feed_wagon_coords == 'none' then
+                        VORPcore.NotifyRightTip(_U("noCoordsSetForWagon"), 4000)
+                    elseif RanchData.sheep_coords == "none" then
+                        VORPcore.NotifyRightTip(_U("noCoordsSet"), 4000)
+                    end
                 end
             end)
             manageSheepsPage:RegisterElement("button", {
@@ -467,9 +501,20 @@ function ManageOwnedAnimalsMenu()
                 style = {}
             }, function()
                 if RanchData.feed_wagon_coords ~= 'none' and RanchData.goat_coords ~= "none" then
-                    TriggerServerEvent('bcc-ranch:FeedingCooldown', RanchData.ranchid, 'goats')
+                    BccUtils.RPC:Call("bcc-ranch:HandleFeedingCooldown", { ranchId = RanchData.ranchid, animalType = "goats" }, function(success)
+                        if success then
+                            TriggerEvent('bcc-ranch:FeedAnimals', 'goats')                            
+                        else
+                            VORPcore.NotifyRightTip("Error", 4000)
+                        end
+                    end)
                 else
-                    VORPcore.NotifyRightTip(_U("noCoordsSet"), 4000)
+                    -- Check for missing specific coordinates
+                    if RanchData.feed_wagon_coords == 'none' then
+                        VORPcore.NotifyRightTip(_U("noCoordsSetForWagon"), 4000)
+                    elseif RanchData.goat_coords == "none" then
+                        VORPcore.NotifyRightTip(_U("noCoordsSet"), 4000)
+                    end
                 end
             end)
             manageGoatsPage:RegisterElement("button", {
@@ -569,10 +614,21 @@ function ManageOwnedAnimalsMenu()
                 style = {}
             }, function()
                 if RanchData.feed_wagon_coords ~= 'none' and RanchData.chicken_coords ~= "none" then
-                    TriggerServerEvent('bcc-ranch:FeedingCooldown', RanchData.ranchid, 'chickens')
+                    BccUtils.RPC:Call("bcc-ranch:HandleFeedingCooldown", { ranchId = RanchData.ranchid, animalType = "chickens" }, function(success)
+                        if success then
+                            TriggerEvent('bcc-ranch:FeedAnimals', 'chickens')                            
+                        else
+                            VORPcore.NotifyRightTip("Error", 4000)
+                        end
+                    end)
                 else
-                    VORPcore.NotifyRightTip(_U("noCoordsSet"), 4000)
-                end
+                    -- Check for missing specific coordinates
+                    if RanchData.feed_wagon_coords == 'none' then
+                        VORPcore.NotifyRightTip(_U("noCoordsSetForWagon"), 4000)
+                    elseif RanchData.chicken_coords == "none" then
+                        VORPcore.NotifyRightTip(_U("noCoordsSet"), 4000)
+                    end
+                end                
             end)
             manageChickensPage:RegisterElement("button", {
                 label = _U("butcherAnimal"),

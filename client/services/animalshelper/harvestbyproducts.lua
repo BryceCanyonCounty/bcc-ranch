@@ -7,7 +7,13 @@ RegisterNetEvent('bcc-ranch:HarvestEggs', function()
     local model = 'p_chickencoopcart01x'
     LoadModel(model)
     local coopCoords = json.decode(RanchData.chicken_coop_coords)
-
+    if not coopCoords or not coopCoords.x or not coopCoords.y or not coopCoords.z then
+        devPrint("Error: Missing or invalid spawn coordinates for cows.")
+        VORPcore.NotifyRightTip(_U("noCoordsSet"), 4000)
+        ManageOwnedAnimalsMenu()
+        IsInMission = false
+        return
+    end
     local chickenCoop = CreateObject(model, coopCoords.x, coopCoords.y, coopCoords.z, true, true, false)
     Citizen.InvokeNative(0x9587913B9E772D29, chickenCoop) -- PlaceEntityOnGroundProperly
     VORPcore.NotifyRightTip(_U("harvestEggs"), 4000)
@@ -76,9 +82,15 @@ RegisterNetEvent('bcc-ranch:MilkCows', function()
     IsInMission = true
     local model = 'a_c_cow'
     LoadModel(model)
-    VORPcore.NotifyRightTip(_U("goMilk"), 4000)
-
     local cowCoords = json.decode(RanchData.cow_coords)
+    if not cowCoords or not cowCoords.x or not cowCoords.y or not cowCoords.z then
+        devPrint("Error: Missing or invalid spawn coordinates for cows.")
+        VORPcore.NotifyRightTip(_U("noCoordsSet"), 4000)
+        ManageOwnedAnimalsMenu()
+        IsInMission = false
+        return
+    end
+    VORPcore.NotifyRightTip(_U("goMilk"), 4000)
     createdPed = BccUtils.Ped.CreatePed(model, cowCoords.x, cowCoords.y, cowCoords.z - 1, true, true, false)
     BccUtils.Ped.SetStatic(createdPed)
     local PromptGroup = BccUtils.Prompts:SetupPromptGroup()
@@ -101,6 +113,14 @@ RegisterNetEvent('bcc-ranch:MilkCows', function()
         InMission = false
         DeletePed(createdPed)
         VORPcore.NotifyRightTip(_U("failed"), 4000)
+        return
+    end
+
+    if not cowCoords or not cowCoords.x or not cowCoords.y or not cowCoords.z then
+        devPrint("Error: Missing or invalid spawn coordinates for animal type:", animalType)
+        ManageOwnedAnimalsMenu()
+        VORPcore.NotifyRightTip(_U("noCoordsSetForAnimalType") .. animalType, 4000)
+        IsInMission = false
         return
     end
 
@@ -148,9 +168,15 @@ RegisterNetEvent('bcc-ranch:ShearSheeps', function()
     BCCRanchMenu:Close()
     local model = 'a_c_sheep_01'
     LoadModel(model)
-    VORPcore.NotifyRightTip(_U("shearAnimal"), 4000)
-
     local Sheepcoords = json.decode(RanchData.sheep_coords)
+    if not Sheepcoords or not Sheepcoords.x or not Sheepcoords.y or not Sheepcoords.z then
+        devPrint("Error: Missing or invalid spawn coordinates for cows.")
+        VORPcore.NotifyRightTip(_U("noCoordsSet"), 4000)
+        ManageOwnedAnimalsMenu()
+        IsInMission = false
+        return
+    end
+    VORPcore.NotifyRightTip(_U("shearAnimal"), 4000)
     createdPed = BccUtils.Ped.CreatePed(model, Sheepcoords.x, Sheepcoords.y, Sheepcoords.z - 1, true, true, false)
     FreezeEntityPosition(createdPed, true)
     local PromptGroup = BccUtils.Prompts:SetupPromptGroup()
