@@ -228,6 +228,7 @@ BccUtils.RPC:Register("bcc-ranch:StartChoreClient", function(params)
     if not choreCoords or not choreCoords.x or not choreCoords.y or not choreCoords.z then
         devPrint("[ERROR] Missing or invalid chore coordinates for choreType: " .. choreType)
         VORPcore.NotifyRightTip("Invalid Coordinates", 4000)
+        CaretakingMenu()
         IsInMission = false
         return
     end
@@ -254,7 +255,7 @@ BccUtils.RPC:Register("bcc-ranch:StartChoreClient", function(params)
         local pCoords = GetEntityCoords(PlayerPedId())
         local dist = GetDistanceBetweenCoords(choreCoords.x, choreCoords.y, choreCoords.z, pCoords.x, pCoords.y, pCoords.z, true)
 
-        if dist < 5 then
+        if dist < 5 and not IsEntityDead(PlayerPedId()) then
             PromptGroup:ShowGroup(_U('chore'))
             if firstprompt:HasCompleted() then
                 -- Play the chore

@@ -105,6 +105,35 @@ RegisterServerEvent('bcc-ranch:FeedingCooldown', function(ranchId, animalType)
     end
 end)
 
+local feedingCooldown = {}
+
+BccUtils.RPC:Register("bcc-ranch:HandleFeedingCooldown", function(params, cb, source)
+    local ranchId = params.ranchId
+    local animalType = params.animalType
+
+    -- Fetch ranch data
+    local ranch = MySQL.query.await("SELECT * FROM bcc_ranch WHERE ranchid = ?", { ranchId })
+    if #ranch > 0 then
+        local currentTime = os.time()
+
+        -- Check if the ranch is on cooldown
+        if not feedingCooldown[ranchId] then
+            feedingCooldown[ranchId] = currentTime
+            cb(true) -- Allow feeding
+        elseif os.difftime(currentTime, feedingCooldown[ranchId]) >= ConfigRanch.ranchSetup.feedingCooldown then
+            feedingCooldown[ranchId] = currentTime
+            cb(true) -- Allow feeding after cooldown
+        else
+            local remainingCooldown = ConfigRanch.ranchSetup.feedingCooldown - os.difftime(currentTime, feedingCooldown[ranchId])
+            cb(false)
+            VORPcore.NotifyRightTip(source, _U("cooldown") .. tostring(remainingCooldown), 4000)
+        end
+    else
+        cb(false)
+        VORPcore.NotifyRightTip(source, "Ranch not found")
+    end
+end)
+
 local harvestingEggsCooldown = {}
 ---@param ranchId  integer
 RegisterServerEvent('bcc-ranch:HarvestEggsCooldown', function(ranchId)

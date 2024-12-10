@@ -62,7 +62,7 @@ RegisterNetEvent("bcc-ranch:PlayerOwnsARanch", function(ranchData, isOwnerOfRanc
         if not IsInMission then
             local dist = #(RanchData.ranchcoordsVector3 - GetEntityCoords(PlayerPedId()))
             local sleep = false
-            if dist < 5 then
+            if dist < 5 and not IsEntityDead(PlayerPedId()) then
                 promptGroup:ShowGroup(_U("yourRanch"))
                 if firstprompt:HasCompleted() then
                     if not IsInMission then

@@ -535,6 +535,7 @@ BccUtils.RPC:Register("bcc-ranch:InsertAnimalRelatedCoords", function(params, cb
     local ranch = MySQL.query.await("SELECT * FROM bcc_ranch WHERE ranchid = ?", { ranchId })
     if not ranch or #ranch == 0 then
         devPrint("Error: No ranch found for ranchId: " .. ranchId)
+        cb(false)
         return
     end
     devPrint("Ranch data successfully retrieved for ranchId: " .. ranchId)
@@ -589,11 +590,9 @@ BccUtils.RPC:Register("bcc-ranch:InsertAnimalRelatedCoords", function(params, cb
                 UpdateAllRanchersRanchData(ranchId)
                 devPrint("Coordinates successfully updated for type: " .. type)
                 cb(true)
-                return
             else
                 devPrint("Error: Insufficient funds for _source: " .. _source)
                 cb(false)
-                return
             end
         else
             devPrint("No cost required. Proceeding to update coordinates.")
@@ -603,6 +602,14 @@ BccUtils.RPC:Register("bcc-ranch:InsertAnimalRelatedCoords", function(params, cb
             cb(true)
             return
         end
+        
+
+        -- Fetch updated ranch data
+        local updatedRanchData = MySQL.query.await("SELECT * FROM bcc_ranch WHERE ranchid = ?", { ranchId })
+
+        -- Notify all clients about the updated ranch data
+        TriggerClientEvent("bcc-ranch:UpdateRanchData", _source, updatedRanchData[1])
+        cb(true)
     else
         devPrint("Error: Invalid type provided: " .. type)
         cb(false)
