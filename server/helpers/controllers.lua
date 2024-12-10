@@ -505,8 +505,25 @@ BccUtils.RPC:Register("bcc-ranch:AnimalBought", function(params, cb, source)
     end
 end)
 
-BccUtils.RPC:Register("bcc-ranch:InsertAnimalRelatedCoords", function(params)
-    local _source = source
+BccUtils.RPC:Register("bcc-ranch:InsertAnimalRelatedCoords", function(params, cb, recSource)
+    local _source = recSource or source
+    if not _source then
+        devPrint("Error: _source is nil")
+        return
+    end
+
+    local user = VORPcore.getUser(_source)
+    if not user then
+        devPrint("Error: User not found for source: " .. tostring(_source))
+        return
+    end
+
+    local character = user.getUsedCharacter
+    if not character then
+        devPrint("Error: No character found for user: " .. tostring(_source))
+        return
+    end
+
     local ranchId = params.ranchId
     local coords = params.coords
     local type = params.type
@@ -518,7 +535,7 @@ BccUtils.RPC:Register("bcc-ranch:InsertAnimalRelatedCoords", function(params)
     local ranch = MySQL.query.await("SELECT * FROM bcc_ranch WHERE ranchid = ?", { ranchId })
     if not ranch or #ranch == 0 then
         devPrint("Error: No ranch found for ranchId: " .. ranchId)
-        return { success = false, error = "No ranch found" }
+        return
     end
     devPrint("Ranch data successfully retrieved for ranchId: " .. ranchId)
 
@@ -559,13 +576,11 @@ BccUtils.RPC:Register("bcc-ranch:InsertAnimalRelatedCoords", function(params)
         end
     }
 
-    -- Execute the appropriate update action
     if updateTable[type] then
         devPrint("Valid type provided: " .. type)
         if moneyToRemove then
             devPrint("Cost to remove: " .. moneyToRemove)
-            local character = VORPcore.getUser(_source).getUsedCharacter
-            devPrint("Character money: " .. character.money)
+            devPrint("Character money: " .. tostring(character.money))
 
             if character.money >= moneyToRemove then
                 devPrint("Sufficient funds. Removing money and updating coordinates.")
@@ -573,21 +588,25 @@ BccUtils.RPC:Register("bcc-ranch:InsertAnimalRelatedCoords", function(params)
                 updateTable[type]()
                 UpdateAllRanchersRanchData(ranchId)
                 devPrint("Coordinates successfully updated for type: " .. type)
-                return { success = true }
+                cb(true)
+                return
             else
                 devPrint("Error: Insufficient funds for _source: " .. _source)
-                return { success = false, error = "Not enough money" }
+                cb(false)
+                return
             end
         else
             devPrint("No cost required. Proceeding to update coordinates.")
             updateTable[type]()
             UpdateAllRanchersRanchData(ranchId)
             devPrint("Coordinates successfully updated for type: " .. type)
-            return { success = true }
+            cb(true)
+            return
         end
     else
         devPrint("Error: Invalid type provided: " .. type)
-        return { success = false, error = "Invalid type" }
+        cb(false)
+        return
     end
 end)
 

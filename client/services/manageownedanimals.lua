@@ -20,8 +20,8 @@ local function setCoords(type, minDist, cost)
                         ranchId = RanchData.ranchid,
                         coords = pCoords,
                         type = "herdCoords"
-                    }, function(response)
-                        if response.success then
+                    }, function(success)
+                        if success then
                             VORPcore.NotifyRightTip(_U("coordsSet"), 4000)
                         else
                             VORPcore.NotifyRightTip(_U("error"), 4000)
@@ -46,8 +46,8 @@ local function setCoords(type, minDist, cost)
                         coords = pCoords,
                         type = type,
                         cost = cost
-                    }, function(response)
-                        if response.success then
+                    }, function(success)
+                        if success then
                             VORPcore.NotifyRightTip(_U("coordsSet"), 4000)
                         else
                             VORPcore.NotifyRightTip(_U("notEnoughMoney"), 4000)
