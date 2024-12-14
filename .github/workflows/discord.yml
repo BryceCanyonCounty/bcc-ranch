@@ -1,0 +1,25 @@
+name: "Release Notification"
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  github-releases-to-discord:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Set env
+        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+      - name: Github Releases To Discord
+        uses: SethCohen/github-releases-to-discord@v1.16.2
+        with:
+          webhook_url: ${{ secrets.WEBHOOK_URL }}
+          color: "15844367"
+          username: "BCC Changelog"
+          avatar_url: "https://bcc-scripts.com/logo.png"
+          content: "# New Release for BCC-ranch (${{ env.RELEASE_VERSION }})! \n\n https://github.com/BryceCanyonCounty/bcc-ranch"
+          footer_timestamp: false
+          max_description: "4096"
+          reduce_headings: true
