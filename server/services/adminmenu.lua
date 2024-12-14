@@ -20,7 +20,7 @@ BccUtils.RPC:Register("bcc-ranch:GetAllRanches", function(params, cb)
     local success, result = pcall(MySQL.query.await, "SELECT * FROM bcc_ranch")
 
     if not success then
-        print("^1[ERROR] Failed to fetch ranches: ^4" .. result)
+        devPrint("^1[ERROR] Failed to fetch ranches: ^4" .. result)
         VORPcore.NotifyRightTip(_source, _U("DatabaseError"), 4000)
         return cb(false)  -- Indicate failure
     end

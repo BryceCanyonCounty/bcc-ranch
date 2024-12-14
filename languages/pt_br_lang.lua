@@ -127,5 +127,9 @@ Locales["pt_br_lang"] = {
     ranchNotFound = "Previous ranch not found. The ranch ID has been reset.",
     ranchAlreadyExists = "You already own a ranch. Only one ranch per character is allowed.",
     ranchCreationFailed = "Ranch creation failed. Please try again later.",
-    invalidAmount = "Invalid amount"
+    invalidAmount = "Invalid amount",
+    noCoordsSetForWagon = "Please set the location for feed wagon",
+    noCoordsSetForAnimalType = "Please set the coordinates for animal type: ",
+    noCoordsSetForHerd = "Please set the coords for the herd",
+    spawnFailed = "Animal spawn failed."
 }

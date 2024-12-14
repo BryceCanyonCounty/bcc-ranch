@@ -109,6 +109,8 @@ RegisterNetEvent('bcc-ranch:FeedAnimals', function(animalType)
     -- Check if spawnCoords is nil, notify the player if true
     if not spawnCoords or not spawnCoords.x or not spawnCoords.y or not spawnCoords.z then
         VORPcore.NotifyRightTip(_U("noCoordsSet"), 4000)
+        ManageOwnedAnimalsMenu()
+        IsInMission = false
         return
     end
 
@@ -129,9 +131,9 @@ RegisterNetEvent('bcc-ranch:FeedAnimals', function(animalType)
     SetRelAndFollowPlayer(feedPeds)
     BccUtils.RPC:Call("bcc-ranch:UpdateAnimalsOut", { ranchId = RanchData.ranchid, isOut = true }, function(success)
         if success then
-            print("Animals out status updated successfully!")
+            devPrint("Animals out status updated successfully!")
         else
-            print("Failed to update animals out status!")
+            devPrint("Failed to update animals out status!")
         end
     end)
 
@@ -319,9 +321,9 @@ RegisterNetEvent('bcc-ranch:FeedAnimals', function(animalType)
     end)
     BccUtils.RPC:Call("bcc-ranch:UpdateAnimalsOut", { ranchId = RanchData.ranchid, isOut = false }, function(success)
         if success then
-            print("Animals out status updated successfully!")
+            devPrint("Animals out status updated successfully!")
         else
-            print("Failed to update animals out status!")
+            devPrint("Failed to update animals out status!")
         end
     end)
     cleanVehicleAndCrates()
