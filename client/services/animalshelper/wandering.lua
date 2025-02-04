@@ -137,9 +137,15 @@ function spawnpedsroam(coords, model, roamDist)
         return nil
     end
 
+    -- Mark the ped as a mission entity
+    SetEntityAsMissionEntity(createdPed, true, true)
+
+    -- Configure ped roaming
     Citizen.InvokeNative(0x283978A15512B2FE, createdPed, true)
     Citizen.InvokeNative(0x9587913B9E772D29, createdPed, true)
     Citizen.InvokeNative(0xE054346CA3A0F315, createdPed, spawnCoords.x, spawnCoords.y, spawnCoords.z, roamDist + 0.1, tonumber(1077936128), tonumber(1086324736), 1)
+
+    -- Setup relationship
     relationshipsetup(createdPed, 1)
 
     return createdPed

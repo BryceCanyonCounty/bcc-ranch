@@ -13,7 +13,7 @@ CreateThread(function()
         ]])
         print("\x1b[33mTable `ranch` renamed to `bcc_ranch`.\x1b[0m")
     else
-        print("\x1b[33mTable `ranch` does not exist. Skipping rename.\x1b[0m")
+        print("\x1b[33mTable `ranch` already renamed. Skipping rename.\x1b[0m")
     end
 
     -- Create the `bcc_ranch` table if it doesn't exist (failsafe for future migrations)
