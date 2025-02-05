@@ -1,28 +1,23 @@
-local function setCoords(choreType) --done inside of a function as you cannot as you can not close feather menu as the code will stop
+local function setCoords(choreType)
     BCCRanchMenu:Close()
     VORPcore.NotifyRightTip(_U("setCoordsLoop"), 10000)
     VORPcore.NotifyRightTip(_U("cancelSetCoords"), 10000)
+    
     while true do
         Wait(5)
+        
         if IsControlJustReleased(0, 0x760A9C6F) then
             local selectedOption = nil
             local coordSetOptions = {
-                ['shovelhay'] = function()
-                    selectedOption = 'shovehaycoords'
-                end,
-                ['wateranimal'] = function()
-                    selectedOption = 'wateranimalcoords'
-                end,
-                ['repairfeedtrough'] = function()
-                    selectedOption = 'repairtroughcoords'
-                end,
-                ['scooppoop'] = function()
-                    selectedOption = 'scooppoopcoords'
-                end
+                ['shovelhay'] = 'shovehaycoords',
+                ['wateranimal'] = 'wateranimalcoords',
+                ['repairfeedtrough'] = 'repairtroughcoords',
+                ['scooppoop'] = 'scooppoopcoords'
             }
-            if coordSetOptions[choreType] then
-                coordSetOptions[choreType]()
-            else
+
+            selectedOption = coordSetOptions[choreType]
+
+            if not selectedOption then
                 devPrint("Invalid choreType for setting coords: " .. choreType)
                 break
             end
@@ -33,7 +28,14 @@ local function setCoords(choreType) --done inside of a function as you cannot as
             devPrint("Ranch radius limit: " .. RanchData.ranch_radius_limit)
 
             if RanchData.ranchcoordsVector3 and RanchData.ranch_radius_limit and #(RanchData.ranchcoordsVector3 - pCoords) <= tonumber(RanchData.ranch_radius_limit) then
-                BccUtils.RPC:Call('bcc-ranch:InsertChoreCoordsIntoDB', { choreCoords = pCoords, ranchId = RanchData.ranchid, choreType = selectedOption }, function(success)
+                devPrint("Calling RPC: bcc-ranch:InsertChoreCoordsIntoDB with ranchId:", RanchData.ranchid, "choreType:", selectedOption)
+
+                -- Use the selectedOption and properly define choreCoords
+                BccUtils.RPC:Call("bcc-ranch:InsertChoreCoordsIntoDB", {
+                    ranchId = RanchData.ranchid,
+                    choreType = selectedOption,  -- Fix here
+                    choreCoords = pCoords  -- Fix here, properly passing the player's coordinates
+                }, function(success)
                     if success then
                         devPrint("Chore coordinates successfully inserted.")
                     else
@@ -42,8 +44,9 @@ local function setCoords(choreType) --done inside of a function as you cannot as
                 end)
             else
                 VORPcore.NotifyRightTip(_U("tooFarFromRanch"), 4000)
-            end            
+            end
         end
+
         if IsControlJustReleased(0, 0x9959A6F0) then
             break
         end
@@ -71,9 +74,15 @@ local function choreMenu(choreType, menuTitle)
         label = _U("startChore"),
         style = {}
     }, function()
-        BccUtils.RPC:Call("bcc-ranch:ChoreCheckRanchCond", { ranchId = RanchData.ranchid, choreType = choreType })
+        BccUtils.RPC:Call("bcc-ranch:ChoreCheckRanchCond", { ranchId = RanchData.ranchid, choreType = choreType }, function(success)
+            if success then
+                devPrint("Chore condition check successful.")
+            else
+                devPrint("Failed to check chore condition.")
+            end
+        end)
+        
     end)
-  
 
     choreMenuPage:RegisterElement('line', {
         slot = "footer",
@@ -311,6 +320,7 @@ BccUtils.RPC:Register("bcc-ranch:StartChoreClient", function(params)
                         else
                             IsInMission = false
                             VORPcore.NotifyRightTip(_U("failed"), 4000)
+                            blip:Remove()
                             SetPedToRagdoll(PlayerPedId(), 1000, 1000, 0, 0, 0, 0)
                         end
                     end)

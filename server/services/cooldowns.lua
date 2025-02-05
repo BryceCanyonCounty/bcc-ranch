@@ -63,7 +63,7 @@ BccUtils.RPC:Register("bcc-ranch:ChoreCheckRanchCond", function(params, cb, sour
         end, source)
     else
         -- Ranch does not exist
-        VORPcore.NotifyRightTip(source, _U("invalidRanchId"), 4000)
+        VORPcore.NotifyRightTip(source, "Invalid Ranch Id", 4000)
         cb(false)
     end
 end)

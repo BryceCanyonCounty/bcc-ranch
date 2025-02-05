@@ -1,7 +1,7 @@
 ConfigRanch = {
     ranchSetup = {
-        ranchConditionDecreaseInterval = 60, -- 1 minute (Time that must pass before ranch condition decreases)
-        ranchConditionDecreaseAmount = 10, -- Amount to decrease ranch condition by
+        ranchConditionDecreaseInterval = 300000, -- 5 minute (Time that must pass before ranch condition decreases. this has to be in ms)
+        ranchConditionDecreaseAmount = 5, -- Amount to decrease ranch condition by
         taxDay = 23, -- Day of the month that taxes are collected
         taxResetDay = 1, -- Day of the month that taxes are reset
         ranchBlip = "blip_mp_roundup", --Main ranch blip
@@ -52,8 +52,8 @@ ConfigRanch = {
             repairFeedTroughAnimTime = 5000,
             shovelPoopCondInc = 10,
             shovelPoopAnimTime = 5000,
-            shovelPoopRewardItem = "poop",
-            shovelPoopRewardAmount = 1
+            shovelPoopRewardItem = "fertilizer",
+            shovelPoopRewardAmount = 5
         }
     }
 }

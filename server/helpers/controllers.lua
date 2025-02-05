@@ -348,11 +348,11 @@ BccUtils.RPC:Register("bcc-ranch:InsertChoreCoordsIntoDB", function(params, cb, 
             devPrint(_U("coordsSet"))
         else
             cb(false)
-            devPrint( _U("databaseError"))
+            devPrint("dATABASE EROOR")
         end
     else
         cb(false)
-        devPrint(_U("invalidChoreType"))
+        devPrint("Inavlid Chore Type")
     end
 end)
 
