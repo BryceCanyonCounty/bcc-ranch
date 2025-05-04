@@ -60,15 +60,47 @@ function PlayAnim(animDict, animName, time) --function to play an animation
   TaskPlayAnim(PlayerPedId(), animDict, animName, 1.0, 1.0, time, flag, 0, true, 0, false, 0, false)
 end
 
-function relationshipsetup(ped, relInt) --ped and player relationship setter, rail int is 1-5 1 being friend 5 being hate
-  SetRelationshipBetweenGroups(relInt, GetPedRelationshipGroupHash(ped), joaat('PLAYER'))
+-- Set the relationship between ped and player
+function relationshipsetup(ped, relInt)
+  if not ped or not DoesEntityExist(ped) then
+      return
+  end
+
+  relInt = tonumber(relInt) or 1 -- fallback to friendly if bad input
+
+  local pedGroup = GetPedRelationshipGroupHash(ped)
+  local playerGroup = joaat('PLAYER')
+
+  -- Both directions
+  SetRelationshipBetweenGroups(relInt, playerGroup, pedGroup)
+  SetRelationshipBetweenGroups(relInt, pedGroup, playerGroup)
 end
 
-function SetRelAndFollowPlayer(table) --will set the peds relation with player and then have ped follow player
-  for k, v in pairs(table) do
-    relationshipsetup(v, 1)
-    TaskFollowToOffsetOfEntity(v, PlayerPedId(), ConfigRanch.ranchSetup.animalFollowSettings.offsetX,
-      ConfigRanch.ranchSetup.animalFollowSettings.offsetY, ConfigRanch.ranchSetup.animalFollowSettings.offsetZ, 1, -1, 5, true,
-      true, ConfigRanch.ranchSetup.animalsWalkOnly, true, true, true)
+-- Make the animals follow the player
+function SetRelAndFollowPlayer(pedObjs)
+  local playerPed = PlayerPedId()
+
+  for _, pedObj in ipairs(pedObjs) do
+      if pedObj and pedObj.GetPed then
+          local ped = pedObj:GetPed()
+          if ped and DoesEntityExist(ped) then
+              relationshipsetup(ped, 1)
+
+              -- Apply follow behavior
+              TaskFollowToOffsetOfEntity(
+                  ped,
+                  playerPed,
+                  ConfigRanch.ranchSetup.animalFollowSettings.offsetX,
+                  ConfigRanch.ranchSetup.animalFollowSettings.offsetY,
+                  ConfigRanch.ranchSetup.animalFollowSettings.offsetZ,
+                  1.0, -- movement speed (you can make dynamic if wanted)
+                  -1,  -- timeout (never timeout)
+                  5.0, -- stop within 5 meters
+                  true, true,
+                  ConfigRanch.ranchSetup.animalsWalkOnly, -- walk only or run
+                  true, true, true
+              )
+          end
+      end
   end
 end

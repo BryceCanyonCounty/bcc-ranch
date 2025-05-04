@@ -1,114 +1,70 @@
-local cows, pigs, sheeps, goats, chickens = {}, {}, {}, {}, {}
+local animalsConfig = {
+    cows = { coordsKey = "cow_coords", peds = {} },
+    pigs = { coordsKey = "pig_coords", peds = {} },
+    sheeps = { coordsKey = "sheep_coords", peds = {} },
+    goats = { coordsKey = "goat_coords", peds = {} },
+    chickens = { coordsKey = "chicken_coords", peds = {} },
+}
 
 CreateThread(function()
     while true do
         Wait(10000)
         if RanchData then
-            if RanchData.cow_coords and RanchData.cow_coords ~= 'none' and #cows <= 0 then
-                spawnWanderingAnimals('cows')
-            end
-            if RanchData.pig_coords and RanchData.pig_coords ~= 'none' and #pigs <= 0 then
-                spawnWanderingAnimals('pigs')
-            end
-            if RanchData.sheep_coords and RanchData.sheep_coords ~= 'none' and #sheeps <= 0 then
-                spawnWanderingAnimals('sheeps')
-            end
-            if RanchData.goat_coords and RanchData.goat_coords ~= 'none' and #goats <= 0 then
-                spawnWanderingAnimals('goats')
-            end
-            if RanchData.chicken_coords and RanchData.chicken_coords ~= 'none' and #chickens <= 0 then
-                spawnWanderingAnimals('chickens')
+            for animalType, config in pairs(animalsConfig) do
+                local coordString = RanchData[config.coordsKey]
+                if coordString and coordString ~= "none" and #config.peds <= 0 then
+                    devPrint(("[Ranch] Spawning %s..."):format(animalType))
+                    spawnWanderingAnimals(animalType)
+                end
             end
         end
     end
 end)
 
+function GetAnimalPeds(animalType)
+    return animalsConfig[animalType] and animalsConfig[animalType].peds or {}
+end
+
 function spawnWanderingAnimals(animalType)
-    local repAmount = 0
-    local spawnCoords
-    local selectedAnimal = {
-        ['cows'] = function()
-            spawnCoords = safeDecode(RanchData.cow_coords)
-            if not spawnCoords then 
-                devPrint("Error: Missing or invalid cow coordinates.")
-                return 
-            end
-            local model = joaat('a_c_cow')
-            repeat
-                repAmount = repAmount + 1
-                local createdPed = spawnpedsroam(spawnCoords, model, ConfigAnimals.animalSetup.cows.roamingRadius)
-                if createdPed then
-                    table.insert(cows, createdPed)
-                end
-            until repAmount == 5
-        end,
-        ['pigs'] = function()
-            spawnCoords = safeDecode(RanchData.pig_coords)
-            if not spawnCoords then 
-                devPrint("Error: Missing or invalid pig coordinates.")
-                return 
-            end
-            local model = joaat('a_c_pig_01')
-            repeat
-                repAmount = repAmount + 1
-                local createdPed = spawnpedsroam(spawnCoords, model, ConfigAnimals.animalSetup.pigs.roamingRadius)
-                if createdPed then
-                    table.insert(pigs, createdPed)
-                end
-            until repAmount == 5
-        end,
-        ['sheeps'] = function()
-            spawnCoords = safeDecode(RanchData.sheep_coords)
-            if not spawnCoords then 
-                devPrint("Error: Missing or invalid sheep coordinates.")
-                return 
-            end
-            local model = joaat('a_c_sheep_01')
-            repeat
-                repAmount = repAmount + 1
-                local createdPed = spawnpedsroam(spawnCoords, model, ConfigAnimals.animalSetup.sheeps.roamingRadius)
-                if createdPed then
-                    table.insert(sheeps, createdPed)
-                end
-            until repAmount == 5
-        end,
-        ['goats'] = function()
-            spawnCoords = safeDecode(RanchData.goat_coords)
-            if not spawnCoords then 
-                devPrint("Error: Missing or invalid goat coordinates.")
-                return 
-            end
-            local model = joaat('a_c_goat_01')
-            repeat
-                repAmount = repAmount + 1
-                local createdPed = spawnpedsroam(spawnCoords, model, ConfigAnimals.animalSetup.goats.roamingRadius)
-                if createdPed then
-                    table.insert(goats, createdPed)
-                end
-            until repAmount == 5
-        end,
-        ['chickens'] = function()
-            spawnCoords = safeDecode(RanchData.chicken_coords)
-            if not spawnCoords then 
-                devPrint("Error: Missing or invalid chicken coordinates.")
-                return 
-            end
-            local model = joaat('a_c_chicken_01')
-            repeat
-                repAmount = repAmount + 1
-                local createdPed = spawnpedsroam(spawnCoords, model, ConfigAnimals.animalSetup.chickens.roamingRadius)
-                if createdPed then
-                    table.insert(chickens, createdPed)
-                end
-            until repAmount == 5
-        end
+    local config = animalsConfig[animalType]
+    if not config then
+        devPrint("Error: Invalid animal type: " .. tostring(animalType))
+        return
+    end
+
+    local coordData = RanchData[config.coordsKey]
+    if not coordData or coordData == "none" then
+        devPrint("Error: Missing or invalid coordinates for " .. animalType)
+        return
+    end
+
+    local spawnCoords = safeDecode(coordData)
+    if not spawnCoords then
+        devPrint("Error: Failed to decode coordinates for " .. animalType)
+        return
+    end
+
+    local modelMap = {
+        cows = "a_c_cow",
+        pigs = "a_c_pig_01",
+        sheeps = "a_c_sheep_01",
+        goats = "a_c_goat_01",
+        chickens = "a_c_chicken_01"
     }
 
-    if selectedAnimal[animalType] then
-        selectedAnimal[animalType]()
-    else
-        devPrint("Error: Invalid animal type: " .. tostring(animalType))
-    end
+    local model = joaat(modelMap[animalType])
+    local roamDist = ConfigAnimals.animalSetup[animalType].roamingRadius
+
+    local repAmount = 0
+    repeat
+        repAmount = repAmount + 1
+        local createdPed = spawnpedsroam(spawnCoords, model, roamDist)
+        if createdPed then
+            table.insert(config.peds, createdPed)
+            devPrint(("[Spawned] %s #%d | NetID: %s | Coords: %.2f %.2f %.2f"):format(
+                animalType, repAmount, tostring(createdPed.netId), createdPed.coords.x, createdPed.coords.y, createdPed.coords.z))
+        end
+    until repAmount == 5
 end
 
 function spawnpedsroam(coords, model, roamDist)
@@ -117,38 +73,66 @@ function spawnpedsroam(coords, model, roamDist)
         return nil
     end
 
-    -- Request the model
+    devPrint(("[Spawn] Requesting model %s"):format(tostring(model)))
     RequestModel(model)
-    while not HasModelLoaded(model) do
-        Wait(100)
+    while not HasModelLoaded(model) do 
+        Wait(100) 
+        devPrint("[Spawn] Waiting for model to load...")
     end
 
-    -- Generate random spawn coordinates near the provided location
     local spawnCoords = {
         x = coords.x + math.random(1, 5),
         y = coords.y + math.random(1, 5),
         z = coords.z
     }
 
-    -- Create the ped at the specified coordinates
-    local createdPed = CreatePed(model, spawnCoords.x, spawnCoords.y, spawnCoords.z, 50, false, false)
-    if not DoesEntityExist(createdPed) then
+    local ped = CreatePed(model, spawnCoords.x, spawnCoords.y, spawnCoords.z, 50.0, false, false)
+    if not DoesEntityExist(ped) then
         devPrint("Error: Failed to create ped.")
         return nil
     end
 
-    -- Mark the ped as a mission entity
-    SetEntityAsMissionEntity(createdPed, true, true)
+    devPrint("[Spawn] Ped created.")
 
-    -- Configure ped roaming
-    Citizen.InvokeNative(0x283978A15512B2FE, createdPed, true)
-    Citizen.InvokeNative(0x9587913B9E772D29, createdPed, true)
-    Citizen.InvokeNative(0xE054346CA3A0F315, createdPed, spawnCoords.x, spawnCoords.y, spawnCoords.z, roamDist + 0.1, tonumber(1077936128), tonumber(1086324736), 1)
+    if not NetworkGetEntityIsNetworked(ped) then 
+        SetEntityAsMissionEntity(ped, true, true)
+        NetworkRegisterEntityAsNetworked(ped)
+        devPrint("[Network] Registered entity as networked.")
+    end
+    
+    local netId = NetworkGetNetworkIdFromEntity(ped)
+    SetNetworkIdExistsOnAllMachines(netId, true)
+    SetEntityVisible(ped, true)
+    FreezeEntityPosition(ped, false)
+    SetBlockingOfNonTemporaryEvents(ped, false)
+    SetPedCanRagdoll(ped, true)
+    SetPedCanPlayAmbientAnims(ped, true)
+    SetPedCanPlayAmbientBaseAnims(ped, true)
 
-    -- Setup relationship
-    relationshipsetup(createdPed, 1)
+    SetRandomOutfitVariation(ped, true)
+    PlaceEntityOnGroundProperly(ped, true)
+    SetEntityHeading(ped, math.random(0, 360))
+    SetModelAsNoLongerNeeded(model)
+    devPrint("[Outfit] Random outfit variation applied.")
 
-    return createdPed
+    ClearPedTasksImmediately(ped)
+    Citizen.InvokeNative(0xE054346CA3A0F315, ped, spawnCoords.x, spawnCoords.y, spawnCoords.z, roamDist + 0.1, tonumber(1077936128), tonumber(1086324736), 1)
+    devPrint(("[AI] WanderInArea task applied at (%.2f, %.2f, %.2f) with radius %.1f"):format(spawnCoords.x, spawnCoords.y, spawnCoords.z, roamDist))
+
+    Citizen.InvokeNative(0x23f74c2fda6e7c61, -1749618580, ped)
+    devPrint("[AI] Ambient animal group set.")
+
+    local pedGroup = GetPedRelationshipGroupHash(ped)
+    local playerGroup = joaat("PLAYER")
+    Citizen.InvokeNative(0xBF25EB89375A37AD, 1, playerGroup, pedGroup)
+    Citizen.InvokeNative(0xBF25EB89375A37AD, 1, pedGroup, playerGroup)
+    devPrint("[AI] Relationship group set between player and " .. tostring(pedGroup))
+
+    return {
+        ped = ped,
+        netId = netId,
+        coords = spawnCoords
+    }
 end
 
 function safeDecode(data)
@@ -158,23 +142,34 @@ function safeDecode(data)
             return result
         end
     end
-    devPrint("Error: Failed to decode JSON data.")
+    devPrint("[Error] Failed to decode JSON data.")
     return nil
 end
 
 AddEventHandler('onResourceStop', function(resourceName)
-    if (GetCurrentResourceName() == resourceName) then
-        local function delPedsForTable(tbl)
-            for _, ped in pairs(tbl) do
+    if GetCurrentResourceName() == resourceName then
+        devPrint("[Cleanup] Deleting all spawned animals...")
+        for animalType, config in pairs(animalsConfig) do
+            for _, entry in pairs(config.peds) do
+                local ped = entry.ped or entry
                 if DoesEntityExist(ped) then
                     DeletePed(ped)
                 end
             end
+            config.peds = {} -- clear the table
         end
-        delPedsForTable(cows)
-        delPedsForTable(chickens)
-        delPedsForTable(goats)
-        delPedsForTable(pigs)
-        delPedsForTable(sheeps)
+    end
+end)
+
+AddEventHandler('playerDropped', function(reason)
+    devPrint("[Disconnect] Player dropped. Cleaning up ranch animals...")
+    for animalType, config in pairs(animalsConfig) do
+        for _, entry in pairs(config.peds) do
+            local ped = entry.ped or entry
+            if DoesEntityExist(ped) then
+                DeletePed(ped)
+            end
+        end
+        config.peds = {} -- clear the table
     end
 end)

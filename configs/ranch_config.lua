@@ -1,13 +1,13 @@
 ConfigRanch = {
     ranchSetup = {
-        ranchConditionDecreaseInterval = 300000, -- 5 minute (Time that must pass before ranch condition decreases. this has to be in ms)
-        ranchConditionDecreaseAmount = 5, -- Amount to decrease ranch condition by
+        ranchConditionDecreaseInterval = 900000, -- 5 minutes (Time that must pass before ranch condition decreases)
+        ranchConditionDecreaseAmount = 10, -- Amount to decrease ranch condition by
         taxDay = 23, -- Day of the month that taxes are collected
         taxResetDay = 1, -- Day of the month that taxes are reset
         ranchBlip = "blip_mp_roundup", --Main ranch blip
         ranchInvLimit = 200, -- Inventory limit for ranch
         manageRanchKey = "B", -- Key to press to manage ranch (B by default)
-        choreKey = "G",
+        ChoreKey = "G",
         skinKey = "G",
         dropHayKey = "G",
         pickupHayKey = "G",

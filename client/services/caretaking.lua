@@ -1,13 +1,17 @@
-local function setCoords(choreType)
+local function setCareTakingCoords(choreType)
     BCCRanchMenu:Close()
     VORPcore.NotifyRightTip(_U("setCoordsLoop"), 10000)
     VORPcore.NotifyRightTip(_U("cancelSetCoords"), 10000)
-    
-    while true do
+
+    local finished = false
+
+    -- Define required minimum distance (for example: must be at least X units from the ranch center)
+    local minDist = 10.0 -- adjust this per chore type if needed
+
+    while not finished do
         Wait(5)
-        
-        if IsControlJustReleased(0, 0x760A9C6F) then
-            local selectedOption = nil
+
+        if IsControlJustReleased(0, 0x760A9C6F) then -- G
             local coordSetOptions = {
                 ['shovelhay'] = 'shovehaycoords',
                 ['wateranimal'] = 'wateranimalcoords',
@@ -15,40 +19,43 @@ local function setCoords(choreType)
                 ['scooppoop'] = 'scooppoopcoords'
             }
 
-            selectedOption = coordSetOptions[choreType]
-
+            local selectedOption = coordSetOptions[choreType]
             if not selectedOption then
                 devPrint("Invalid choreType for setting coords: " .. choreType)
-                break
-            end
-
-            local pCoords = GetEntityCoords(PlayerPedId())
-            devPrint("Player coords: " .. json.encode(pCoords))
-            devPrint("Ranch coords: " .. json.encode(RanchData.ranchcoordsVector3))
-            devPrint("Ranch radius limit: " .. RanchData.ranch_radius_limit)
-
-            if RanchData.ranchcoordsVector3 and RanchData.ranch_radius_limit and #(RanchData.ranchcoordsVector3 - pCoords) <= tonumber(RanchData.ranch_radius_limit) then
-                devPrint("Calling RPC: bcc-ranch:InsertChoreCoordsIntoDB with ranchId:", RanchData.ranchid, "choreType:", selectedOption)
-
-                -- Use the selectedOption and properly define choreCoords
-                BccUtils.RPC:Call("bcc-ranch:InsertChoreCoordsIntoDB", {
-                    ranchId = RanchData.ranchid,
-                    choreType = selectedOption,  -- Fix here
-                    choreCoords = pCoords  -- Fix here, properly passing the player's coordinates
-                }, function(success)
-                    if success then
-                        devPrint("Chore coordinates successfully inserted.")
-                    else
-                        devPrint("Failed to insert chore coordinates.")
-                    end
-                end)
+                finished = true
             else
-                VORPcore.NotifyRightTip(_U("tooFarFromRanch"), 4000)
+                local pCoords = GetEntityCoords(PlayerPedId())
+                local dist = #(RanchData.ranchcoordsVector3 - pCoords)
+
+                if RanchData.ranchcoordsVector3 and RanchData.ranch_radius_limit then
+                    if dist < minDist then
+                        VORPcore.NotifyRightTip(_U("tooCloseToRanch"), 4000)
+                    elseif dist > tonumber(RanchData.ranch_radius_limit) then
+                        VORPcore.NotifyRightTip(_U("tooFarFromRanch"), 4000)
+                    else
+                        BccUtils.RPC:Call("bcc-ranch:InsertChoreCoordsIntoDB", {
+                            ranchId = RanchData.ranchid,
+                            choreType = selectedOption,
+                            choreCoords = pCoords
+                        }, function(success)
+                            if success then
+                                devPrint("Chore coordinates successfully inserted.")
+                                VORPcore.NotifyRightTip(_U("coordsSet"), 4000)
+                                finished = true
+                            else
+                                devPrint("Failed to insert chore coordinates.")
+                                VORPcore.NotifyRightTip(_U("error"), 4000)
+                            end
+                        end)
+                    end
+                else
+                    VORPcore.NotifyRightTip(_U("tooFarFromRanch"), 4000)
+                end
             end
         end
 
-        if IsControlJustReleased(0, 0x9959A6F0) then
-            break
+        if IsControlJustReleased(0, 0x9959A6F0) then -- C
+            finished = true
         end
     end
 end
@@ -67,21 +74,21 @@ local function choreMenu(choreType, menuTitle)
         label = _U("setCoords"),
         style = {}
     }, function()
-        setCoords(choreType)
+        setCareTakingCoords(choreType)
     end)
 
     choreMenuPage:RegisterElement("button", {
         label = _U("startChore"),
         style = {}
     }, function()
-        BccUtils.RPC:Call("bcc-ranch:ChoreCheckRanchCond", { ranchId = RanchData.ranchid, choreType = choreType }, function(success)
-            if success then
-                devPrint("Chore condition check successful.")
-            else
-                devPrint("Failed to check chore condition.")
-            end
-        end)
-        
+        BccUtils.RPC:Call("bcc-ranch:ChoreCheckRanchCond", { ranchId = RanchData.ranchid, choreType = choreType },
+            function(success)
+                if success then
+                    devPrint("Chore condition check successful.")
+                else
+                    devPrint("Failed to check chore condition.")
+                end
+            end)
     end)
 
     choreMenuPage:RegisterElement('line', {
@@ -246,7 +253,8 @@ BccUtils.RPC:Register("bcc-ranch:StartChoreClient", function(params)
     VORPcore.NotifyRightTip(_U("gotoChoreLocation"), 4000)
     blip = BccUtils.Blip:SetBlip(_U("choreLocation"), 960467426, 0.2, choreCoords.x, choreCoords.y, choreCoords.z)
     local PromptGroup = BccUtils.Prompts:SetupPromptGroup()
-    local firstprompt = PromptGroup:RegisterPrompt(_U("startChore"), BccUtils.Keys[ConfigRanch.ranchSetup.choreKey], 1, 1, true, 'hold', {timedeventhash = "MEDIUM_TIMED_EVENT"})
+    local firstprompt = PromptGroup:RegisterPrompt(_U("startChore"), BccUtils.Keys[ConfigRanch.ranchSetup.choreKey], 1, 1,
+        true, 'hold', { timedeventhash = "MEDIUM_TIMED_EVENT" })
 
     -- Monitor player interaction with the chore
     while true do
@@ -276,7 +284,9 @@ BccUtils.RPC:Register("bcc-ranch:StartChoreClient", function(params)
                             IsInMission = false
                         else
                             if choreType == 'scooppoop' then
-                                BccUtils.RPC:Call("bcc-ranch:AddItem", { item = ConfigRanch.ranchSetup.choreSetup.shovelPoopRewardItem, amount = ConfigRanch.ranchSetup.choreSetup.shovelPoopRewardAmount }, function(success)
+                                BccUtils.RPC:Call("bcc-ranch:AddItem",
+                                    { item = ConfigRanch.ranchSetup.choreSetup.shovelPoopRewardItem, amount = ConfigRanch
+                                    .ranchSetup.choreSetup.shovelPoopRewardAmount }, function(success)
                                     if success then
                                         devPrint("Item added successfully.")
                                     else
@@ -284,8 +294,10 @@ BccUtils.RPC:Register("bcc-ranch:StartChoreClient", function(params)
                                     end
                                 end)
                             end
-                            devPrint("[DEBUG] Sending IncreaseRanchCond RPC. RanchId:", RanchData.ranchid, "Amount:", incAmount)
-                            BccUtils.RPC:Call('bcc-ranch:IncreaseRanchCond', { ranchId = RanchData.ranchid, amount = incAmount }, function(success, message)
+                            devPrint("[DEBUG] Sending IncreaseRanchCond RPC. RanchId:", RanchData.ranchid, "Amount:",
+                                incAmount)
+                            BccUtils.RPC:Call('bcc-ranch:IncreaseRanchCond',
+                                { ranchId = RanchData.ranchid, amount = incAmount }, function(success, message)
                                 if success then
                                     devPrint("[DEBUG] Successfully increased ranch condition. Message:", message)
                                 else
@@ -302,7 +314,8 @@ BccUtils.RPC:Register("bcc-ranch:StartChoreClient", function(params)
                     if choreType == "scooppoop" or choreType == "shovelhay" then
                         PlayAnim('amb_work@world_human_farmer_rake@male_a@idle_a', 'idle_a', animTime)
                         local rakeObj = CreateObject('p_rake02x', 0, 0, 0, true, true, false)
-                        AttachEntityToEntity(rakeObj, PlayerPedId(), GetEntityBoneIndexByName(PlayerPedId(), "PH_R_Hand"), 0.0, 0.0, 0.19, 0.0, 0.0, 0.0, false, false, true, false, 0, true, false, false)
+                        AttachEntityToEntity(rakeObj, PlayerPedId(), GetEntityBoneIndexByName(PlayerPedId(), "PH_R_Hand"),
+                            0.0, 0.0, 0.19, 0.0, 0.0, 0.0, false, false, true, false, 0, true, false, false)
                         Wait(animTime)
                         DeleteObject(rakeObj)
                         deadOrSuccessCheck()

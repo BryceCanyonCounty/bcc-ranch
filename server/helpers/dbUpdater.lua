@@ -1,21 +1,4 @@
 CreateThread(function()
-    -- Check if the `ranch` table exists before renaming
-    local result = MySQL.query.await([[
-        SELECT COUNT(*) as count
-        FROM information_schema.tables
-        WHERE table_schema = DATABASE() AND table_name = 'ranch';
-    ]])
-
-    if result[1] and result[1].count > 0 then
-        -- Rename the `ranch` table to `bcc_ranch`
-        MySQL.query.await([[
-            RENAME TABLE `ranch` TO `bcc_ranch`;
-        ]])
-        print("\x1b[33mTable `ranch` renamed to `bcc_ranch`.\x1b[0m")
-    else
-        print("\x1b[33mTable `ranch` already renamed. Skipping rename.\x1b[0m")
-    end
-
     -- Create the `bcc_ranch` table if it doesn't exist (failsafe for future migrations)
     MySQL.query.await([[
         CREATE TABLE IF NOT EXISTS `bcc_ranch` (

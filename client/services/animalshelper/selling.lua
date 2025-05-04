@@ -1,6 +1,6 @@
 local peds = {}
+local saleBlip = nil
 
--------- Function to sell animals -----------
 ---@param animalType string
 ---@param animalCond integer
 function SellAnimals(animalType, animalCond)
@@ -12,55 +12,64 @@ function SellAnimals(animalType, animalCond)
         ['cows'] = function()
             if tonumber(RanchData.cows_age) < ConfigAnimals.animalSetup.cows.AnimalGrownAge then
                 VORPcore.NotifyRightTip(_U("tooYoung"), 4000)
+                return false
             else
                 tables = ConfigAnimals.animalSetup.cows
                 model = 'a_c_cow'
                 spawnCoords = json.decode(RanchData.cow_coords)
+                return true
             end
         end,
         ['pigs'] = function()
             if tonumber(RanchData.pigs_age) < ConfigAnimals.animalSetup.pigs.AnimalGrownAge then
                 VORPcore.NotifyRightTip(_U("tooYoung"), 4000)
+                return false
             else
                 tables = ConfigAnimals.animalSetup.pigs
                 model = 'a_c_pig_01'
                 spawnCoords = json.decode(RanchData.pig_coords)
+                return true
             end
         end,
         ['sheeps'] = function()
             if tonumber(RanchData.sheeps_age) < ConfigAnimals.animalSetup.sheeps.AnimalGrownAge then
                 VORPcore.NotifyRightTip(_U("tooYoung"), 4000)
+                return false
             else
                 tables = ConfigAnimals.animalSetup.sheeps
                 model = 'a_c_sheep_01'
                 spawnCoords = json.decode(RanchData.sheep_coords)
+                return true
             end
         end,
         ['goats'] = function()
             if tonumber(RanchData.goats_age) < ConfigAnimals.animalSetup.goats.AnimalGrownAge then
                 VORPcore.NotifyRightTip(_U("tooYoung"), 4000)
+                return false
             else
                 tables = ConfigAnimals.animalSetup.goats
                 model = 'a_c_goat_01'
                 spawnCoords = json.decode(RanchData.goat_coords)
+                return true
             end
         end,
         ['chickens'] = function()
             if tonumber(RanchData.chickens_age) < ConfigAnimals.animalSetup.chickens.AnimalGrownAge then
                 VORPcore.NotifyRightTip(_U("tooYoung"), 4000)
+                return false
             else
                 tables = ConfigAnimals.animalSetup.chickens
                 model = 'a_c_chicken_01'
                 spawnCoords = json.decode(RanchData.chicken_coords)
+                return true
             end
-        end
+        end,
     }
 
-    if selectAnimalFuncts[animalType] then
-        selectAnimalFuncts[animalType]()
+    if not selectAnimalFuncts[animalType] or not selectAnimalFuncts[animalType]() then
+        return
     end
 
-    -- Check if spawnCoords is nil, notify the player if true
     if not spawnCoords or not spawnCoords.x or not spawnCoords.y or not spawnCoords.z then
         VORPcore.NotifyRightTip(_U("noCoordsSet"), 4000)
         return
@@ -68,111 +77,141 @@ function SellAnimals(animalType, animalCond)
 
     IsInMission = true
 
-    --Detecting Closest Sale Barn Setup Credit to vorp_core for this bit of code, and jannings for pointing this out to me
+    -- Update animals out
     BccUtils.RPC:Call("bcc-ranch:UpdateAnimalsOut", { ranchId = RanchData.ranchid, isOut = true }, function(success)
-        if success then
-            devPrint("Animals out status updated successfully!")
-        else
-            devPrint("Failed to update animals out status!")
-        end
+        devPrint(success and "Animals out status updated successfully!" or "Failed to update animals out status!")
     end)
-    local finalSaleCoords
-    local closestDistance = math.huge
-    for k, v in pairs(Config.saleLocations) do
-        local pCoords = GetEntityCoords(PlayerPedId())
-        local currentDistance = GetDistanceBetweenCoords(v.Coords.x, v.Coords.y, v.Coords.z, pCoords.x, pCoords.y,
-            pCoords.z, true)
 
-        if currentDistance < closestDistance then
-            closestDistance = currentDistance
-            finalSaleCoords = vector3(v.Coords.x, v.Coords.y, v.Coords.z)
+    -- Find nearest sale location
+    local playerCoords = GetEntityCoords(PlayerPedId())
+    local closestDistance = math.huge
+    local finalSaleCoords = nil
+
+    for _, saleLoc in pairs(Config.saleLocations) do
+        local dist = #(vector3(saleLoc.Coords.x, saleLoc.Coords.y, saleLoc.Coords.z) - playerCoords)
+        if dist < closestDistance then
+            closestDistance = dist
+            finalSaleCoords = vector3(saleLoc.Coords.x, saleLoc.Coords.y, saleLoc.Coords.z)
         end
     end
 
-    local catch = 0
-    repeat
-        local createdPed = BccUtils.Ped.CreatePed(model, spawnCoords.x + math.random(1, 5),
-            spawnCoords.y + math.random(1, 5), spawnCoords.z, true, true, false)
-        SetBlockingOfNonTemporaryEvents(createdPed, true)
-        Citizen.InvokeNative(0x9587913B9E772D29, createdPed, true)
-        SetEntityHealth(createdPed, tables.animalHealth, 0)
-        table.insert(peds, createdPed)
-        catch = catch + 1
-    until catch == tables.spawnAmount
+    -- Spawn animals
+    local spawnCount = 0
+    for i = 1, tables.spawnAmount do
+        local pedObj = BccUtils.Ped:Create(model, spawnCoords.x + math.random(1, 5), spawnCoords.y + math.random(1, 5), spawnCoords.z, 0.0, "world", false, true)
+
+        pedObj:SetBlockingOfNonTemporaryEvents(true)
+        SetEntityHealth(pedObj:GetPed(), tables.animalHealth, 0)
+
+        -- ADD THIS LINE TO SET BLIP
+        pedObj:SetBlip(54149631, "Your Animal") 
+
+        local netId = NetworkGetNetworkIdFromEntity(pedObj:GetPed())
+        table.insert(peds, { pedObj = pedObj, netId = netId })
+        spawnCount = spawnCount + 1
+    end
+
+    -- Make animals follow player
     SetRelAndFollowPlayer(peds)
+
+    -- Create GPS + Blip
     VORPcore.NotifyRightTip(_U("leadAnimalsToSaleLocation"), 4000)
     BccUtils.Misc.SetGps(finalSaleCoords.x, finalSaleCoords.y, finalSaleCoords.z)
-    local blip = BccUtils.Blip:SetBlip(_U("saleLocationBlip"), ConfigRanch.ranchSetup.ranchBlip, 0.2, finalSaleCoords.x,
-        finalSaleCoords.y, finalSaleCoords.z)
+    saleBlip = BccUtils.Blip:SetBlip(_U("saleLocationBlip"), ConfigRanch.ranchSetup.ranchBlip, 0.2, finalSaleCoords.x, finalSaleCoords.y, finalSaleCoords.z)
 
+    -- Waiting for animals to reach the sale
     local animalsNear = false
+
     while true do
-        Wait(50)
-        for k, v in pairs(peds) do
-            if #(GetEntityCoords(v) - finalSaleCoords) < 15 then
-                animalsNear = true
-            else
-                animalsNear = false
-            end
-            if IsEntityDead(v) then
-                catch = catch - 1
+        Wait(250)
+        animalsNear = true
+
+        for _, pedObj in ipairs(peds) do
+            if pedObj and pedObj.GetPed then
+                local ped = pedObj:GetPed()
+                if ped and DoesEntityExist(ped) then
+                    if #(GetEntityCoords(ped) - finalSaleCoords) >= 15.0 then
+                        animalsNear = false
+                    end
+                    if IsEntityDead(ped) then
+                        spawnCount = spawnCount - 1
+                    end
+                end
             end
         end
-        if catch == 0 or IsEntityDead(PlayerPedId()) == true then break end
 
-        local plc = GetEntityCoords(PlayerPedId())
-        local dist = #(plc - finalSaleCoords)
-        if dist < 5 and animalsNear == true then
-            local pay
-            if animalCond >= tables.maxCondition and catch == tables.animalHealth then
-                pay = tables.maxConditionPay
-            end
-            if animalCond ~= tables.maxCondition then
-                pay = tables.basePay
-            end
-            if catch ~= tables.spawnAmount then
-                pay = tables.lowPay
-            end
-            BccUtils.RPC:Call("bcc-ranch:AnimalSold", {
-                payAmount = pay,
-                ranchId = RanchData.ranchid,
-                animalType = animalType
-            }, function(success)
-                if success then
-                    devPrint("Animal sold successfully for ranchId: " ..
-                    RanchData.ranchid .. " with animalType: " .. animalType)
-                else
-                    devPrint("Failed to sell animal for ranchId: " .. RanchData.ranchid)
-                end
-            end)
-            VORPcore.NotifyRightTip(_U("animalSold"), 4000)
+        if spawnCount <= 0 or IsEntityDead(PlayerPedId()) then
             break
         end
+
+        if animalsNear then
+            local playerDist = #(GetEntityCoords(PlayerPedId()) - finalSaleCoords)
+            if playerDist < 5 then
+                -- Calculate pay
+                local pay
+                if animalCond >= tables.maxCondition and spawnCount == tables.animalHealth then
+                    pay = tables.maxConditionPay
+                elseif animalCond ~= tables.maxCondition then
+                    pay = tables.basePay
+                elseif spawnCount ~= tables.spawnAmount then
+                    pay = tables.lowPay
+                end
+
+                -- Sell
+                BccUtils.RPC:Call("bcc-ranch:AnimalSold", {
+                    payAmount = pay,
+                    ranchId = RanchData.ranchid,
+                    animalType = animalType
+                }, function(success)
+                    devPrint(success and "Animal sold successfully." or "Failed to sell animal.")
+                end)
+
+                VORPcore.NotifyRightTip(_U("animalSold"), 4000)
+                break
+            end
+        end
     end
+
+    -- Cleanup
     ClearGpsMultiRoute()
-    if IsEntityDead(PlayerPedId()) or catch == 0 then
-        blip:Remove()
+
+    if saleBlip then
+        saleBlip:Remove()
+        saleBlip = nil
+    end
+
+    for _, pedObj in ipairs(peds) do
+        if pedObj then
+            pedObj:Remove()
+        end
+    end
+    peds = {}
+
+    if IsEntityDead(PlayerPedId()) or spawnCount <= 0 then
         VORPcore.NotifyRightTip(_U("failed"), 4000)
     end
-    for k, v in pairs(peds) do
-        DeletePed(v)
-    end
-    blip:Remove()
+
     IsInMission = false
+
     BccUtils.RPC:Call("bcc-ranch:UpdateAnimalsOut", { ranchId = RanchData.ranchid, isOut = false }, function(success)
-        if success then
-            print("Animals out status updated successfully!")
-        else
-            print("Failed to update animals out status!")
-        end
+        devPrint(success and "Animals out status updated after mission." or "Failed to update animals out after mission.")
     end)
 end
 
+-- Cleanup on resource stop
 AddEventHandler('onResourceStop', function(resource)
     if resource == GetCurrentResourceName() then
-        for k, v in pairs(peds) do
-            v:Remove()
+        for _, pedObj in ipairs(peds) do
+            if pedObj then
+                pedObj:Remove()
+            end
         end
         peds = {}
+
+        if saleBlip then
+            saleBlip:Remove()
+            saleBlip = nil
+        end
+        ClearGpsMultiRoute()
     end
 end)

@@ -20,11 +20,11 @@ CreateThread(function()
                     animalType = animalType,
                     incAmount = config.ageIncrease
                 }, function(success)
-                    if success then
+                    --[[if success then
                         devPrint("Successfully increased age for " .. animalType .. " in ranch: " .. RanchData.ranchid)
                     else
                         devPrint("Failed to increase age for " .. animalType .. " in ranch: " .. RanchData.ranchid)
-                    end
+                    end]]
                 end)
             end
         end

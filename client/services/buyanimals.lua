@@ -22,7 +22,7 @@ function BuyAnimalsMenu()
                     -- Handle failure (for example, show an error message)
                 end
             end)
-            MainRanchMenu()
+            BuyAnimalsMenu()
     end)
 
     buyAnimalsPage:RegisterElement("button", {
@@ -39,7 +39,7 @@ function BuyAnimalsMenu()
                     -- Handle failure (for example, show an error message)
                 end
             end)
-            MainRanchMenu()
+            BuyAnimalsMenu()
     end)
 
     buyAnimalsPage:RegisterElement("button", {
@@ -56,7 +56,7 @@ function BuyAnimalsMenu()
                     -- Handle failure (for example, show an error message)
                 end
             end)
-            MainRanchMenu()
+            BuyAnimalsMenu()
     end)
 
     buyAnimalsPage:RegisterElement("button", {
@@ -73,7 +73,7 @@ function BuyAnimalsMenu()
                     -- Handle failure (for example, show an error message)
                 end
             end)
-            MainRanchMenu()
+            BuyAnimalsMenu()
     end)
 
     buyAnimalsPage:RegisterElement("button", {
@@ -90,7 +90,7 @@ function BuyAnimalsMenu()
                     -- Handle failure (for example, show an error message)
                 end
             end)
-            MainRanchMenu()
+            BuyAnimalsMenu()
     end)
 
     buyAnimalsPage:RegisterElement('line', {
