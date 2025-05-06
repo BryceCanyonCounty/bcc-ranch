@@ -1,7 +1,7 @@
 ----- ####### Menu Area ####### -----
 
 -- Function for setting herd locations cant do in menu or will not work with :Close()
-local function setCoords(type, minDist, cost)
+local function setAnimalsCoords(type, minDist, cost)
     BCCRanchMenu:Close()
     IsInMission = true
     VORPcore.NotifyRightTip(_U("setCoordsLoop"), 10000)
@@ -15,7 +15,6 @@ local function setCoords(type, minDist, cost)
         if type == "herdCoords" then
             if IsControlJustReleased(0, 0x760A9C6F) then -- G
                 if dist > minDist then
-                    VORPcore.NotifyRightTip(_U("coordsSet"), 4000)
                     BccUtils.RPC:Call("bcc-ranch:InsertAnimalRelatedCoords", {
                         ranchId = RanchData.ranchid,
                         coords = pCoords,
@@ -40,7 +39,6 @@ local function setCoords(type, minDist, cost)
         else
             if IsControlJustReleased(0, 0x760A9C6F) then -- G
                 if dist < minDist then
-                    VORPcore.NotifyRightTip(_U("coordsSet"), 4000)
                     BccUtils.RPC:Call("bcc-ranch:InsertAnimalRelatedCoords", {
                         ranchId = RanchData.ranchid,
                         coords = pCoords,
@@ -81,13 +79,13 @@ function ManageOwnedAnimalsMenu()
         label = _U("setHerd"),
         style = {}
     }, function()
-        setCoords('herdCoords', ConfigAnimals.animalSetup.minHerdCoords)
+        setAnimalsCoords('herdCoords', ConfigAnimals.animalSetup.minHerdCoords)
     end)
     manageOwnedAnimalsPage:RegisterElement("button", {
         label = _U('setFeedWagon'),
         style = {}
     }, function()
-        setCoords('feedWagonCoords', tonumber(RanchData.ranch_radius_limit))
+        setAnimalsCoords('feedWagonCoords', tonumber(RanchData.ranch_radius_limit))
     end)
     manageOwnedAnimalsPage:RegisterElement("button", {
         label = _U("manageCows"),
@@ -110,6 +108,11 @@ function ManageOwnedAnimalsMenu()
                 slot = "header",
                 style = {}
             })
+            TextDisplay = manageCowsPage:RegisterElement('textdisplay', {
+                value = "Animal Age: " .. tostring(RanchData.cows_age) ,
+                slot = "header",
+                style = {}
+            })
             manageCowsPage:RegisterElement('line', {
                 slot = "header",
                 style = {}
@@ -118,7 +121,7 @@ function ManageOwnedAnimalsMenu()
                 label = _U("setCoords"),
                 style = {}
             }, function()
-                setCoords('cowCoords', tonumber(RanchData.ranch_radius_limit))
+                setAnimalsCoords('cowCoords', tonumber(RanchData.ranch_radius_limit))
             end)
 
             manageCowsPage:RegisterElement('button', {
@@ -236,6 +239,11 @@ function ManageOwnedAnimalsMenu()
                 slot = "header",
                 style = {}
             })
+            TextDisplay = managePigsPage:RegisterElement('textdisplay', {
+                value = "Animal Age: " .. tostring(RanchData.pigs_age) ,
+                slot = "header",
+                style = {}
+            })
             managePigsPage:RegisterElement('line', {
                 slot = "header",
                 style = {}
@@ -244,7 +252,7 @@ function ManageOwnedAnimalsMenu()
                 label = _U("setCoords"),
                 style = {}
             }, function()
-                setCoords('pigCoords', tonumber(RanchData.ranch_radius_limit))
+                setAnimalsCoords('pigCoords', tonumber(RanchData.ranch_radius_limit))
             end)
             managePigsPage:RegisterElement('button', {
                 label = _U("herdAnimal"),
@@ -349,6 +357,11 @@ function ManageOwnedAnimalsMenu()
                 slot = "header",
                 style = {}
             })
+            TextDisplay = manageSheepsPage:RegisterElement('textdisplay', {
+                value = "Animal Age: " .. tostring(RanchData.sheeps_age) ,
+                slot = "header",
+                style = {}
+            })
             manageSheepsPage:RegisterElement('line', {
                 slot = "header",
                 style = {}
@@ -357,7 +370,7 @@ function ManageOwnedAnimalsMenu()
                 label = _U("setCoords"),
                 style = {}
             }, function()
-                setCoords('sheepCoords', tonumber(RanchData.ranch_radius_limit))
+                setAnimalsCoords('sheepCoords', tonumber(RanchData.ranch_radius_limit))
             end)
             manageSheepsPage:RegisterElement('button', {
                 label = _U("herdAnimal"),
@@ -472,6 +485,11 @@ function ManageOwnedAnimalsMenu()
                 slot = "header",
                 style = {}
             })
+            TextDisplay = manageGoatsPage:RegisterElement('textdisplay', {
+                value = "Animal Age: " .. tostring(RanchData.goats_age) ,
+                slot = "header",
+                style = {}
+            })
             manageGoatsPage:RegisterElement('line', {
                 slot = "header",
                 style = {}
@@ -480,7 +498,7 @@ function ManageOwnedAnimalsMenu()
                 label = _U("setCoords"),
                 style = {}
             }, function()
-                setCoords('goatCoords', tonumber(RanchData.ranch_radius_limit))
+                setAnimalsCoords('goatCoords', tonumber(RanchData.ranch_radius_limit))
             end)
             manageGoatsPage:RegisterElement('button', {
                 label = _U("herdAnimal"),
@@ -585,6 +603,11 @@ function ManageOwnedAnimalsMenu()
                 slot = "header",
                 style = {}
             })
+            TextDisplay = manageChickensPage:RegisterElement('textdisplay', {
+                value = "Animal Age: " .. tostring(RanchData.chicken_age) ,
+                slot = "header",
+                style = {}
+            })
             manageChickensPage:RegisterElement('line', {
                 slot = "header",
                 style = {}
@@ -593,7 +616,7 @@ function ManageOwnedAnimalsMenu()
                 label = _U("setCoords"),
                 style = {}
             }, function()
-                setCoords('chickenCoords', tonumber(RanchData.ranch_radius_limit))
+                setAnimalsCoords('chickenCoords', tonumber(RanchData.ranch_radius_limit))
             end)
             manageChickensPage:RegisterElement('button', {
                 label = _U("herdAnimal"),
@@ -659,7 +682,7 @@ function ManageOwnedAnimalsMenu()
                     label = _U("buyChickenCoop") .. ConfigAnimals.animalSetup.chickens.coopCost,
                     style = {}
                 }, function()
-                    setCoords('coopCoords', tonumber(RanchData.ranch_radius_limit), ConfigAnimals.animalSetup.chickens.coopCost)
+                    setAnimalsCoords('coopCoords', tonumber(RanchData.ranch_radius_limit), ConfigAnimals.animalSetup.chickens.coopCost)
                 end)
             else
                 manageChickensPage:RegisterElement('button', {

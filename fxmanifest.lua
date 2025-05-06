@@ -36,4 +36,4 @@ dependency {
     'bcc-minigames',
 }
 
-version '2.3.6'
+version '2.4.6'

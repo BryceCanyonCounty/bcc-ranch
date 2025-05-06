@@ -1,5 +1,4 @@
-IsAdmin, RanchData, IsOwnerOfRanch, IsInMission = false, nil, false, false
-local ranchBlip = nil
+IsAdmin, RanchData, IsOwnerOfRanch, IsInMission, agingActive, ranchBlip = false, {}, false, false, false, nil
 
 RegisterNetEvent('vorp:SelectedCharacter')
 AddEventHandler('vorp:SelectedCharacter', function()
@@ -56,9 +55,23 @@ RegisterNetEvent("bcc-ranch:PlayerOwnsARanch", function(ranchData, isOwnerOfRanc
             end
         end)
     end
-
+    agingActive = false -- Reset agingActive
+    for animalType, config in pairs(ConfigAnimals.animalSetup) do
+        if RanchData[animalType] == "true" then
+            BccUtils.RPC:Call("bcc-ranch:GetAnimalCondition", {
+                ranchId = RanchData.ranchid,
+                animalType = animalType
+            }, function(condition)
+                if condition and condition >= config.maxCondition then
+                    devPrint("[PlayerOwnsARanch] Condition for " .. animalType .. " is at max. Activating aging.")
+                    agingActive = true
+                end
+            end)
+        end
+    end
     while true do
         if Config.commands.manageMyRanchCommand then break end
+            -- Check conditions for all animals
         if not IsInMission then
             local dist = #(RanchData.ranchcoordsVector3 - GetEntityCoords(PlayerPedId()))
             local sleep = false
@@ -84,29 +97,49 @@ RegisterNetEvent("bcc-ranch:PlayerOwnsARanch", function(ranchData, isOwnerOfRanc
             Wait(500)
         end
     end
+
+        -- Check if aging should be active
+        checkIfAgingShouldBeActive()
 end)
 
-RegisterNetEvent('bcc-ranch:UpdateRanchData', function (ranchData)
-    if not IsInMission then
-        IsInMission = true -- This is to stop the player from being able to manage their ranch while the Ranchdata is updating
-        RanchData = nil
-        RanchData = ranchData
-        RanchData.ranchcoords = json.decode(RanchData.ranchcoords)
-        RanchData.ranchcoordsVector3 = vector3(RanchData.ranchcoords.x, RanchData.ranchcoords.y, RanchData.ranchcoords.z)
-        IsInMission = false
+RegisterNetEvent('bcc-ranch:UpdateRanchData', function(ranchData)
+    if not ranchData then
+        devPrint("[UpdateRanchData] Received nil ranchData!")
+        return
+    end
+
+    -- Update ranch data
+    RanchData = ranchData
+
+    if RanchData.ranchcoords then
+        local success, decoded = pcall(json.decode, RanchData.ranchcoords)
+        if success and decoded then
+            RanchData.ranchcoords = decoded
+            RanchData.ranchcoordsVector3 = vector3(decoded.x, decoded.y, decoded.z)
+        else
+            devPrint("[UpdateRanchData] Failed to decode ranchcoords")
+        end
     else
-        while true do
-            Wait(200)
-            if not IsInMission then
-                RanchData = nil
-                RanchData = ranchData
-                RanchData.ranchcoords = json.decode(RanchData.ranchcoords)
-                RanchData.ranchcoordsVector3 = vector3(RanchData.ranchcoords.x, RanchData.ranchcoords.y, RanchData.ranchcoords.z)
-                break
-            end
+        devPrint("[UpdateRanchData] Missing ranchcoords field.")
+    end
+
+    -- Activate aging system only if needed
+    checkIfAgingShouldBeActive()
+end)
+
+function checkIfAgingShouldBeActive()
+    agingActive = false -- Reset first
+
+    for animalType, _ in pairs(ConfigAnimals.animalSetup) do
+        if RanchData[animalType] == "true" then
+            agingActive = true
+            devPrint("[Aging] Activated aging system for ranchId: " .. tostring(RanchData.ranchid))
+            return
         end
     end
-end)
+
+    devPrint("[Aging] No animals found in ranch. Aging system remains OFF.")
+end
 
 AddEventHandler('onResourceStop', function(resourceName)
     if GetCurrentResourceName() == resourceName then

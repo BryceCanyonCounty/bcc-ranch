@@ -62,10 +62,7 @@ CreateThread(function()
                 local currentCondition = tonumber(ranch.ranchCondition)
                 if currentCondition > 0 then
                     -- Decrease ranch condition in the database
-                    MySQL.update.await(
-                        "UPDATE bcc_ranch SET ranchCondition = ranchCondition - ? WHERE ranchid = ?",
-                        { ConfigRanch.ranchSetup.ranchConditionDecreaseAmount, ranch.ranchid }
-                    )
+                    MySQL.update.await("UPDATE bcc_ranch SET ranchCondition = ranchCondition - ? WHERE ranchid = ?", { ConfigRanch.ranchSetup.ranchConditionDecreaseAmount, ranch.ranchid })
                     devPrint("RanchID: " .. ranch.ranchid .. " condition decreased by " .. ConfigRanch.ranchSetup.ranchConditionDecreaseAmount)
 
                     -- Update online ranchers if they exist

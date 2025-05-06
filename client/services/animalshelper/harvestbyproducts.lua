@@ -91,7 +91,7 @@ RegisterNetEvent('bcc-ranch:MilkCows', function()
         return
     end
     VORPcore.NotifyRightTip(_U("goMilk"), 4000)
-    createdPed = BccUtils.Ped.CreatePed(model, cowCoords.x, cowCoords.y, cowCoords.z - 1, true, true, false)
+    createdPed = BccUtils.Ped:Create(model, cowCoords.x, cowCoords.y, cowCoords.z - 1, 0.0, "world", false, nil, nil, true)
     BccUtils.Ped.SetStatic(createdPed)
     local PromptGroup = BccUtils.Prompts:SetupPromptGroup()
     local firstprompt = PromptGroup:RegisterPrompt(_U("milkAnimal"), BccUtils.Keys[ConfigRanch.ranchSetup.milkAnimalKey], 1, 1, true, 'hold', { timedeventhash = "MEDIUM_TIMED_EVENT" })
@@ -99,11 +99,11 @@ RegisterNetEvent('bcc-ranch:MilkCows', function()
     while true do
         Wait(5)
         if IsEntityDead(PlayerPedId()) then break end
-        if IsEntityDead(createdPed) then
+        if IsEntityDead(createdPed:GetPed()) then
             cowDead = true
             break
         end
-        if #(GetEntityCoords(createdPed) - GetEntityCoords(PlayerPedId())) <= 1 then
+        if #(GetEntityCoords(createdPed:GetPed()) - GetEntityCoords(PlayerPedId())) <= 1 then
             PromptGroup:ShowGroup('')
             if firstprompt:HasCompleted() then break end
         end
@@ -111,7 +111,7 @@ RegisterNetEvent('bcc-ranch:MilkCows', function()
 
     if IsEntityDead(PlayerPedId()) or cowDead then
         InMission = false
-        DeletePed(createdPed)
+        createdPed:Remove()
         VORPcore.NotifyRightTip(_U("failed"), 4000)
         return
     end
@@ -137,11 +137,11 @@ RegisterNetEvent('bcc-ranch:MilkCows', function()
                         devPrint("Failed to add the item.")
                     end
                 end)
-                DeletePed(createdPed)
+                createdPed:Remove()
                 IsInMission = false
             else
                 IsInMission = false
-                DeletePed(createdPed)
+                createdPed:Remove()
                 VORPcore.NotifyRightTip(_U("failed"), 4000)
             end
             ClearPedTasks(PlayerPedId())
@@ -158,7 +158,7 @@ RegisterNetEvent('bcc-ranch:MilkCows', function()
                 devPrint("Failed to add the item.")
             end
         end)
-        DeletePed(createdPed)
+        createdPed:Remove()
     end
 end)
 
@@ -177,19 +177,19 @@ RegisterNetEvent('bcc-ranch:ShearSheeps', function()
         return
     end
     VORPcore.NotifyRightTip(_U("shearAnimal"), 4000)
-    createdPed = BccUtils.Ped.CreatePed(model, Sheepcoords.x, Sheepcoords.y, Sheepcoords.z - 1, true, true, false)
-    FreezeEntityPosition(createdPed, true)
+    createdPed = BccUtils.Ped:Create(model, Sheepcoords.x, Sheepcoords.y, Sheepcoords.z - 1, 0.0, "world", false, nil, nil, true)
+    FreezeEntityPosition(createdPed:GetPed(), true)
     local PromptGroup = BccUtils.Prompts:SetupPromptGroup()
     local firstprompt = PromptGroup:RegisterPrompt(_U("shearAnimal"), BccUtils.Keys[ConfigRanch.ranchSetup.shearAnimalKey], 1, 1, true, 'hold', { timedeventhash = "MEDIUM_TIMED_EVENT" })
     local sheepDead = false
     while true do
         Wait(5)
         if IsEntityDead(PlayerPedId()) then break end
-        if IsEntityDead(createdPed) then
+        if IsEntityDead(createdPed:GetPed()) then
             sheepDead = true
             break
         end
-        if #(GetEntityCoords(PlayerPedId()) - GetEntityCoords(createdPed)) <= 1 then
+        if #(GetEntityCoords(PlayerPedId()) - GetEntityCoords(createdPed:GetPed())) <= 1 then
             PromptGroup:ShowGroup('')
             if firstprompt:HasCompleted() then break end
         end
@@ -197,7 +197,7 @@ RegisterNetEvent('bcc-ranch:ShearSheeps', function()
 
     if IsEntityDead(PlayerPedId()) or sheepDead then
         InMission = false
-        DeletePed(createdPed)
+        createdPed:Remove()
         VORPcore.NotifyRightTip(_U("failed"), 4000)
         return
     end
@@ -218,13 +218,13 @@ RegisterNetEvent('bcc-ranch:ShearSheeps', function()
                 end)
                 VORPcore.NotifyRightTip(_U("animalSheared"), 4000)
                 IsInMission = false
-                DeletePed(createdPed)
+                createdPed:Remove()
                 ClearPedTasks(PlayerPedId())
                 return
             else
                 SetPedToRagdoll(PlayerPedId(), 1000, 1000, 0, 0, 0, 0)
                 IsInMission = false
-                DeletePed(createdPed)
+                createdPed:Remove()
                 VORPcore.NotifyRightTip(_U("failed"), 4000)
                 return
             end
@@ -241,7 +241,7 @@ RegisterNetEvent('bcc-ranch:ShearSheeps', function()
                 devPrint("Failed to add the item.")
             end
         end)
-        DeletePed(createdPed)
+        createdPed:Remove()
     end
 end)
 
@@ -255,7 +255,8 @@ end
 
 AddEventHandler('onResourceStop', function(resource)
     if resource == GetCurrentResourceName() then
-        DeletePed(createdPed)
-        createdPed = nil
+        if createdPed and type(createdPed.Remove) == "function" then
+            createdPed:Remove()
+        end
     end
 end)

@@ -68,7 +68,6 @@ function UpdateAllRanchersRanchData(ranchId)
     -- Send data to all online ranchers
     for _, rancher in pairs(RanchersOnline[ranchId]) do
         devPrint("Sending ranch data to rancherSource: " .. tostring(rancher.rancherSource))
-
         TriggerClientEvent('bcc-ranch:UpdateRanchData', rancher.rancherSource, ranchData[1])
     end
 end
@@ -376,10 +375,10 @@ BccUtils.RPC:Register("bcc-ranch:IncreaseRanchCond", function(params, cb, source
     if result then
         devPrint("[DEBUG] Ranch condition updated successfully for ranchId: " .. ranchId)
         UpdateAllRanchersRanchData(ranchId) -- Notify all ranchers of the update
-        cb(true, "Ranch condition updated successfully") -- Respond with success
+        cb(true) -- Respond with success
     else
         devPrint("[ERROR] Failed to update ranch condition for ranchId: " .. ranchId)
-        cb(false, "Database update failed") -- Respond with failure
+        cb(false) -- Respond with failure
     end
 end)
 
@@ -495,6 +494,7 @@ BccUtils.RPC:Register("bcc-ranch:AnimalBought", function(params, cb, source)
         if buyAnimalOptions[animalType] then
             buyAnimalOptions[animalType]()
             cb(true) -- Return success callback
+            --TriggerClientEvent("bcc-ranch:PlayerOwnsARanch", ownerSource, insertedRanch[1], true)
         else
             VORPcore.NotifyRightTip(source, _U("invalidAnimalType"), 4000)
             cb(false) -- Return failure callback if invalid animal type
@@ -740,19 +740,22 @@ BccUtils.RPC:Register("bcc-ranch:IncreaseAnimalAge", function(params, cb, source
             -- Debug print the fetched values
             devPrint("Fetched currentAge: " .. tostring(currentAge) .. ", currentCondition: " .. tostring(currentCondition))
 
+            -- Check if the current age has reached or exceeded the max age
+            if currentAge >= animal.maxAge then
+                devPrint("Error: Animal age has reached or exceeded max age (" .. animal.maxAge .. "). Age will not be increased.")
+                -- Notify the player that the animal has reached its maximum age
+                VORPcore.NotifyRightTip(source, "Your " .. animalType .. " has reached the maximum age of " .. animal.maxAge .. " and will not age further.", 4000)
+                cb(false) -- Return failure callback if the animal has reached max age
+                return
+            end
+
             -- Check if the current condition matches the maxCondition
             if currentCondition == animal.maxCondition then
-                -- Only update the animal's age if it has not reached max age
-                if currentAge < animal.maxAge then
-                    -- Update the animal's age in the database
-                    MySQL.update("UPDATE bcc_ranch SET " .. animal.column .. " = " .. animal.column .. " + ? WHERE ranchid = ?", { incAmount, ranchId })
-                    UpdateAllRanchersRanchData(ranchId)
-                    devPrint("Successfully increased age for " .. animalType .. " at ranchId: " .. ranchId)
-                    cb(true) -- Return success callback
-                else
-                    devPrint("Error: Animal age has reached max age (" .. animal.maxAge .. ") and cannot be increased.")
-                    cb(false) -- Return failure callback if the animal has reached max age
-                end
+                -- Update the animal's age in the database
+                MySQL.update("UPDATE bcc_ranch SET " .. animal.column .. " = " .. animal.column .. " + ? WHERE ranchid = ?", { incAmount, ranchId })
+                UpdateAllRanchersRanchData(ranchId)
+                devPrint("Successfully increased age for " .. animalType .. " at ranchId: " .. ranchId)
+                cb(true) -- Return success callback
             else
                 devPrint("Error: Animal condition (" .. currentCondition .. ") does not match max condition (" .. animal.maxCondition .. ") and cannot be increased.")
                 cb(false)
@@ -773,21 +776,21 @@ BccUtils.RPC:Register("bcc-ranch:ButcherAnimalHandler", function(params, cb, rec
 
     local butcherFuncts = {
         ['cows'] = function()
-            MySQL.update.await('UPDATE bcc_ranch SET cows = "false", cows_cond = 0, cows_age = 0 WHERE ranchid = ?', { ranchId })
+            MySQL.update.await('UPDATE bcc_ranch SET cows = "false", cows_cond = 0, cows_age = 0, cow_coords = "none" WHERE ranchid = ?', { ranchId })
         end,
         ['chickens'] = function()
-            MySQL.update.await('UPDATE bcc_ranch SET chickens = "false", chickens_cond = 0, chickens_age = 0 WHERE ranchid = ?', { ranchId })
+            MySQL.update.await('UPDATE bcc_ranch SET chickens = "false", chickens_cond = 0, chickens_age = 0, chicken_coords = "none", chicken_coop_coords = "none" WHERE ranchid = ?', { ranchId })
         end,
         ['pigs'] = function()
-            MySQL.update.await('UPDATE bcc_ranch SET pigs = "false", pigs_cond = 0, pigs_age = 0 WHERE ranchid = ?', { ranchId })
+            MySQL.update.await('UPDATE bcc_ranch SET pigs = "false", pigs_cond = 0, pigs_age = 0, pig_coords = "none" WHERE ranchid = ?', { ranchId })
         end,
         ['sheeps'] = function()
-            MySQL.update.await('UPDATE bcc_ranch SET sheeps = "false", sheeps_cond = 0, sheeps_age = 0 WHERE ranchid = ?', { ranchId })
+            MySQL.update.await('UPDATE bcc_ranch SET sheeps = "false", sheeps_cond = 0, sheeps_age = 0, sheep_coords = "none" WHERE ranchid = ?', { ranchId })
         end,
         ['goats'] = function()
-            MySQL.update.await('UPDATE bcc_ranch SET goats = "false", goats_cond = 0, goats_age = 0 WHERE ranchid = ?', { ranchId })
+            MySQL.update.await('UPDATE bcc_ranch SET goats = "false", goats_cond = 0, goats_age = 0, goat_coords = "none" WHERE ranchid = ?', { ranchId })
         end
-    }
+    }   
 
     if butcherFuncts[animalType] then
         butcherFuncts[animalType]()
@@ -797,14 +800,13 @@ BccUtils.RPC:Register("bcc-ranch:ButcherAnimalHandler", function(params, cb, rec
     -- Adding butcher items to the player's inventory
     for k, v in pairs(table.butcherItems) do
         exports.vorp_inventory:addItem(recSource, v.name, v.count, {})
+        VORPcore.NotifyAvanced(recSource, "You have received " .. v.name .. " x " .. v.count, "inventory_items", "document_cig_card_act", "COLOR_GREEN", 4000)
     end
-
-    -- Indicate success via callback
+-- Indicate success via callback
     cb(true)
 end)
 
 BccUtils.RPC:Register("bcc-ranch:AnimalSold", function(params, cb, recSource)
-    local payAmount = params.payAmount
     local ranchId = params.ranchId
     local animalType = params.animalType
 
@@ -812,6 +814,23 @@ BccUtils.RPC:Register("bcc-ranch:AnimalSold", function(params, cb, recSource)
     local ranch = MySQL.query.await("SELECT * FROM bcc_ranch WHERE ranchid = ?", { ranchId })
 
     if #ranch > 0 then
+        local config = ConfigAnimals.animalSetup[animalType]
+        if not config then
+            devPrint("Error: Invalid animal type in AnimalSold: " .. tostring(animalType))
+            if cb then cb(false) end
+            return
+        end
+
+        local payAmount = config.basePay or 0
+
+        -- If the animal's condition is at max, add maxConditionPay
+        local conditionColumn = animalType .. "_cond"
+        local currentCondition = ranch[1][conditionColumn]
+
+        if currentCondition and currentCondition >= config.maxCondition then
+            payAmount = payAmount + (config.maxConditionPay or 0)
+        end
+
         devPrint("Animal sold for ranchId: " .. ranchId .. " with animalType: " .. animalType .. " and payAmount: " .. payAmount)
 
         -- Update ledger with the sale amount
@@ -820,19 +839,19 @@ BccUtils.RPC:Register("bcc-ranch:AnimalSold", function(params, cb, recSource)
         -- Define functions for each animal type that resets animal data
         local soldFuncts = {
             ['cows'] = function()
-                MySQL.update.await('UPDATE bcc_ranch SET cows = "false", cows_cond = 0, cows_age = 0 WHERE ranchid = ?', { ranchId })
+                MySQL.update.await('UPDATE bcc_ranch SET cows = "false", cows_cond = 0, cows_age = 0, cow_coords = "none" WHERE ranchid = ?', { ranchId })
             end,
             ['chickens'] = function()
-                MySQL.update.await('UPDATE bcc_ranch SET chickens = "false", chickens_cond = 0, chickens_age = 0 WHERE ranchid = ?', { ranchId })
+                MySQL.update.await('UPDATE bcc_ranch SET chickens = "false", chickens_cond = 0, chickens_age = 0, chicken_coords = "none" WHERE ranchid = ?', { ranchId })
             end,
             ['pigs'] = function()
-                MySQL.update.await('UPDATE bcc_ranch SET pigs = "false", pigs_cond = 0, pigs_age = 0 WHERE ranchid = ?', { ranchId })
+                MySQL.update.await('UPDATE bcc_ranch SET pigs = "false", pigs_cond = 0, pigs_age = 0, pig_coords = "none" WHERE ranchid = ?', { ranchId })
             end,
             ['sheeps'] = function()
-                MySQL.update.await('UPDATE bcc_ranch SET sheeps = "false", sheeps_cond = 0, sheeps_age = 0 WHERE ranchid = ?', { ranchId })
+                MySQL.update.await('UPDATE bcc_ranch SET sheeps = "false", sheeps_cond = 0, sheeps_age = 0, sheep_coords = "none" WHERE ranchid = ?', { ranchId })
             end,
             ['goats'] = function()
-                MySQL.update.await('UPDATE bcc_ranch SET goats = "false", goats_cond = 0, goats_age = 0 WHERE ranchid = ?', { ranchId })
+                MySQL.update.await('UPDATE bcc_ranch SET goats = "false", goats_cond = 0, goats_age = 0, goat_coords = "none" WHERE ranchid = ?', { ranchId })
             end
         }
 
@@ -844,6 +863,7 @@ BccUtils.RPC:Register("bcc-ranch:AnimalSold", function(params, cb, recSource)
 
         -- Notify success back to the client
         devPrint("Successfully sold animal for ranchId: " .. ranchId .. " with animalType: " .. animalType)
+        VORPcore.NotifyAvanced("You have received " .. payAmount "on to ranch ledger", "inventory_items", "money_billstack", "COLOR_GREEN", 4000)
         if cb then cb(true) end
     else
         -- Ranch not found or invalid data
