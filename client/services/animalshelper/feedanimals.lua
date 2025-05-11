@@ -334,7 +334,7 @@ RegisterNetEvent('bcc-ranch:FeedAnimals', function(animalType)
         ClearPedTasksImmediately(v:GetPed())
         TaskPedSlideToCoord(v:GetPed(), cw.x + math.random(1, 5), cw.y + math.random(1, 5), cw.z, 50, true)
         Wait(1500)
-        TaskStartScenarioInPlace(v, eatAnim, -1)
+        TaskStartScenarioInPlace(v:GetPed(), eatAnim, -1)
     end
 
     VORPcore.NotifyRightTip(_U("returnFromFeeding"), 4000)
