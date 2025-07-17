@@ -61,7 +61,7 @@ RegisterNetEvent('bcc-ranch:HerdAnimalClientHandler', function(animalType)
     if not spawnCoords or not spawnCoords.x or not spawnCoords.y or not spawnCoords.z then
         devPrint("Error: Missing or invalid spawn coordinates for animal type:", animalType)
         ManageOwnedAnimalsMenu()
-        VORPcore.NotifyRightTip(_U("noCoordsSetForAnimalType") .. animalType, 4000)
+        Notify(_U("noCoordsSetForAnimalType") .. animalType, "warning", 4000)
         IsInMission = false
         return
     end
@@ -74,18 +74,14 @@ RegisterNetEvent('bcc-ranch:HerdAnimalClientHandler', function(animalType)
             pedObj:CanBeDamaged(false)
             pedObj:SetBlip(54149631, "Your Animal")
             SetEntityHealth(pedObj:GetPed(), tables.animalHealth, 0)
-
             if scale then
                 SetPedScale(pedObj:GetPed(), scale)
             end
-
             local netId = NetworkGetNetworkIdFromEntity(pedObj:GetPed())
             devPrint("[Client] Spawned animal NetID: " .. netId)
 
-            
             table.insert(herdPeds, pedObj)
             catch = catch + 1
-            
         else
             devPrint("Error: Failed to create ped for", animalType)
         end
@@ -93,17 +89,16 @@ RegisterNetEvent('bcc-ranch:HerdAnimalClientHandler', function(animalType)
 
     if #herdPeds == 0 then
         devPrint("Error: Failed to spawn any animals.")
-        VORPcore.NotifyRightTip(_U("spawnFailed"), 4000)
+        Notify(_U("spawnFailed"), "error", 4000)
         IsInMission = false
         return
     end
 
     SetRelAndFollowPlayer(herdPeds)
-
     local herdLocation = safeDecode(RanchData.herd_coords)
     if not herdLocation then
         devPrint("Error: Missing herd location coordinates.")
-        VORPcore.NotifyRightTip(_U("noCoordsSetForHerd"), 4000)
+        Notify(_U("noCoordsSetForHerd"), "error", 4000)
         IsInMission = false
         return
     end
@@ -111,7 +106,7 @@ RegisterNetEvent('bcc-ranch:HerdAnimalClientHandler', function(animalType)
     -- GPS + Blip setup
     BccUtils.Misc.SetGps(herdLocation.x, herdLocation.y, herdLocation.z)
     herdBlip = BccUtils.Blip:SetBlip(_U("herdLocation"), ConfigRanch.ranchSetup.ranchBlip, 0.2, herdLocation.x, herdLocation.y, herdLocation.z)
-    VORPcore.NotifyRightTip(_U("herdAnimalsToLocation"), 4000)
+    Notify(_U("herdAnimalsToLocation"), "info", 4000)
 
     local count = tables.spawnAmount
     local animalsNear = false
@@ -146,47 +141,48 @@ RegisterNetEvent('bcc-ranch:HerdAnimalClientHandler', function(animalType)
                 herdBlip:Remove()
                 herdBlip = nil
             end
-            VORPcore.NotifyRightTip(_U("returnAnimalsToRanch"), 4000)
+            Notify(_U("returnAnimalsToRanch"), "info", 4000)
+            BccUtils.Misc.SetGps(RanchData.ranchcoords.x, RanchData.ranchcoords.y, RanchData.ranchcoords.z)
             break
         elseif not animalsNear and count == 0 then
             ClearGpsMultiRoute()
-            VORPcore.NotifyRightTip(_U("failed"), 4000)
+            Notify(_U("failed"), "error", 4000)
             failed = true
             break
         end
     end
 
     BccUtils.Misc.SetGps(RanchData.ranchcoords.x, RanchData.ranchcoords.y, RanchData.ranchcoords.z)
-
     while true do
         Wait(5)
         if failed then break end
         checkAnimalsAtLocation(RanchData.ranchcoordsVector3)
         if animalsNear then
             ClearGpsMultiRoute()
-
+            local incAmount = tables.feedAnimalCondIncrease
             if count ~= tables.spawnAmount then
                 BccUtils.RPC:Call("bcc-ranch:IncreaseAnimalsCond", {
                     ranchId = RanchData.ranchid,
                     animalType = animalType,
-                    incAmount = tables.condIncreasePerHerd
+                    incAmount = incAmount
                 }, function(success)
+                    Notify(_U("animalCondIncreased") .. tostring(incAmount), "success", 4000)
                     devPrint(success and "Increased animal condition (partial herd)." or "Failed to increase animal condition.")
                 end)
             else
                 BccUtils.RPC:Call("bcc-ranch:IncreaseAnimalsCond", {
                     ranchId = RanchData.ranchid,
                     animalType = animalType,
-                    incAmount = tables.condIncreasePerHerdMaxRanchCond
+                    incAmount = incAmount
                 }, function(success)
+                    Notify(_U("animalCondIncreased") .. tostring(incAmount), "success", 4000)
                     devPrint(success and "Increased animal condition (full herd)." or "Failed to increase animal condition.")
                 end)
             end
-
             break
         elseif not animalsNear and count == 0 then
             ClearGpsMultiRoute()
-            VORPcore.NotifyRightTip(_U("failed"), 4000)
+            Notify(_U("failed"), "error", 4000)
             break
         end
     end
@@ -195,9 +191,7 @@ RegisterNetEvent('bcc-ranch:HerdAnimalClientHandler', function(animalType)
         if pedObj then pedObj:Remove() end
     end
     herdPeds = {}
-
     IsInMission = false
-
     BccUtils.RPC:Call("bcc-ranch:UpdateAnimalsOut", { ranchId = RanchData.ranchid, isOut = false }, function(success)
         devPrint(success and "Animals out status updated successfully!" or "Failed to update animals out status.")
     end)
@@ -226,13 +220,11 @@ AddEventHandler('onResourceStop', function(resource)
             end
             herdPeds = {}
         end
-
         -- Remove herd blip
         if herdBlip then
             herdBlip:Remove()
             herdBlip = nil
         end
-
         -- Clear GPS route
         ClearGpsMultiRoute()
     end

@@ -572,9 +572,8 @@ BccUtils.RPC:Register("bcc-ranch:InsertAnimalRelatedCoords", function(params, cb
         end,
         ['coopCoords'] = function()
             devPrint("Updating coopCoords for ranchId: " .. ranchId)
-            MySQL.update("UPDATE bcc_ranch SET chicken_coop='true' WHERE ranchid = ?", { ranchId })
-            MySQL.update("UPDATE bcc_ranch SET chicken_coop_coords = ? WHERE ranchid = ?", { json.encode(coords), ranchId })
-        end
+            MySQL.update("UPDATE bcc_ranch SET chicken_coop = 'true', chicken_coop_coords = ? WHERE ranchid = ?", { json.encode(coords), ranchId })
+        end        
     }
 
     if updateTable[type] then
@@ -681,20 +680,13 @@ BccUtils.RPC:Register("bcc-ranch:IncreaseAnimalsCond", function(params, cb, recS
 
     -- Check if the animal type is valid
     if animalOptionsTable[animalType] then
-        -- Execute the condition increase logic
         animalOptionsTable[animalType]()
         UpdateAllRanchersRanchData(ranchId)
 
-        -- Notify the rancher if applicable
-        if recSource then
-            VORPcore.NotifyRightTip(recSource, _U("animalCondIncreased") .. tostring(incAmount), 4000)
-        end
-
-        -- Return success via callback
         if cb then cb(true) end
     else
         devPrint("Invalid animal type provided: " .. tostring(animalType))
-        if cb then cb(false) end -- Return failure via callback
+        if cb then cb(false) end 
     end
 end)
 
@@ -748,9 +740,7 @@ BccUtils.RPC:Register("bcc-ranch:IncreaseAnimalAge", function(params, cb, source
                 cb(false) -- Return failure callback if the animal has reached max age
                 return
             end
-
-            -- Check if the current condition matches the maxCondition
-            if currentCondition == animal.maxCondition then
+            if currentCondition >= animal.maxCondition then
                 -- Update the animal's age in the database
                 MySQL.update("UPDATE bcc_ranch SET " .. animal.column .. " = " .. animal.column .. " + ? WHERE ranchid = ?", { incAmount, ranchId })
                 UpdateAllRanchersRanchData(ranchId)
@@ -779,7 +769,7 @@ BccUtils.RPC:Register("bcc-ranch:ButcherAnimalHandler", function(params, cb, rec
             MySQL.update.await('UPDATE bcc_ranch SET cows = "false", cows_cond = 0, cows_age = 0, cow_coords = "none" WHERE ranchid = ?', { ranchId })
         end,
         ['chickens'] = function()
-            MySQL.update.await('UPDATE bcc_ranch SET chickens = "false", chickens_cond = 0, chickens_age = 0, chicken_coords = "none", chicken_coop_coords = "none" WHERE ranchid = ?', { ranchId })
+            MySQL.update.await('UPDATE bcc_ranch SET chickens = "false", chickens_cond = 0, chickens_age = 0, chicken_coords = "none", chicken_coop = "false", chicken_coop_coords = "none" WHERE ranchid = ?', { ranchId })
         end,
         ['pigs'] = function()
             MySQL.update.await('UPDATE bcc_ranch SET pigs = "false", pigs_cond = 0, pigs_age = 0, pig_coords = "none" WHERE ranchid = ?', { ranchId })
@@ -802,7 +792,6 @@ BccUtils.RPC:Register("bcc-ranch:ButcherAnimalHandler", function(params, cb, rec
         exports.vorp_inventory:addItem(recSource, v.name, v.count, {})
         VORPcore.NotifyAvanced(recSource, "You have received " .. v.name .. " x " .. v.count, "inventory_items", "document_cig_card_act", "COLOR_GREEN", 4000)
     end
--- Indicate success via callback
     cb(true)
 end)
 
@@ -842,7 +831,7 @@ BccUtils.RPC:Register("bcc-ranch:AnimalSold", function(params, cb, recSource)
                 MySQL.update.await('UPDATE bcc_ranch SET cows = "false", cows_cond = 0, cows_age = 0, cow_coords = "none" WHERE ranchid = ?', { ranchId })
             end,
             ['chickens'] = function()
-                MySQL.update.await('UPDATE bcc_ranch SET chickens = "false", chickens_cond = 0, chickens_age = 0, chicken_coords = "none" WHERE ranchid = ?', { ranchId })
+                MySQL.update.await('UPDATE bcc_ranch SET chickens = "false", chickens_cond = 0, chickens_age = 0, chicken_coords = "none", chicken_coop = "false", chicken_coop_coords = "none" WHERE ranchid = ?', { ranchId })
             end,
             ['pigs'] = function()
                 MySQL.update.await('UPDATE bcc_ranch SET pigs = "false", pigs_cond = 0, pigs_age = 0, pig_coords = "none" WHERE ranchid = ?', { ranchId })
@@ -863,7 +852,8 @@ BccUtils.RPC:Register("bcc-ranch:AnimalSold", function(params, cb, recSource)
 
         -- Notify success back to the client
         devPrint("Successfully sold animal for ranchId: " .. ranchId .. " with animalType: " .. animalType)
-        VORPcore.NotifyAvanced("You have received " .. payAmount "on to ranch ledger", "inventory_items", "money_billstack", "COLOR_GREEN", 4000)
+        VORPcore.NotifyAvanced("You have received " .. payAmount .. " on to ranch ledger", "inventory_items", "money_billstack", "COLOR_GREEN", 4000)
+        ---VORPcore.NotifyAvanced("You have received " .. payAmount " on to ranch ledger", "inventory_items", "money_billstack", "COLOR_GREEN", 4000)
         if cb then cb(true) end
     else
         -- Ranch not found or invalid data

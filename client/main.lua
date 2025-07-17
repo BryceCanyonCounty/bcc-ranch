@@ -1,29 +1,25 @@
+local activeBlips = {}
 IsAdmin, RanchData, IsOwnerOfRanch, IsInMission, agingActive, ranchBlip = false, {}, false, false, false, nil
 
 RegisterNetEvent('vorp:SelectedCharacter')
 AddEventHandler('vorp:SelectedCharacter', function()
     IsAdmin = BccUtils.RPC:CallAsync("bcc-ranch:AdminCheck")
-    --TriggerServerEvent('bcc-ranch:AdminCheck')
     local player = GetPlayerServerId(tonumber(PlayerId()))
     TriggerServerEvent("bcc-ranch:StoreAllPlayers", player)
     TriggerServerEvent('bcc-ranch:CheckIfPlayerOwnsARanch')
     TriggerServerEvent('bcc-ranch:CheckIfPlayerIsEmployee')
 end)
 
-RegisterCommand(Config.commands.devModeCommand, function()
 if Config.devMode then
     IsAdmin = BccUtils.RPC:CallAsync("bcc-ranch:AdminCheck")
-    --TriggerServerEvent('bcc-ranch:AdminCheck')
     local player = GetPlayerServerId(tonumber(PlayerId()))
     TriggerServerEvent("bcc-ranch:StoreAllPlayers", player)
     TriggerServerEvent('bcc-ranch:CheckIfPlayerOwnsARanch')
     TriggerServerEvent('bcc-ranch:CheckIfPlayerIsEmployee')
 end
-end)
 
 -- Handle ranch ownership notification
 RegisterNetEvent("bcc-ranch:PlayerOwnsARanch", function(ranchData, isOwnerOfRanch)
-
     RanchData = ranchData
     if isOwnerOfRanch then
         IsOwnerOfRanch = true
@@ -34,7 +30,11 @@ RegisterNetEvent("bcc-ranch:PlayerOwnsARanch", function(ranchData, isOwnerOfRanc
     RanchData.ranchcoordsVector3 = vector3(RanchData.ranchcoords.x, RanchData.ranchcoords.y, RanchData.ranchcoords.z)
 
     -- Create ranch blip
-    ranchBlip = BccUtils.Blip:SetBlip(RanchData.ranchname, ConfigRanch.ranchSetup.ranchBlip, 0.2, RanchData.ranchcoords.x, RanchData.ranchcoords.y, RanchData.ranchcoords.z)
+    local x, y, z = RanchData.ranchcoords.x, RanchData.ranchcoords.y, RanchData.ranchcoords.z
+    ranchBlip = BccUtils.Blip:SetBlip(RanchData.ranchname, ConfigRanch.ranchSetup.ranchBlip, 0.2, x, y, z)
+    local modifier = BccUtils.Blips:AddBlipModifier(ranchBlip, 'BLIP_MODIFIER_MP_COLOR_8')
+    modifier:ApplyModifier()
+    table.insert(activeBlips, ranchBlip)
 
     -- Set up ranch management prompt
     local promptGroup = BccUtils.Prompts:SetupPromptGroup()
@@ -48,14 +48,15 @@ RegisterNetEvent("bcc-ranch:PlayerOwnsARanch", function(ranchData, isOwnerOfRanc
                 if not IsInMission then
                     MainRanchMenu()
                 else
-                    VORPcore.NotifyRightTip(_U("cantManageRanch"), 4000)
+                    Notify(_U("cantManageRanch"), "error", 4000)
                 end
             else
-                VORPcore.NotifyRightTip(_U("tooFarFromRanch"), 4000)
+                Notify(_U("tooFarFromRanch"), "error", 4000)
             end
         end)
     end
-    agingActive = false -- Reset agingActive
+
+    agingActive = false
     for animalType, config in pairs(ConfigAnimals.animalSetup) do
         if RanchData[animalType] == "true" then
             BccUtils.RPC:Call("bcc-ranch:GetAnimalCondition", {
@@ -69,9 +70,9 @@ RegisterNetEvent("bcc-ranch:PlayerOwnsARanch", function(ranchData, isOwnerOfRanc
             end)
         end
     end
+
     while true do
         if Config.commands.manageMyRanchCommand then break end
-            -- Check conditions for all animals
         if not IsInMission then
             local dist = #(RanchData.ranchcoordsVector3 - GetEntityCoords(PlayerPedId()))
             local sleep = false
@@ -81,13 +82,12 @@ RegisterNetEvent("bcc-ranch:PlayerOwnsARanch", function(ranchData, isOwnerOfRanc
                     if not IsInMission then
                         MainRanchMenu()
                     else
-                        VORPcore.NotifyRightTip(_U("cantManageRanch"), 4000)
+                        Notify(_U("cantManageRanch"), "error", 4000)
                     end
                 end
             elseif dist > 50 then
                 sleep = true
             end
-
             if sleep then
                 Wait(1000)
             else
@@ -97,9 +97,7 @@ RegisterNetEvent("bcc-ranch:PlayerOwnsARanch", function(ranchData, isOwnerOfRanc
             Wait(500)
         end
     end
-
-        -- Check if aging should be active
-        checkIfAgingShouldBeActive()
+    checkIfAgingShouldBeActive()
 end)
 
 RegisterNetEvent('bcc-ranch:UpdateRanchData', function(ranchData)
@@ -110,7 +108,6 @@ RegisterNetEvent('bcc-ranch:UpdateRanchData', function(ranchData)
 
     -- Update ranch data
     RanchData = ranchData
-
     if RanchData.ranchcoords then
         local success, decoded = pcall(json.decode, RanchData.ranchcoords)
         if success and decoded then
@@ -129,7 +126,6 @@ end)
 
 function checkIfAgingShouldBeActive()
     agingActive = false -- Reset first
-
     for animalType, _ in pairs(ConfigAnimals.animalSetup) do
         if RanchData[animalType] == "true" then
             agingActive = true
@@ -137,15 +133,16 @@ function checkIfAgingShouldBeActive()
             return
         end
     end
-
     devPrint("[Aging] No animals found in ranch. Aging system remains OFF.")
 end
 
+-- Clean up all blips on resource stop
 AddEventHandler('onResourceStop', function(resourceName)
     if GetCurrentResourceName() == resourceName then
-        if ranchBlip then
-            ranchBlip:Remove()
+        for _, blip in ipairs(activeBlips) do
+            blip:Remove()
         end
+        activeBlips = {}
         BCCRanchMenu:Close()
     end
 end)

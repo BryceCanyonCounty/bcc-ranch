@@ -38,7 +38,7 @@ function EmployeesMenu()
     })
 end
 
---Firing employee menu --
+-- Firing employee menu --
 RegisterNetEvent('bcc-ranch:FireEmployeesMenu', function(employees)
     BCCRanchMenu:Close()
     local fireEmployeePage = BCCRanchMenu:RegisterPage("bcc-ranch:fireEmployeePage")
@@ -52,7 +52,7 @@ RegisterNetEvent('bcc-ranch:FireEmployeesMenu', function(employees)
             label = v.firstname .. " " .. v.lastname,
             style = {}
         }, function()
-            VORPcore.NotifyRightTip(_U("fired"), 4000)
+            Notify(_U("fired") .. " " .. v.firstname .. " " .. v.lastname, "success", 4000)
             TriggerServerEvent('bcc-ranch:FireEmployee', v.charidentifier)
         end)
     end
@@ -102,7 +102,7 @@ RegisterNetEvent('bcc-ranch:HireEmployeeMenu', function(currentEmployees)
                 label = v.PlayerName,
                 style = {}
             }, function()
-                VORPcore.NotifyRightTip(_U("hired"), 4000)
+                Notify(_U("hired") .. " " .. v.PlayerName, "success", 4000)
                 TriggerServerEvent('bcc-ranch:EmployeeHired', RanchData.ranchid, v.serverId, v.staticid)
             end)
         end
