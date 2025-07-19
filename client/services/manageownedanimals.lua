@@ -1,17 +1,13 @@
------ ####### Menu Area ####### -----
-
--- Function for setting herd locations cant do in menu or will not work with :Close()
 local function setAnimalsCoords(type, minDist, cost)
     BCCRanchMenu:Close()
     IsInMission = true
-    VORPcore.NotifyRightTip(_U("setCoordsLoop"), 10000)
-    VORPcore.NotifyRightTip(_U("cancelSetCoords"), 10000)
-    
+    Notify(_U("setCoordsLoop"), "info", 10000)
+    Notify(_U("cancelSetCoords"), "info", 10000)
+
     while true do
         Wait(5)
         local pCoords = GetEntityCoords(PlayerPedId())
         local dist = #(RanchData.ranchcoordsVector3 - pCoords)
-
         if type == "herdCoords" then
             if IsControlJustReleased(0, 0x760A9C6F) then -- G
                 if dist > minDist then
@@ -21,15 +17,15 @@ local function setAnimalsCoords(type, minDist, cost)
                         type = "herdCoords"
                     }, function(success)
                         if success then
-                            VORPcore.NotifyRightTip(_U("coordsSet"), 4000)
+                            Notify(_U("coordsSet"), "success", 4000)
                         else
-                            VORPcore.NotifyRightTip(_U("error"), 4000)
+                            Notify(_U("error"), "error", 4000)
                         end
                     end)
                     IsInMission = false
                     break
                 else
-                    VORPcore.NotifyRightTip(_U("tooCloseToRanch"), 4000)
+                    Notify(_U("tooCloseToRanch"), "error", 4000)
                 end
             end
             if IsControlJustReleased(0, 0x9959A6F0) then -- C
@@ -46,15 +42,15 @@ local function setAnimalsCoords(type, minDist, cost)
                         cost = cost
                     }, function(success)
                         if success then
-                            VORPcore.NotifyRightTip(_U("coordsSet"), 4000)
+                            Notify(_U("coordsSet"), "success", 4000)
                         else
-                            VORPcore.NotifyRightTip(_U("notEnoughMoney"), 4000)
+                            Notify(_U("notEnoughMoney"), "error", 4000)
                         end
                     end)
                     IsInMission = false
                     break
                 else
-                    VORPcore.NotifyRightTip(_U("tooFarFromRanch"), 4000)
+                    Notify(_U("tooFarFromRanch"), "error", 4000)
                 end
             end
             if IsControlJustReleased(0, 0x9959A6F0) then -- C
@@ -65,10 +61,8 @@ local function setAnimalsCoords(type, minDist, cost)
     end
 end
 
---------- Manage Animals Menu ------
 function ManageOwnedAnimalsMenu()
     BCCRanchMenu:Close()
-
     local manageOwnedAnimalsPage = BCCRanchMenu:RegisterPage("bcc-ranch:manageOwnedAnimalsMenuPage")
     manageOwnedAnimalsPage:RegisterElement("header", {
         value = _U("manageAnimals"),
@@ -102,14 +96,13 @@ function ManageOwnedAnimalsMenu()
                 slot = "header",
                 style = {}
             })
-
             TextDisplay = manageCowsPage:RegisterElement('textdisplay', {
-                value = _U("checkAnimalCond") .. tostring(RanchData.cows_cond) ,
+                value = _U("checkAnimalCond") .. tostring(RanchData.cows_cond),
                 slot = "header",
                 style = {}
             })
             TextDisplay = manageCowsPage:RegisterElement('textdisplay', {
-                value = "Animal Age: " .. tostring(RanchData.cows_age) ,
+                value = "Animal Age: " .. tostring(RanchData.cows_age),
                 slot = "header",
                 style = {}
             })
@@ -123,19 +116,18 @@ function ManageOwnedAnimalsMenu()
             }, function()
                 setAnimalsCoords('cowCoords', tonumber(RanchData.ranch_radius_limit))
             end)
-
             manageCowsPage:RegisterElement('button', {
                 label = _U("herdAnimal"),
                 style = {}
             }, function()
                 if RanchData.is_any_animals_out == "false" then
                     if RanchData.herd_coords == "none" or RanchData.cow_coords == "none" then
-                        VORPcore.NotifyRightTip(_U("noCoordsSet"), 4000)
+                        Notify(_U("noCoordsSet"), "error", 4000)
                     else
                         TriggerServerEvent('bcc-ranch:HerdingCooldown', RanchData.ranchid, 'cows')
                     end
                 else
-                    VORPcore.NotifyRightTip(_U("animalsAlreadyOut"), 4000)
+                    Notify(_U("animalsAlreadyOut"), "error", 4000)
                 end
             end)
             manageCowsPage:RegisterElement("button", {
@@ -145,18 +137,17 @@ function ManageOwnedAnimalsMenu()
                 if RanchData.feed_wagon_coords ~= 'none' and RanchData.cow_coords ~= "none" then
                     BccUtils.RPC:Call("bcc-ranch:HandleFeedingCooldown", { ranchId = RanchData.ranchid, animalType = "cows" }, function(success)
                         if success then
-                            TriggerEvent('bcc-ranch:FeedAnimals', 'cows')                            
+                            TriggerEvent('bcc-ranch:FeedAnimals', 'cows')
                         else
-                            VORPcore.NotifyRightTip("Error", 4000)
+                            Notify(_U("error"), "error", 4000)
                         end
                     end)
                 else
-                    -- Check for missing specific coordinates
                     if RanchData.feed_wagon_coords == 'none' then
-                        VORPcore.NotifyRightTip(_U("noCoordsSetForWagon"), 4000)
+                        Notify(_U("noCoordsSetForWagon"), "error", 4000)
                     elseif RanchData.cow_coords == "none" then
                         manageOwnedAnimalsPage:RouteTo()
-                        VORPcore.NotifyRightTip(_U("noCoordsSet"), 4000)
+                        Notify(_U("noCoordsSet"), "error", 4000)
                     end
                 end
             end)
@@ -165,7 +156,7 @@ function ManageOwnedAnimalsMenu()
                 style = {}
             }, function()
                 if tonumber(RanchData.cows_age) < ConfigAnimals.animalSetup.cows.AnimalGrownAge then
-                    VORPcore.NotifyRightTip(_U("tooYoung"), 4000)
+                    Notify(_U("tooYoung"), "warning", 4000)
                 else
                     ButcherAnimals('cows')
                 end
@@ -176,12 +167,12 @@ function ManageOwnedAnimalsMenu()
             }, function()
                 if RanchData.cow_coords ~= "none" then
                     if tonumber(RanchData.cows_age) < ConfigAnimals.animalSetup.cows.AnimalGrownAge then
-                        VORPcore.NotifyRightTip(_U("tooYoung"), 4000)
+                        Notify(_U("tooYoung"), "warning", 4000)
                     else
                         SellAnimals('cows', RanchData.cows_cond)
                     end
                 else
-                    VORPcore.NotifyRightTip(_U("noCoordsSet"), 4000)
+                    Notify(_U("noCoordsSet"), "error", 4000)
                 end
             end)
             manageCowsPage:RegisterElement('button', {
@@ -191,15 +182,13 @@ function ManageOwnedAnimalsMenu()
                 if RanchData.cow_coords ~= "none" then
                     TriggerServerEvent('bcc-ranch:MilkingCowsCooldown', RanchData.ranchid)
                 else
-                    VORPcore.NotifyRightTip(_U("noCoordsSet"), 4000)
+                    Notify(_U("noCoordsSet"), "error", 4000)
                 end
             end)
-
             manageCowsPage:RegisterElement('line', {
                 slot = "footer",
                 style = {}
             })
-
             manageCowsPage:RegisterElement('button', {
                 label = _U("back"),
                 slot = "footer",
@@ -207,15 +196,13 @@ function ManageOwnedAnimalsMenu()
             }, function()
                 manageOwnedAnimalsPage:RouteTo()
             end)
-
             manageCowsPage:RegisterElement('bottomline', {
                 slot = "footer",
                 style = {}
             })
-
             manageCowsPage:RouteTo()
         else
-            VORPcore.NotifyRightTip(_U("youDoNotOwnAnimal"), 4000)
+            Notify(_U("youDoNotOwnAnimal"), "error", 4000)
         end
     end)
     manageOwnedAnimalsPage:RegisterElement("button", {
@@ -233,14 +220,13 @@ function ManageOwnedAnimalsMenu()
                 slot = "header",
                 style = {}
             })
-
             TextDisplay = managePigsPage:RegisterElement('textdisplay', {
-                value = _U("checkAnimalCond") .. tostring(RanchData.pigs_cond) ,
+                value = _U("checkAnimalCond") .. tostring(RanchData.pigs_cond),
                 slot = "header",
                 style = {}
             })
             TextDisplay = managePigsPage:RegisterElement('textdisplay', {
-                value = "Animal Age: " .. tostring(RanchData.pigs_age) ,
+                value = "Animal Age: " .. tostring(RanchData.pigs_age),
                 slot = "header",
                 style = {}
             })
@@ -260,12 +246,12 @@ function ManageOwnedAnimalsMenu()
             }, function()
                 if RanchData.is_any_animals_out == "false" then
                     if RanchData.herd_coords == "none" or RanchData.pig_coords == "none" then
-                        VORPcore.NotifyRightTip(_U("noCoordsSet"), 4000)
+                        Notify(_U("noCoordsSet"), "error", 4000)
                     else
                         TriggerServerEvent('bcc-ranch:HerdingCooldown', RanchData.ranchid, 'pigs')
                     end
                 else
-                    VORPcore.NotifyRightTip(_U("animalsAlreadyOut"), 4000)
+                    Notify(_U("animalsAlreadyOut"), "error", 4000)
                 end
             end)
             managePigsPage:RegisterElement("button", {
@@ -275,17 +261,16 @@ function ManageOwnedAnimalsMenu()
                 if RanchData.feed_wagon_coords ~= 'none' and RanchData.pig_coords ~= "none" then
                     BccUtils.RPC:Call("bcc-ranch:HandleFeedingCooldown", { ranchId = RanchData.ranchid, animalType = "pigs" }, function(success)
                         if success then
-                            TriggerEvent('bcc-ranch:FeedAnimals', 'pigs')                            
+                            TriggerEvent('bcc-ranch:FeedAnimals', 'pigs')
                         else
-                            VORPcore.NotifyRightTip("Error", 4000)
+                            Notify(_U("error"), "error", 4000)
                         end
                     end)
                 else
-                    -- Check for missing specific coordinates
                     if RanchData.feed_wagon_coords == 'none' then
-                        VORPcore.NotifyRightTip(_U("noCoordsSetForWagon"), 4000)
+                        Notify(_U("noCoordsSetForWagon"), "error", 4000)
                     elseif RanchData.pig_coords == "none" then
-                        VORPcore.NotifyRightTip(_U("noCoordsSet"), 4000)
+                        Notify(_U("noCoordsSet"), "error", 4000)
                     end
                 end
             end)
@@ -294,7 +279,7 @@ function ManageOwnedAnimalsMenu()
                 style = {}
             }, function()
                 if tonumber(RanchData.pigs_age) < ConfigAnimals.animalSetup.pigs.AnimalGrownAge then
-                    VORPcore.NotifyRightTip(_U("tooYoung"), 4000)
+                    Notify(_U("tooYoung"), "warning", 4000)
                 else
                     ButcherAnimals('pigs')
                 end
@@ -305,20 +290,18 @@ function ManageOwnedAnimalsMenu()
             }, function()
                 if RanchData.pig_coords ~= "none" then
                     if tonumber(RanchData.pigs_age) < ConfigAnimals.animalSetup.pigs.AnimalGrownAge then
-                        VORPcore.NotifyRightTip(_U("tooYoung"), 4000)
+                        Notify(_U("tooYoung"), "warning", 4000)
                     else
                         SellAnimals('pigs', RanchData.pigs_cond)
                     end
                 else
-                    VORPcore.NotifyRightTip(_U("noCoordsSet"), 4000)
+                    Notify(_U("noCoordsSet"), "error", 4000)
                 end
             end)
-
             managePigsPage:RegisterElement('line', {
                 slot = "footer",
                 style = {}
             })
-
             managePigsPage:RegisterElement('button', {
                 label = _U("back"),
                 slot = "footer",
@@ -326,15 +309,13 @@ function ManageOwnedAnimalsMenu()
             }, function()
                 manageOwnedAnimalsPage:RouteTo()
             end)
-
             managePigsPage:RegisterElement('bottomline', {
                 slot = "footer",
                 style = {}
             })
-
             managePigsPage:RouteTo()
         else
-            VORPcore.NotifyRightTip(_U("youDoNotOwnAnimal"), 4000)
+            Notify(_U("youDoNotOwnAnimal"), "error", 4000)
         end
     end)
     manageOwnedAnimalsPage:RegisterElement("button", {
@@ -353,12 +334,12 @@ function ManageOwnedAnimalsMenu()
                 style = {}
             })
             TextDisplay = manageSheepsPage:RegisterElement('textdisplay', {
-                value = _U("checkAnimalCond") .. tostring(RanchData.sheeps_cond) ,
+                value = _U("checkAnimalCond") .. tostring(RanchData.sheeps_cond),
                 slot = "header",
                 style = {}
             })
             TextDisplay = manageSheepsPage:RegisterElement('textdisplay', {
-                value = "Animal Age: " .. tostring(RanchData.sheeps_age) ,
+                value = "Animal Age: " .. tostring(RanchData.sheeps_age),
                 slot = "header",
                 style = {}
             })
@@ -378,12 +359,12 @@ function ManageOwnedAnimalsMenu()
             }, function()
                 if RanchData.is_any_animals_out == "false" then
                     if RanchData.herd_coords == "none" or RanchData.sheep_coords == "none" then
-                        VORPcore.NotifyRightTip(_U("noCoordsSet"), 4000)
+                        Notify(_U("noCoordsSet"), "error", 4000)
                     else
                         TriggerServerEvent('bcc-ranch:HerdingCooldown', RanchData.ranchid, 'sheeps')
                     end
                 else
-                    VORPcore.NotifyRightTip(_U("animalsAlreadyOut"), 4000)
+                    Notify(_U("animalsAlreadyOut"), "error", 4000)
                 end
             end)
             manageSheepsPage:RegisterElement("button", {
@@ -393,17 +374,16 @@ function ManageOwnedAnimalsMenu()
                 if RanchData.feed_wagon_coords ~= 'none' and RanchData.sheep_coords ~= "none" then
                     BccUtils.RPC:Call("bcc-ranch:HandleFeedingCooldown", { ranchId = RanchData.ranchid, animalType = "sheeps" }, function(success)
                         if success then
-                            TriggerEvent('bcc-ranch:FeedAnimals', 'sheeps')                            
+                            TriggerEvent('bcc-ranch:FeedAnimals', 'sheeps')
                         else
-                            VORPcore.NotifyRightTip("Error", 4000)
+                            Notify(_U("error"), "error", 4000)
                         end
                     end)
                 else
-                    -- Check for missing specific coordinates
                     if RanchData.feed_wagon_coords == 'none' then
-                        VORPcore.NotifyRightTip(_U("noCoordsSetForWagon"), 4000)
+                        Notify(_U("noCoordsSetForWagon"), "error", 4000)
                     elseif RanchData.sheep_coords == "none" then
-                        VORPcore.NotifyRightTip(_U("noCoordsSet"), 4000)
+                        Notify(_U("noCoordsSet"), "error", 4000)
                     end
                 end
             end)
@@ -412,7 +392,7 @@ function ManageOwnedAnimalsMenu()
                 style = {}
             }, function()
                 if tonumber(RanchData.sheeps_age) < ConfigAnimals.animalSetup.sheeps.AnimalGrownAge then
-                    VORPcore.NotifyRightTip(_U("tooYoung"), 4000)
+                    Notify(_U("tooYoung"), "warning", 4000)
                 else
                     ButcherAnimals('sheeps')
                 end
@@ -423,12 +403,12 @@ function ManageOwnedAnimalsMenu()
             }, function()
                 if RanchData.sheep_coords ~= "none" then
                     if tonumber(RanchData.sheeps_age) < ConfigAnimals.animalSetup.sheeps.AnimalGrownAge then
-                        VORPcore.NotifyRightTip(_U("tooYoung"), 4000)
+                        Notify(_U("tooYoung"), "warning", 4000)
                     else
                         SellAnimals('sheeps', RanchData.sheeps_cond)
                     end
                 else
-                    VORPcore.NotifyRightTip(_U("noCoordsSet"), 4000)
+                    Notify(_U("noCoordsSet"), "error", 4000)
                 end
             end)
             manageSheepsPage:RegisterElement('button', {
@@ -438,15 +418,13 @@ function ManageOwnedAnimalsMenu()
                 if RanchData.sheep_coords ~= "none" then
                     TriggerServerEvent('bcc-ranch:ShearingSheepsCooldown', RanchData.ranchid)
                 else
-                    VORPcore.NotifyRightTip(_U("noCoordsSet"), 4000)
+                    Notify(_U("noCoordsSet"), "error", 4000)
                 end
             end)
-
             manageSheepsPage:RegisterElement('line', {
                 slot = "footer",
                 style = {}
             })
-
             manageSheepsPage:RegisterElement('button', {
                 label = _U("back"),
                 slot = "footer",
@@ -454,15 +432,13 @@ function ManageOwnedAnimalsMenu()
             }, function()
                 manageOwnedAnimalsPage:RouteTo()
             end)
-
             manageSheepsPage:RegisterElement('bottomline', {
                 slot = "footer",
                 style = {}
             })
-
             manageSheepsPage:RouteTo()
         else
-            VORPcore.NotifyRightTip(_U("youDoNotOwnAnimal"), 4000)
+            Notify(_U("youDoNotOwnAnimal"), "error", 4000)
         end
     end)
     manageOwnedAnimalsPage:RegisterElement("button", {
@@ -481,12 +457,12 @@ function ManageOwnedAnimalsMenu()
                 style = {}
             })
             TextDisplay = manageGoatsPage:RegisterElement('textdisplay', {
-                value = _U("checkAnimalCond") .. tostring(RanchData.goats_cond) ,
+                value = _U("checkAnimalCond") .. tostring(RanchData.goats_cond),
                 slot = "header",
                 style = {}
             })
             TextDisplay = manageGoatsPage:RegisterElement('textdisplay', {
-                value = "Animal Age: " .. tostring(RanchData.goats_age) ,
+                value = "Animal Age: " .. tostring(RanchData.goats_age),
                 slot = "header",
                 style = {}
             })
@@ -506,12 +482,12 @@ function ManageOwnedAnimalsMenu()
             }, function()
                 if RanchData.is_any_animals_out == "false" then
                     if RanchData.herd_coords == "none" or RanchData.goat_coords == "none" then
-                        VORPcore.NotifyRightTip(_U("noCoordsSet"), 4000)
+                        Notify(_U("noCoordsSet"), "error", 4000)
                     else
                         TriggerServerEvent('bcc-ranch:HerdingCooldown', RanchData.ranchid, 'goats')
                     end
                 else
-                    VORPcore.NotifyRightTip(_U("animalsAlreadyOut"), 4000)
+                    Notify(_U("animalsAlreadyOut"), "error", 4000)
                 end
             end)
             manageGoatsPage:RegisterElement("button", {
@@ -521,17 +497,16 @@ function ManageOwnedAnimalsMenu()
                 if RanchData.feed_wagon_coords ~= 'none' and RanchData.goat_coords ~= "none" then
                     BccUtils.RPC:Call("bcc-ranch:HandleFeedingCooldown", { ranchId = RanchData.ranchid, animalType = "goats" }, function(success)
                         if success then
-                            TriggerEvent('bcc-ranch:FeedAnimals', 'goats')                            
+                            TriggerEvent('bcc-ranch:FeedAnimals', 'goats')
                         else
-                            VORPcore.NotifyRightTip("Error", 4000)
+                            Notify(_U("error"), "error", 4000)
                         end
                     end)
                 else
-                    -- Check for missing specific coordinates
                     if RanchData.feed_wagon_coords == 'none' then
-                        VORPcore.NotifyRightTip(_U("noCoordsSetForWagon"), 4000)
+                        Notify(_U("noCoordsSetForWagon"), "error", 4000)
                     elseif RanchData.goat_coords == "none" then
-                        VORPcore.NotifyRightTip(_U("noCoordsSet"), 4000)
+                        Notify(_U("noCoordsSet"), "error", 4000)
                     end
                 end
             end)
@@ -540,7 +515,7 @@ function ManageOwnedAnimalsMenu()
                 style = {}
             }, function()
                 if tonumber(RanchData.goats_age) < ConfigAnimals.animalSetup.goats.AnimalGrownAge then
-                    VORPcore.NotifyRightTip(_U("tooYoung"), 4000)
+                    Notify(_U("tooYoung"), "warning", 4000)
                 else
                     ButcherAnimals('goats')
                 end
@@ -551,20 +526,18 @@ function ManageOwnedAnimalsMenu()
             }, function()
                 if RanchData.goat_coords ~= "none" then
                     if tonumber(RanchData.goats_age) < ConfigAnimals.animalSetup.goats.AnimalGrownAge then
-                        VORPcore.NotifyRightTip(_U("tooYoung"), 4000)
+                        Notify(_U("tooYoung"), "warning", 4000)
                     else
                         SellAnimals('goats', RanchData.goats_cond)
                     end
                 else
-                    VORPcore.NotifyRightTip(_U("noCoordsSet"), 4000)
+                    Notify(_U("noCoordsSet"), "error", 4000)
                 end
             end)
-
             manageGoatsPage:RegisterElement('line', {
                 slot = "footer",
                 style = {}
             })
-
             manageGoatsPage:RegisterElement('button', {
                 label = _U("back"),
                 slot = "footer",
@@ -572,15 +545,13 @@ function ManageOwnedAnimalsMenu()
             }, function()
                 manageOwnedAnimalsPage:RouteTo()
             end)
-
             manageGoatsPage:RegisterElement('bottomline', {
                 slot = "footer",
                 style = {}
             })
-
             manageGoatsPage:RouteTo()
         else
-            VORPcore.NotifyRightTip(_U("youDoNotOwnAnimal"), 4000)
+            Notify(_U("youDoNotOwnAnimal"), "error", 4000)
         end
     end)
     manageOwnedAnimalsPage:RegisterElement("button", {
@@ -599,12 +570,12 @@ function ManageOwnedAnimalsMenu()
                 style = {}
             })
             TextDisplay = manageChickensPage:RegisterElement('textdisplay', {
-                value = _U("checkAnimalCond") .. tostring(RanchData.chickens_cond) ,
+                value = _U("checkAnimalCond") .. tostring(RanchData.chickens_cond),
                 slot = "header",
                 style = {}
             })
             TextDisplay = manageChickensPage:RegisterElement('textdisplay', {
-                value = "Animal Age: " .. tostring(RanchData.chicken_age) ,
+                value = "Animal Age: " .. tostring(RanchData.chicken_age),
                 slot = "header",
                 style = {}
             })
@@ -624,12 +595,12 @@ function ManageOwnedAnimalsMenu()
             }, function()
                 if RanchData.is_any_animals_out == "false" then
                     if RanchData.herd_coords == "none" or RanchData.chicken_coords == "none" then
-                        VORPcore.NotifyRightTip(_U("noCoordsSet"), 4000)
+                        Notify(_U("noCoordsSet"), "error", 4000)
                     else
                         TriggerServerEvent('bcc-ranch:HerdingCooldown', RanchData.ranchid, 'chickens')
                     end
                 else
-                    VORPcore.NotifyRightTip(_U("animalsAlreadyOut"), 4000)
+                    Notify(_U("animalsAlreadyOut"), "error", 4000)
                 end
             end)
             manageChickensPage:RegisterElement("button", {
@@ -639,44 +610,46 @@ function ManageOwnedAnimalsMenu()
                 if RanchData.feed_wagon_coords ~= 'none' and RanchData.chicken_coords ~= "none" then
                     BccUtils.RPC:Call("bcc-ranch:HandleFeedingCooldown", { ranchId = RanchData.ranchid, animalType = "chickens" }, function(success)
                         if success then
-                            TriggerEvent('bcc-ranch:FeedAnimals', 'chickens')                            
+                            TriggerEvent('bcc-ranch:FeedAnimals', 'chickens')
                         else
-                            VORPcore.NotifyRightTip("Error", 4000)
+                            Notify(_U("error"), "error", 4000)
                         end
                     end)
                 else
-                    -- Check for missing specific coordinates
                     if RanchData.feed_wagon_coords == 'none' then
-                        VORPcore.NotifyRightTip(_U("noCoordsSetForWagon"), 4000)
+                        Notify(_U("noCoordsSetForWagon"), "error", 4000)
                     elseif RanchData.chicken_coords == "none" then
-                        VORPcore.NotifyRightTip(_U("noCoordsSet"), 4000)
+                        Notify(_U("noCoordsSet"), "error", 4000)
                     end
-                end                
+                end
             end)
             manageChickensPage:RegisterElement("button", {
                 label = _U("butcherAnimal"),
                 style = {}
             }, function()
                 if tonumber(RanchData.chickens_age) < ConfigAnimals.animalSetup.chickens.AnimalGrownAge then
-                    VORPcore.NotifyRightTip(_U("tooYoung"), 4000)
+                    Notify(_U("tooYoung"), "warning", 4000)
                 else
                     ButcherAnimals('chickens')
                 end
             end)
-            manageChickensPage:RegisterElement('button', {
+            manageChickensPage:RegisterElement("button", {
                 label = _U("sellAnimal"),
                 style = {}
             }, function()
                 if RanchData.chicken_coords ~= "none" then
                     if tonumber(RanchData.chickens_age) < ConfigAnimals.animalSetup.chickens.AnimalGrownAge then
-                        VORPcore.NotifyRightTip(_U("tooYoung"), 4000)
+                        Notify(_U("tooYoung"), "warning", 4000)
                     else
                         SellAnimals('chickens', RanchData.chickens_cond)
                     end
                 else
-                    VORPcore.NotifyRightTip(_U("noCoordsSet"), 4000)
+                    Notify(_U("noCoordsSet"), "error", 4000)
                 end
             end)
+            if not RanchData.chicken_coop_coords or RanchData.chicken_coop_coords == "" then
+                RanchData.chicken_coop = "false"
+            end
             if RanchData.chicken_coop == "false" then
                 manageChickensPage:RegisterElement("button", {
                     label = _U("buyChickenCoop") .. ConfigAnimals.animalSetup.chickens.coopCost,
@@ -692,12 +665,10 @@ function ManageOwnedAnimalsMenu()
                     TriggerServerEvent('bcc-ranch:HarvestEggsCooldown', RanchData.ranchid)
                 end)
             end
-
             manageChickensPage:RegisterElement('line', {
                 slot = "footer",
                 style = {}
             })
-
             manageChickensPage:RegisterElement('button', {
                 label = _U("back"),
                 slot = "footer",
@@ -705,23 +676,19 @@ function ManageOwnedAnimalsMenu()
             }, function()
                 manageOwnedAnimalsPage:RouteTo()
             end)
-
             manageChickensPage:RegisterElement('bottomline', {
                 slot = "footer",
                 style = {}
             })
-
             manageChickensPage:RouteTo()
         else
-            VORPcore.NotifyRightTip(_U("youDoNotOwnAnimal"), 4000)
+            Notify(_U("youDoNotOwnAnimal"), "error", 4000)
         end
     end)
-
     manageOwnedAnimalsPage:RegisterElement('line', {
         slot = "footer",
         style = {}
     })
-
     manageOwnedAnimalsPage:RegisterElement("button", {
         label = _U("back"),
         slot = "footer",
@@ -729,12 +696,10 @@ function ManageOwnedAnimalsMenu()
     }, function()
         MainRanchMenu()
     end)
-
     manageOwnedAnimalsPage:RegisterElement('bottomline', {
         slot = "footer",
         style = {}
     })
-
     BCCRanchMenu:Open({
         startupPage = manageOwnedAnimalsPage
     })

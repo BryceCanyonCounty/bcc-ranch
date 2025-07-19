@@ -9,14 +9,14 @@ RegisterNetEvent('bcc-ranch:HarvestEggs', function()
     local coopCoords = json.decode(RanchData.chicken_coop_coords)
     if not coopCoords or not coopCoords.x or not coopCoords.y or not coopCoords.z then
         devPrint("Error: Missing or invalid spawn coordinates for cows.")
-        VORPcore.NotifyRightTip(_U("noCoordsSet"), 4000)
+        Notify(_U("noCoordsSet"), "warning", 4000)
         ManageOwnedAnimalsMenu()
         IsInMission = false
         return
     end
     local chickenCoop = CreateObject(model, coopCoords.x, coopCoords.y, coopCoords.z, true, true, false)
     Citizen.InvokeNative(0x9587913B9E772D29, chickenCoop) -- PlaceEntityOnGroundProperly
-    VORPcore.NotifyRightTip(_U("harvestEggs"), 4000)
+    Notify(_U("harvestEggs"), "success", 4000)
     BccUtils.Misc.SetGps(coopCoords.x, coopCoords.y, coopCoords.z)
     local blip = BccUtils.Blips:SetBlip(_U("harvestEggs"), 'blip_teamsters', 0.2, coopCoords.x, coopCoords.y, coopCoords.z)
     coopCoords = GetEntityCoords(chickenCoop)
@@ -38,7 +38,7 @@ RegisterNetEvent('bcc-ranch:HarvestEggs', function()
                                     devPrint("Failed to add the item.")
                                 end
                             end)
-                            VORPcore.NotifyRightTip(_U("eggsHarvested"), 4000)
+                            Notify(_U("eggsHarvested"), "success", 4000)
                             IsInMission = false
                             BccUtils.Blips:RemoveBlip(blip.rawblip)
                             DeleteObject(chickenCoop)
@@ -47,7 +47,7 @@ RegisterNetEvent('bcc-ranch:HarvestEggs', function()
                             IsInMission = false
                             BccUtils.Blips:RemoveBlip(blip.rawblip)
                             DeleteObject(chickenCoop)
-                            VORPcore.NotifyRightTip(_U("failed"), 4000)
+                            Notify(_U("failed"), "error", 4000)
                             return
                         end
                     end)
@@ -60,7 +60,7 @@ RegisterNetEvent('bcc-ranch:HarvestEggs', function()
                             devPrint("Failed to add the item.")
                         end
                     end)
-                    VORPcore.NotifyRightTip(_U("eggsHarvested"), 4000)
+                    Notify(_U("eggsHarvested"), "success", 4000)
                     IsInMission = false
                     BccUtils.Blips:RemoveBlip(blip.rawblip)
                     DeleteObject(chickenCoop)
@@ -72,7 +72,7 @@ RegisterNetEvent('bcc-ranch:HarvestEggs', function()
     if IsEntityDead(PlayerPedId()) then
         IsInMission = false
         DeleteObject(chickenCoop)
-        VORPcore.NotifyRightTip(_U("failed"), 4000)
+        Notify(_U("failed"), "error", 4000)
     end
 end)
 
@@ -85,12 +85,12 @@ RegisterNetEvent('bcc-ranch:MilkCows', function()
     local cowCoords = json.decode(RanchData.cow_coords)
     if not cowCoords or not cowCoords.x or not cowCoords.y or not cowCoords.z then
         devPrint("Error: Missing or invalid spawn coordinates for cows.")
-        VORPcore.NotifyRightTip(_U("noCoordsSet"), 4000)
+        Notify(_U("noCoordsSet"), "warning", 4000)
         ManageOwnedAnimalsMenu()
         IsInMission = false
         return
     end
-    VORPcore.NotifyRightTip(_U("goMilk"), 4000)
+    Notify(_U("goMilk"), "success", 4000)
     createdPed = BccUtils.Ped:Create(model, cowCoords.x, cowCoords.y, cowCoords.z - 1, 0.0, "world", false, nil, nil, true)
     BccUtils.Ped.SetStatic(createdPed)
     local PromptGroup = BccUtils.Prompts:SetupPromptGroup()
@@ -108,28 +108,25 @@ RegisterNetEvent('bcc-ranch:MilkCows', function()
             if firstprompt:HasCompleted() then break end
         end
     end
-
     if IsEntityDead(PlayerPedId()) or cowDead then
-        InMission = false
+        IsInMission = false
         createdPed:Remove()
-        VORPcore.NotifyRightTip(_U("failed"), 4000)
+        Notify(_U("failed"), "error", 4000)
         return
     end
-
     if not cowCoords or not cowCoords.x or not cowCoords.y or not cowCoords.z then
         devPrint("Error: Missing or invalid spawn coordinates for animal type:", animalType)
         ManageOwnedAnimalsMenu()
-        VORPcore.NotifyRightTip(_U("noCoordsSetForAnimalType") .. animalType, 4000)
+        Notify(_U("noCoordsSetForAnimalType") .. animalType, "error", 4000)
         IsInMission = false
         return
     end
-
     if ConfigRanch.ranchSetup.choreSetup.choreMinigames then
         PlayAnim('script_rc@rch1@ig@ig_1_milkingthecow', 'milkingloop_john', -1)
-        VORPcore.NotifyRightTip(_U("milkingCow"), 4000)
+        Notify(_U("milkingCow"), "success", 4000)
         MiniGame.Start('cowmilker', ConfigRanch.ranchSetup.choreSetup.milkingMinigameConfig, function(result)
             if result.collected >= ConfigAnimals.animalSetup.cows.milkToCollect then
-                VORPcore.NotifyRightTip(_U("animalMilked"), 4000)
+                Notify(_U("animalMilked"), "success", 4000)
                 BccUtils.RPC:Call("bcc-ranch:AddItem", { item = ConfigAnimals.animalSetup.cows.milkItem, amount = ConfigAnimals.animalSetup.cows.milkItemAmount }, function(success)
                     if success then
                         devPrint("Item added successfully.")
@@ -142,15 +139,15 @@ RegisterNetEvent('bcc-ranch:MilkCows', function()
             else
                 IsInMission = false
                 createdPed:Remove()
-                VORPcore.NotifyRightTip(_U("failed"), 4000)
+                Notify(_U("failed"), "error", 4000)
             end
             ClearPedTasks(PlayerPedId())
         end)
     else
-        VORPcore.NotifyRightTip(_U("milkingCow"), 4000)
+        Notify(_U("milkingCow"), "success", 4000)
         PlayAnim('script_rc@rch1@ig@ig_1_milkingthecow', 'milkingloop_john', 15000)
         Wait(16500)
-        VORPcore.NotifyRightTip(_U("animalMilked"), 4000)
+        Notify(_U("animalMilked"), "success", 4000)
         BccUtils.RPC:Call("bcc-ranch:AddItem", { item = ConfigAnimals.animalSetup.cows.milkItem, amount = ConfigAnimals.animalSetup.cows.milkItemAmount }, function(success)
             if success then
                 devPrint("Item added successfully.")
@@ -164,19 +161,19 @@ end)
 
 ----------------- Shearing Sheeps --------------------
 RegisterNetEvent('bcc-ranch:ShearSheeps', function()
-    InMission = true
+    IsInMission = true
     BCCRanchMenu:Close()
     local model = 'a_c_sheep_01'
     LoadModel(model)
     local Sheepcoords = json.decode(RanchData.sheep_coords)
     if not Sheepcoords or not Sheepcoords.x or not Sheepcoords.y or not Sheepcoords.z then
         devPrint("Error: Missing or invalid spawn coordinates for cows.")
-        VORPcore.NotifyRightTip(_U("noCoordsSet"), 4000)
+        Notify(_U("noCoordsSet"), "error", 4000)
         ManageOwnedAnimalsMenu()
         IsInMission = false
         return
     end
-    VORPcore.NotifyRightTip(_U("shearAnimal"), 4000)
+    Notify(_U("shearAnimal"), "success", 4000)
     createdPed = BccUtils.Ped:Create(model, Sheepcoords.x, Sheepcoords.y, Sheepcoords.z - 1, 0.0, "world", false, nil, nil, true)
     FreezeEntityPosition(createdPed:GetPed(), true)
     local PromptGroup = BccUtils.Prompts:SetupPromptGroup()
@@ -194,17 +191,15 @@ RegisterNetEvent('bcc-ranch:ShearSheeps', function()
             if firstprompt:HasCompleted() then break end
         end
     end
-
     if IsEntityDead(PlayerPedId()) or sheepDead then
-        InMission = false
+        IsInMission = false
         createdPed:Remove()
-        VORPcore.NotifyRightTip(_U("failed"), 4000)
+        Notify(_U("failed"), "error", 4000)
         return
     end
-
     if ConfigRanch.ranchSetup.choreSetup.choreMinigames then
         PlayAnim('mech_inventory@crafting@fallbacks@in_hand@male_a', 'craft_trans_hold', -1)
-        VORPcore.NotifyRightTip(_U("shearingAnimal"), 4000)
+        Notify(_U("shearingAnimal"), "success", 4000)
         Wait(5000)
         MiniGame.Start('skillcheck', ConfigRanch.ranchSetup.choreSetup.choreMinigameSettings, function(result)
             if result.passed then
@@ -216,7 +211,7 @@ RegisterNetEvent('bcc-ranch:ShearSheeps', function()
                         devPrint("Failed to add the item.")
                     end
                 end)
-                VORPcore.NotifyRightTip(_U("animalSheared"), 4000)
+                Notify(_U("animalSheared"), "success", 4000)
                 IsInMission = false
                 createdPed:Remove()
                 ClearPedTasks(PlayerPedId())
@@ -225,15 +220,15 @@ RegisterNetEvent('bcc-ranch:ShearSheeps', function()
                 SetPedToRagdoll(PlayerPedId(), 1000, 1000, 0, 0, 0, 0)
                 IsInMission = false
                 createdPed:Remove()
-                VORPcore.NotifyRightTip(_U("failed"), 4000)
+                Notify(_U("failed"), "error", 4000)
                 return
             end
         end)
     else
-        VORPcore.NotifyRightTip(_U("shearingAnimal"), 4000)
+        Notify(_U("shearingAnimal"), "success", 4000)
         PlayAnim('mech_inventory@crafting@fallbacks@in_hand@male_a', 'craft_trans_hold', 15000)
         Wait(16500)
-        VORPcore.NotifyRightTip(_U("animalSheared"), 4000)
+        Notify(_U("animalSheared"), "success", 4000)
         BccUtils.RPC:Call("bcc-ranch:AddItem", { item = ConfigAnimals.animalSetup.sheeps.sheepItem, amount = ConfigAnimals.animalSetup.sheeps.sheepItemAmount }, function(success)
             if success then
                 devPrint("Item added successfully.")

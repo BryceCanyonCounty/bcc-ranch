@@ -1,6 +1,5 @@
 function LedgerMenu()
     BCCRanchMenu:Close()
-
     local mainLedgerPage = BCCRanchMenu:RegisterPage("bcc-ranch:mainLedgerMenuPage")
     mainLedgerPage:RegisterElement("header", {
         value = _U("ledger"),
@@ -16,7 +15,6 @@ function LedgerMenu()
         slot = "content",
         style = {}
     })
-
     local depositAmount = ''
     mainLedgerPage:RegisterElement("input", {
         label = _U("deposit"),
@@ -41,15 +39,13 @@ function LedgerMenu()
                 end
             end)
         else
-            VORPcore.NotifyRightTip(_U("invalidAmount"), 4000)
+            Notify(_U("invalidAmount"), "error", 4000)
         end
     end)
-
     mainLedgerPage:RegisterElement('line', {
         slot = "content",
         style = {}
     })
-
     local withdrawAmount = ''
     mainLedgerPage:RegisterElement("input", {
         label = _U("withdraw"),
@@ -74,10 +70,9 @@ function LedgerMenu()
                 end
             end)
         else
-            VORPcore.NotifyRightTip(_U("invalidAmount"), 4000)
+            Notify(_U("invalidAmount"), "error", 4000)
         end
     end)
-
     mainLedgerPage:RegisterElement('line', {
         slot = "footer",
         style = {}

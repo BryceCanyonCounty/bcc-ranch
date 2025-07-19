@@ -1,6 +1,6 @@
 Config = {
     defaultlang = "en_lang", -- set your language
-    devMode = false, -- Leave false on live server
+    devMode = true, -- Leave false on live server
     adminGroup = "admin", --Name of the group to set admin (in order to be an admin you must have the group admin on the characters table)
     commands = {
         createRanchCommand = "createRanch",
@@ -46,6 +46,12 @@ Config = {
         {
             LocationName = 'Tumbleweed Cattle Auction',
             Coords = {x=-5410.35, y=-2934.25, z=0.92},
+        },
+        {
+            LocationName = 'Tumbleweed Cattle Auction',
+            Coords = {x=-2623.40, y=454.35, z=146.94},
         }
-    }
+    },
+    Notify = "feather-menu",   ----or use vorp-core
+    EnableAnimalBlip = true
 }

@@ -1,20 +1,76 @@
 local animalsConfig = {
-    cows = { coordsKey = "cow_coords", peds = {} },
-    pigs = { coordsKey = "pig_coords", peds = {} },
-    sheeps = { coordsKey = "sheep_coords", peds = {} },
-    goats = { coordsKey = "goat_coords", peds = {} },
-    chickens = { coordsKey = "chicken_coords", peds = {} },
+    cows = { coordsKey = "cow_coords", peds = {}, spawned = false },
+    pigs = { coordsKey = "pig_coords", peds = {}, spawned = false },
+    sheeps = { coordsKey = "sheep_coords", peds = {}, spawned = false },
+    goats = { coordsKey = "goat_coords", peds = {}, spawned = false },
+    chickens = { coordsKey = "chicken_coords", peds = {}, spawned = false },
 }
+
+local despawnDistance = 50.0
 
 CreateThread(function()
     while true do
         Wait(10000)
+        devPrint("[Loop] Running ranch animal spawn check...")
         if RanchData then
             for animalType, config in pairs(animalsConfig) do
+                -- Clean out invalid peds
+                for i = #config.peds, 1, -1 do
+                    if not DoesEntityExist(config.peds[i]) then
+                        table.remove(config.peds, i)
+                    end
+                end
+
+                devPrint(("[Loop] Checking %s - Spawned: %s, Peds Count: %d"):format(animalType, tostring(config.spawned), #config.peds))
+
                 local coordString = RanchData[config.coordsKey]
-                if coordString and coordString ~= "none" and #config.peds <= 0 then
-                    devPrint(("[Ranch] Spawning %s..."):format(animalType))
-                    spawnWanderingAnimals(animalType)
+                local coords = coordString and coordString ~= "none" and safeDecode(coordString) or nil
+
+                if coords then
+                    devPrint(("[Decode] Coordinates for %s: %.2f %.2f %.2f"):format(animalType, coords.x, coords.y, coords.z))
+                    local playerPed = PlayerPedId()
+                    local playerCoords = GetEntityCoords(playerPed)
+                    local dist = #(vector3(coords.x, coords.y, coords.z) - playerCoords)
+                    devPrint(("[Proximity] Distance from %s spawn point: %.2f"):format(animalType, dist))
+
+                    if dist > despawnDistance then
+                        if config.spawned then
+                            devPrint(("[Proximity] Player too far from %s, despawning..."):format(animalType))
+                            for _, ped in pairs(config.peds) do
+                                if DoesEntityExist(ped) then
+                                    DeletePed(ped)
+                                end
+                            end
+                            config.peds = {}
+                            config.spawned = false
+                        end
+                    else
+                        if not config.spawned and #config.peds == 0 then
+                            local amount = ConfigAnimals.animalSetup[animalType].spawnAmount or 5
+                            devPrint(("[Ranch] Spawning %s with amount %d..."):format(animalType, amount))
+                            spawnWanderingAnimals(animalType, amount)
+                            Wait(1000)
+
+                            local aliveCount = 0
+                            for _, ped in pairs(config.peds) do
+                                if DoesEntityExist(ped) then
+                                    aliveCount = aliveCount + 1
+                                end
+                            end
+
+                            devPrint(("[Ranch] %s alive count: %d"):format(animalType, aliveCount))
+
+                            if aliveCount >= amount then
+                                config.spawned = true
+                                devPrint(("[Ranch] Marked %s as spawned. Total Alive: %d"):format(animalType, aliveCount))
+                            else
+                                devPrint(("[Ranch] Not enough %s spawned yet. Total Alive: %d"):format(animalType, aliveCount))
+                            end
+                        end
+                    end
+                else
+                    devPrint(("[Decode] Failed to decode coordinates for %s. coordString was: %s"):format(animalType, tostring(coordString)))
+
                 end
             end
         end
@@ -25,9 +81,11 @@ function GetAnimalPeds(animalType)
     return animalsConfig[animalType] and animalsConfig[animalType].peds or {}
 end
 
-function spawnWanderingAnimals(animalType)
+function spawnWanderingAnimals(animalType, count)
     local config = animalsConfig[animalType]
-    if not config then
+    devPrint(("[SpawnFunc] Called for %s with count = %d"):format(animalType, count))
+
+    if not config then 
         devPrint("Error: Invalid animal type: " .. tostring(animalType))
         return
     end
@@ -39,7 +97,7 @@ function spawnWanderingAnimals(animalType)
     end
 
     local spawnCoords = safeDecode(coordData)
-    if not spawnCoords then
+    if not spawnCoords then 
         devPrint("Error: Failed to decode coordinates for " .. animalType)
         return
     end
@@ -55,29 +113,29 @@ function spawnWanderingAnimals(animalType)
     local model = joaat(modelMap[animalType])
     local roamDist = ConfigAnimals.animalSetup[animalType].roamingRadius
 
-    local repAmount = 0
-    repeat
-        repAmount = repAmount + 1
-        local createdPed = spawnpedsroam(spawnCoords, model, roamDist)
-        if createdPed then
-            table.insert(config.peds, createdPed)
-            devPrint(("[Spawned] %s #%d | NetID: %s | Coords: %.2f %.2f %.2f"):format(
-                animalType, repAmount, tostring(createdPed.netId), createdPed.coords.x, createdPed.coords.y, createdPed.coords.z))
+    for i = 1, count do
+        devPrint(("[SpawnFunc] Attempting to spawn %s #%d"):format(animalType, i))
+        local ped = spawnpedsroam(spawnCoords, model, roamDist)
+        if ped then
+            table.insert(config.peds, ped)
+            devPrint(("[Spawned] %s #%d | Total: %d"):format(animalType, i, #config.peds))
+        else
+            devPrint(("[SpawnFunc] Failed to spawn %s #%d"):format(animalType, i))
         end
-    until repAmount == 5
+    end
 end
 
 function spawnpedsroam(coords, model, roamDist)
     if not coords or not coords.x or not coords.y or not coords.z then
-        devPrint("Error: Invalid spawn coordinates.")
+        devPrint("[spawnpedsroam] Error: Invalid spawn coordinates.")
         return nil
     end
 
-    devPrint(("[Spawn] Requesting model %s"):format(tostring(model)))
+    devPrint(("[spawnpedsroam] Requesting model %s"):format(tostring(model)))
     RequestModel(model)
-    while not HasModelLoaded(model) do 
-        Wait(100) 
-        devPrint("[Spawn] Waiting for model to load...")
+    while not HasModelLoaded(model) do
+        Wait(100)
+        devPrint("[spawnpedsroam] Waiting for model to load...")
     end
 
     local spawnCoords = {
@@ -86,25 +144,26 @@ function spawnpedsroam(coords, model, roamDist)
         z = coords.z
     }
 
-    local ped = CreatePed(model, spawnCoords.x, spawnCoords.y, spawnCoords.z, 50.0, false, false)
+    local ped = CreatePed(model, spawnCoords.x, spawnCoords.y, spawnCoords.z, 20.0, false, false)
     if not DoesEntityExist(ped) then
-        devPrint("Error: Failed to create ped.")
+        devPrint("[spawnpedsroam] Error: Failed to create ped.")
         return nil
     end
 
-    devPrint("[Spawn] Ped created.")
+    devPrint("[spawnpedsroam] Ped created.")
 
-    if not NetworkGetEntityIsNetworked(ped) then 
+    if not NetworkGetEntityIsNetworked(ped) then
         SetEntityAsMissionEntity(ped, true, true)
         NetworkRegisterEntityAsNetworked(ped)
-        devPrint("[Network] Registered entity as networked.")
+        devPrint("[spawnpedsroam] Registered ped as networked.")
     end
-    
+
     local netId = NetworkGetNetworkIdFromEntity(ped)
     SetNetworkIdExistsOnAllMachines(netId, true)
     SetEntityVisible(ped, true)
     FreezeEntityPosition(ped, false)
-    SetBlockingOfNonTemporaryEvents(ped, false)
+    SetBlockingOfNonTemporaryEvents(ped, true)
+    SetEntityCanBeDamaged(ped, false)
     SetPedCanRagdoll(ped, true)
     SetPedCanPlayAmbientAnims(ped, true)
     SetPedCanPlayAmbientBaseAnims(ped, true)
@@ -113,36 +172,31 @@ function spawnpedsroam(coords, model, roamDist)
     PlaceEntityOnGroundProperly(ped, true)
     SetEntityHeading(ped, math.random(0, 360))
     SetModelAsNoLongerNeeded(model)
-    devPrint("[Outfit] Random outfit variation applied.")
 
     ClearPedTasksImmediately(ped)
-    Citizen.InvokeNative(0xE054346CA3A0F315, ped, spawnCoords.x, spawnCoords.y, spawnCoords.z, roamDist + 0.1, tonumber(1077936128), tonumber(1086324736), 1)
-    devPrint(("[AI] WanderInArea task applied at (%.2f, %.2f, %.2f) with radius %.1f"):format(spawnCoords.x, spawnCoords.y, spawnCoords.z, roamDist))
+    TaskWanderInArea(ped, spawnCoords.x, spawnCoords.y, spawnCoords.z, roamDist + 0.1, 1.5, 1.5, 1)
+    devPrint(("[spawnpedsroam] Wander task set for ped at %.2f %.2f %.2f"):format(spawnCoords.x, spawnCoords.y, spawnCoords.z))
 
-    Citizen.InvokeNative(0x23f74c2fda6e7c61, -1749618580, ped)
-    devPrint("[AI] Ambient animal group set.")
-
+    if Config.EnableAnimalBlip then
+        Citizen.InvokeNative(0x23F74C2FDA6E7C61, -1749618580, ped)
+    end
     local pedGroup = GetPedRelationshipGroupHash(ped)
     local playerGroup = joaat("PLAYER")
-    Citizen.InvokeNative(0xBF25EB89375A37AD, 1, playerGroup, pedGroup)
-    Citizen.InvokeNative(0xBF25EB89375A37AD, 1, pedGroup, playerGroup)
-    devPrint("[AI] Relationship group set between player and " .. tostring(pedGroup))
+    SetRelationshipBetweenGroups(1, playerGroup, pedGroup)
+    SetRelationshipBetweenGroups(1, pedGroup, playerGroup)
 
-    return {
-        ped = ped,
-        netId = netId,
-        coords = spawnCoords
-    }
+    return ped
 end
 
 function safeDecode(data)
     if type(data) == "string" then
         local success, result = pcall(json.decode, data)
         if success then
+            devPrint("[safeDecode] JSON decoded successfully.")
             return result
         end
     end
-    devPrint("[Error] Failed to decode JSON data.")
+    devPrint("[safeDecode] Failed to decode JSON data.")
     return nil
 end
 
@@ -150,13 +204,14 @@ AddEventHandler('onResourceStop', function(resourceName)
     if GetCurrentResourceName() == resourceName then
         devPrint("[Cleanup] Deleting all spawned animals...")
         for animalType, config in pairs(animalsConfig) do
-            for _, entry in pairs(config.peds) do
-                local ped = entry.ped or entry
+            for _, ped in pairs(config.peds) do
                 if DoesEntityExist(ped) then
                     DeletePed(ped)
                 end
             end
-            config.peds = {} -- clear the table
+            config.peds = {}
+            config.spawned = false
+            devPrint(("[Cleanup] Reset %s"):format(animalType))
         end
     end
 end)
@@ -164,12 +219,13 @@ end)
 AddEventHandler('playerDropped', function(reason)
     devPrint("[Disconnect] Player dropped. Cleaning up ranch animals...")
     for animalType, config in pairs(animalsConfig) do
-        for _, entry in pairs(config.peds) do
-            local ped = entry.ped or entry
+        for _, ped in pairs(config.peds) do
             if DoesEntityExist(ped) then
                 DeletePed(ped)
             end
         end
-        config.peds = {} -- clear the table
+        config.peds = {}
+        config.spawned = false
+        devPrint(("[Disconnect] Reset %s"):format(animalType))
     end
 end)

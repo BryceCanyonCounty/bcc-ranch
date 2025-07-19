@@ -1,8 +1,7 @@
------- RanchAdminManagment Menu Setup --------------
+------ RanchAdminManagement Menu Setup --------------
 RegisterNetEvent('bcc-ranch:ShowAllRanchesMenu', function(ranches)
     BCCRanchMenu:Close()
     local showAllRanchesMenuPage = BCCRanchMenu:RegisterPage("bcc-ranch:ShowAllRanchesMenuPage")
-
     showAllRanchesMenuPage:RegisterElement("header", {
         value = _U("manageRanch"),
         slot = "header",
@@ -16,7 +15,6 @@ RegisterNetEvent('bcc-ranch:ShowAllRanchesMenu', function(ranches)
             RanchSelected(v)
         end)
     end
-
     BCCRanchMenu:Open({
         startupPage = showAllRanchesMenuPage
     })
@@ -27,7 +25,6 @@ function RanchSelected(ranchTable)
     Inmenu = false
     BCCRanchMenu:Close()
     local ranchSelectedPage = BCCRanchMenu:RegisterPage("bcc-ranch:RanchSelectedPage")
-
     ranchSelectedPage:RegisterElement("header", {
         value = _U("manageRanch"),
         slot = "header",
@@ -38,9 +35,10 @@ function RanchSelected(ranchTable)
         style = {}
     }, function()
         TriggerServerEvent('bcc-ranch:DeleteRanchFromDB', ranchTable.ranchid)
-        VORPcore.NotifyRightTip(_U('ranchDeleted'), 4000)
+        Notify(_U("ranchDeleted"), "success", 4000)
         BCCRanchMenu:Close()
     end)
+
     local newRadius = ""
     ranchSelectedPage:RegisterElement("input", {
         label = _U("changeRanchRadius"),
@@ -55,11 +53,12 @@ function RanchSelected(ranchTable)
     }, function()
         if tonumber(newRadius) > 0 then
             TriggerServerEvent('bcc-ranch:ChangeRanchRadius', ranchTable.ranchid, tonumber(newRadius))
-            VORPcore.NotifyRightTip(_U("radiusChanged"), 4000)
+            Notify(_U("radiusChanged"), "success", 4000)
         else
-            VORPcore.NotifyRightTip(_U("invalidInput"), 4000)
+            Notify(_U("invalidInput"), "error", 4000)
         end
     end)
+
     local newRanchName = ""
     ranchSelectedPage:RegisterElement("input", {
         label = _U("changeRanchName"),
@@ -74,11 +73,12 @@ function RanchSelected(ranchTable)
     }, function()
         if newRanchName ~= '' and newRanchName then
             TriggerServerEvent('bcc-ranch:ChangeRanchname', ranchTable.ranchid, newRanchName)
-            VORPcore.NotifyRightTip(_U("ranchNameChanged"), 4000)
+            Notify(_U("ranchNameChanged"), "success", 4000)
         else
-            VORPcore.NotifyRightTip(_U("invalidInput"), 4000)
+            Notify(_U("invalidInput"), "error", 4000)
         end
     end)
+
     local newRanchCond = ""
     ranchSelectedPage:RegisterElement("input", {
         label = _U("changeRanchCond"),
@@ -93,11 +93,12 @@ function RanchSelected(ranchTable)
     }, function()
         if tonumber(newRanchCond) > 0 then
             TriggerServerEvent('bcc-ranch:ChangeRanchCondAdminMenu', ranchTable.ranchid, tonumber(newRanchCond))
-            VORPcore.NotifyRightTip(_U("ranchCondChanged"), 4000)
+            Notify(_U("ranchCondChanged"), "success", 4000)
         else
-            VORPcore.NotifyRightTip(_U("invalidInput"), 4000)
+            Notify(_U("invalidInput"), "error", 4000)
         end
     end)
+
     ranchSelectedPage:RegisterElement("button", {
         label = _U("openRanchInv"),
         style = {}
@@ -121,11 +122,11 @@ CreateThread(function()
                     if success then
                         TriggerEvent('bcc-ranch:ShowAllRanchesMenu', ranches)
                     else
-                        VORPcore.NotifyRightTip(source, _U("FailedToFetchRanches"), 4000)
+                        Notify(_U("FailedToFetchRanches"), "error", 4000)
                     end
                 end)
             else
-                VORPcore.NotifyRightTip(source, _U("NoPermission"), 4000)
+                Notify(_U("NoPermission"), "error", 4000)
             end
         end)
     end

@@ -1,17 +1,15 @@
 local animalsDead, feedPeds = false, {}
 local crate, crate2, crate3, vehicle, amount
 
---Function for making player carry hay
+-- Function for making player carry hay
 local function playerCarryHay(crateObj)
     RequestAnimDict("mech_carry_box")
     while not HasAnimDictLoaded("mech_carry_box") do Wait(100) end
-
     local pl = PlayerPedId()
     local obj = crateObj:GetObj()
     TaskPlayAnim(pl, "mech_carry_box", "idle", 1.0, 8.0, -1, 31, 0, 0, 0, 0)
-    AttachEntityToEntity(obj, pl, GetEntityBoneIndexByName(pl, "SKEL_R_Finger12"), 0.20, 0.028, -0.55, 210.0, 170.0, 100.0, true, true, false, true, 1, true)    
+    AttachEntityToEntity(obj, pl, GetEntityBoneIndexByName(pl, "SKEL_R_Finger12"), 0.20, 0.028, -0.55, 210.0, 170.0, 100.0, true, true, false, true, 1, true)
 end
-
 
 local function delPedsForTable(feedPeds)
     if type(feedPeds) == "table" then
@@ -21,36 +19,35 @@ local function delPedsForTable(feedPeds)
             end
         end
     end
-    -- Reset anyway
     feedPeds = {}
 end
+
+RegisterCommand("testnotify", function()
+    Notify(_U("coopPlacedSuccessfully"), "success", 5000)
+end, false)
 
 local function cleanUpFeedMission()
     if vehicle and DoesEntityExist(vehicle) then
         DeleteVehicle(vehicle)
         vehicle = nil
     end
-
     for _, obj in ipairs({ crate, crate2, crate3 }) do
         if obj and obj.Remove then
             obj:Remove()
         end
     end
     crate, crate2, crate3 = nil, nil, nil
-
     ClearGpsMultiRoute()
     IsInMission = false
 end
 
--- function for getting the hay off the wagon and placing on the ground
+-- Function for getting the hay off the wagon and placing on the ground
 local function pickUpAndDropHay(crate, vehicle)
     local PromptGroup2 = BccUtils.Prompts:SetupPromptGroup()
     local firstprompt2 = PromptGroup2:RegisterPrompt(_U("dropHay"), BccUtils.Keys[ConfigRanch.ranchSetup.dropHayKey], 1, 1, true, 'hold', { timedeventhash = "MEDIUM_TIMED_EVENT" })
-
     while true do
         Wait(5)
         if PlayerDead then break end
-
         for k, v in pairs(feedPeds) do
             if IsEntityDead(v:GetPed()) then
                 amount = amount - 1
@@ -60,10 +57,8 @@ local function pickUpAndDropHay(crate, vehicle)
                 end
             end
         end
-
         if #(GetEntityCoords(PlayerPedId()) - GetEntityCoords(vehicle)) > 5 then
             PromptGroup2:ShowGroup('')
-
             if firstprompt2:HasCompleted() then
                 local obj = crate:GetObj()
                 DetachEntity(obj, true, true)
@@ -75,15 +70,14 @@ local function pickUpAndDropHay(crate, vehicle)
     end
 end
 
-
 RegisterNetEvent('bcc-ranch:FeedAnimals', function(animalType)
     IsInMission = true
     BCCRanchMenu:Close()
-
     local tables, model, spawnCoords, eatAnim
     local scale, isDead = nil, false
     local feedWagonLocation = json.decode(RanchData.feed_wagon_coords)
     feedPeds = {}
+
     local selectAnimalFuncts = {
         ['cows'] = function()
             tables = ConfigAnimals.animalSetup.cows
@@ -121,12 +115,14 @@ RegisterNetEvent('bcc-ranch:FeedAnimals', function(animalType)
             if tonumber(RanchData.chickens_age) < tables.AnimalGrownAge then scale = 0.5 end
         end
     }
+
     if selectAnimalFuncts[animalType] then
         selectAnimalFuncts[animalType]()
     end
+
     -- Check if spawnCoords is nil, notify the player if true
     if not spawnCoords or not spawnCoords.x or not spawnCoords.y or not spawnCoords.z then
-        VORPcore.NotifyRightTip(_U("noCoordsSet"), 4000)
+        Notify(_U("noCoordsSet"), "error", 4000)
         ManageOwnedAnimalsMenu()
         IsInMission = false
         return
@@ -172,67 +168,55 @@ RegisterNetEvent('bcc-ranch:FeedAnimals', function(animalType)
     Wait(0)
     crate3 = BccUtils.Object:Create("p_haybale01x", 0, 0, 0, 0.0, false)
     Wait(0)
-
     Citizen.InvokeNative(0x6B9BBD38AB0796DF, crate:GetObj(), vehicle, 0, 0.1, 0.2, 0.60, 0.0, 0.0, 0.0, 0, 0, 0, 0, 2, true)
     Citizen.InvokeNative(0x6B9BBD38AB0796DF, crate2:GetObj(), vehicle, 0, 0.1, -0.5, 0.09, 0.0, 0.0, 0.0, 0, 0, 0, 0, 2, true)
     Citizen.InvokeNative(0x6B9BBD38AB0796DF, crate3:GetObj(), vehicle, 0, 0.1, 0.5, 0.09, 0.0, 0.0, 0.0, 0, 0, 0, 0, 2, true)
 
-
-    VORPcore.NotifyRightTip(_U("goFeedYourAnimals"), 4000)
+    Notify(_U("goFeedYourAnimals"), "info", 4000)
 
     local animalsNear = false
     while true do
         Wait(200)
         local pl = GetEntityCoords(vehicle)
-
         if #(pl - RanchData.ranchcoordsVector3) > 50 then
             devPrint("Wagon is outside ranch area.")
             FreezeEntityPosition(vehicle, true)
             TaskLeaveAnyVehicle(PlayerPedId(), 0, 0)
-
             animalsNear = true
             local deadAnimals = 0
-    
             for k, v in pairs(feedPeds) do
                 if v and v.GetPed and DoesEntityExist(v:GetPed()) then
                     local ped = v:GetPed()
                     local animalCoords = GetEntityCoords(ped)
                     local distance = #(pl - animalCoords)
-    
                     devPrint(("Animal %s distance to wagon: %.2f"):format(k, distance))
-    
                     if distance >= 35 then
                         animalsNear = false
                         devPrint(("Animal %s is too far from wagon."):format(k))
-                        break -- no need to check others
+                        break
                     end
-    
                     if IsEntityDead(ped) then
                         deadAnimals = deadAnimals + 1
                         devPrint(("Animal %s is dead. Dead count: %s"):format(k, deadAnimals))
                     end
                 end
             end
-    
             if deadAnimals == #feedPeds then
                 animalsDead = true
                 devPrint("All animals are dead. Failing mission.")
                 break
             end
-    
             if animalsNear then
                 devPrint("All animals are near the wagon. Proceeding...")
                 break
             end
         end
-    
         if IsEntityDead(PlayerPedId()) then
             isDead = true
             devPrint("Player is dead. Cancelling feeding mission.")
             break
         end
     end
-    
 
     local function cleanVehicleAndCrates()
         devPrint("Cleaning up vehicle and hay crates.")
@@ -259,20 +243,19 @@ RegisterNetEvent('bcc-ranch:FeedAnimals', function(animalType)
         cleanVehicleAndCrates()
         feedPeds = nil
         IsInMission = false
-        VORPcore.NotifyRightTip(_U("failed"), 4000)
+        Notify(_U("failed"), "error", 4000)
         return
     end
+
     FreezeEntityPosition(vehicle, true)
     TaskLeaveAnyVehicle(PlayerPedId(), 0, 0)
     Wait(3000)
-
-    VORPcore.NotifyRightTip(_U("unloadHay"), 4000)
+    Notify(_U("unloadHay"), "success", 4000)
 
     local repAmount = 0
     local PromptGroup2 = BccUtils.Prompts:SetupPromptGroup()
-    local firstprompt2 = PromptGroup2:RegisterPrompt(_U("pickupHay"), BccUtils.Keys[ConfigRanch.ranchSetup.pickupHayKey],
-        1, 1, true, 'hold',
-        { timedeventhash = "MEDIUM_TIMED_EVENT" })
+    local firstprompt2 = PromptGroup2:RegisterPrompt(_U("pickupHay"), BccUtils.Keys[ConfigRanch.ranchSetup.pickupHayKey], 1, 1, true, 'hold', { timedeventhash = "MEDIUM_TIMED_EVENT" })
+
     repeat
         while true do
             local sleep = true
@@ -295,7 +278,7 @@ RegisterNetEvent('bcc-ranch:FeedAnimals', function(animalType)
                 if firstprompt2:HasCompleted() then
                     local function carryhayToPlace(crateToUse)
                         repAmount = repAmount + 1
-                        VORPcore.NotifyRightTip(_U("walkAwayAndPlacehay"), 4000)
+                        Notify(_U("walkAwayAndPlacehay"), "success", 4000)
                         playerCarryHay(crateToUse)
                         pickUpAndDropHay(crateToUse, vehicle)
                     end
@@ -325,9 +308,10 @@ RegisterNetEvent('bcc-ranch:FeedAnimals', function(animalType)
         feedPeds = nil
         isDead = true
         IsInMission = false
-        VORPcore.NotifyRightTip(_U("failed"), 4000)
+        Notify(_U("failed"), "error", 4000)
         return
     end
+
     FreezeEntityPosition(vehicle, false)
     for k, v in pairs(feedPeds) do
         local cw = GetEntityCoords(crate:GetObj())
@@ -337,7 +321,7 @@ RegisterNetEvent('bcc-ranch:FeedAnimals', function(animalType)
         TaskStartScenarioInPlace(v:GetPed(), eatAnim, -1)
     end
 
-    VORPcore.NotifyRightTip(_U("returnFromFeeding"), 4000)
+    Notify(_U("returnFromFeeding"), "info", 4000)
     BccUtils.Misc.SetGps(feedWagonLocation.x, feedWagonLocation.y, feedWagonLocation.z)
 
     while true do
@@ -350,32 +334,37 @@ RegisterNetEvent('bcc-ranch:FeedAnimals', function(animalType)
         if GetEntityHealth(vehicle) == 0 then break end
         if GetDistanceBetweenCoords(cw.x, cw.y, cw.z, feedWagonLocation.x, feedWagonLocation.y, feedWagonLocation.z, true) < 15 then break end
     end
+
     ClearGpsMultiRoute()
     if IsEntityDead(PlayerPedId()) == true or GetEntityHealth(vehicle) == 0 then
         delPedsForTable(feedPeds)
         cleanVehicleAndCrates()
         feedPeds = nil
         IsInMission = false
-        VORPcore.NotifyRightTip(_U("failed"), 4000)
+        Notify(_U("failed"), "error", 4000)
         return
     end
+
     FreezeEntityPosition(vehicle, true)
     TaskLeaveAnyVehicle(PlayerPedId(), 0, 0)
     Wait(3000)
+    Notify(_U("animalsFed"), "success", 4000)
 
-    VORPcore.NotifyRightTip(_U("animalsFed"), 4000)
     delPedsForTable(feedPeds)
+    local incAmount = tables.feedAnimalCondIncrease
     BccUtils.RPC:Call("bcc-ranch:IncreaseAnimalsCond", {
         ranchId = RanchData.ranchid,
         animalType = animalType,
-        incAmount = tables.feedAnimalCondIncrease
+        incAmount = incAmount
     }, function(success)
         if success then
             devPrint("Successfully increased animal condition for: " .. animalType .. " in ranch: " .. RanchData.ranchid)
+            Notify(_U("animalCondIncreased") .. tostring(incAmount), "success", 4000)
         else
             devPrint("Failed to increase animal condition for: " .. animalType .. " in ranch: " .. RanchData.ranchid)
         end
     end)
+
     BccUtils.RPC:Call("bcc-ranch:UpdateAnimalsOut", { ranchId = RanchData.ranchid, isOut = false }, function(success)
         if success then
             devPrint("Animals out status updated successfully!")
@@ -383,6 +372,7 @@ RegisterNetEvent('bcc-ranch:FeedAnimals', function(animalType)
             devPrint("Failed to update animals out status!")
         end
     end)
+
     cleanVehicleAndCrates()
     feedPeds = nil
     IsInMission = false
