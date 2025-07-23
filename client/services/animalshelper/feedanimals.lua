@@ -1,6 +1,6 @@
-local animalsDead, feedPeds = false, {}
+feedPeds = {}
+local animalsDead = false
 local crate, crate2, crate3, vehicle, amount
-
 -- Function for making player carry hay
 local function playerCarryHay(crateObj)
     RequestAnimDict("mech_carry_box")
@@ -13,18 +13,14 @@ end
 
 local function delPedsForTable(feedPeds)
     if type(feedPeds) == "table" then
-        for _, createdPed in ipairs(feedPeds) do
-            if createdPed and createdPed.Remove then
-                createdPed:Remove()
+        for _, feedingPed in ipairs(feedPeds) do
+            if feedingPed and feedingPed.Remove then
+                feedingPed:Remove()
             end
         end
     end
     feedPeds = {}
 end
-
-RegisterCommand("testnotify", function()
-    Notify(_U("coopPlacedSuccessfully"), "success", 5000)
-end, false)
 
 local function cleanUpFeedMission()
     if vehicle and DoesEntityExist(vehicle) then
@@ -131,14 +127,14 @@ RegisterNetEvent('bcc-ranch:FeedAnimals', function(animalType)
     -- Spawn Feed Animals
     local catch = 0
     repeat
-        local createdPed = BccUtils.Ped:Create(model, spawnCoords.x + math.random(1, 5), spawnCoords.y + math.random(1, 5), spawnCoords.z, 0.0, "world", false, nil, nil, true)
-        if createdPed then
+        local feedingPed = BccUtils.Ped:Create(model, spawnCoords.x + math.random(1, 5), spawnCoords.y + math.random(1, 5), spawnCoords.z, 0.0, "world", false, nil, nil, true)
+        if feedingPed then
             if scale then
-                SetPedScale(createdPed:GetPed(), scale)
+                SetPedScale(feedingPed:GetPed(), scale)
             end
-            createdPed:SetBlip(54149631, "Your Animal")
-            BccUtils.Ped.SetPedHealth(createdPed:GetPed(), tables.animalHealth)
-            table.insert(feedPeds, createdPed)
+            feedingPed:SetBlip(54149631, "Your Animal")
+            BccUtils.Ped.SetPedHealth(feedingPed:GetPed(), tables.animalHealth)
+            table.insert(feedPeds, feedingPed)
             catch = catch + 1
         end
     until catch == tables.spawnAmount

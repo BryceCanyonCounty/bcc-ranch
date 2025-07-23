@@ -3,7 +3,7 @@ ConfigAnimals = {
         minHerdCoords = 100, -- Minimum distance from ranch to set herd coords
 
         cows = {
-            modelName = "a_c_cow",
+            model = "a_c_cow",
             cost = 10,
             feedAnimalCondIncrease = 10,
             animalHealth = 100,
@@ -29,7 +29,7 @@ ConfigAnimals = {
         },
 
         pigs = {
-            modelName = "a_c_pig_01",
+            model = "a_c_pig_01",
             cost = 10,
             feedAnimalCondIncrease = 10,
             animalHealth = 100,
@@ -52,7 +52,7 @@ ConfigAnimals = {
         },
 
         sheeps = {
-            modelName = "a_c_sheep_01",
+            model = "a_c_sheep_01",
             cost = 10,
             feedAnimalCondIncrease = 10,
             animalHealth = 100,
@@ -77,7 +77,7 @@ ConfigAnimals = {
         },
 
         goats = {
-            modelName = "a_c_goat_01",
+            model = "a_c_goat_01",
             cost = 10,
             feedAnimalCondIncrease = 10,
             animalHealth = 100,
@@ -99,7 +99,7 @@ ConfigAnimals = {
         },
 
         chickens = {
-            modelName = "a_c_chicken_01",
+            model = "a_c_chicken_01",
             cost = 10,
             feedAnimalCondIncrease = 10,
             animalHealth = 100,

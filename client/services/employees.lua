@@ -1,3 +1,4 @@
+-- Employees Menu
 function EmployeesMenu()
     BCCRanchMenu:Close()
     local employeesPage = BCCRanchMenu:RegisterPage("bcc-ranch:employeesPage")
@@ -6,22 +7,126 @@ function EmployeesMenu()
         slot = "header",
         style = {}
     })
+
+    -- Button to hire employees
     employeesPage:RegisterElement("button", {
         label = _U("hire"),
         style = {}
     }, function()
-        TriggerServerEvent('bcc-ranch:GetEmployeeList', RanchData.ranchid, "hire")
+        -- Fetch Online Players
+        BccUtils.RPC:Call("bcc-ranch:GetPlayers", {}, function(players)
+            if not players or #players == 0 then
+                Notify(_U("noOnlinePlayersFound"), "warning")
+                return
+            end
+
+            local hireEmployeePage = BCCRanchMenu:RegisterPage('bcc-ranch:hireEmployeeMenu')
+            hireEmployeePage:RegisterElement('header', {
+                value = _U("hire"),
+                slot = "header"
+            })
+            hireEmployeePage:RegisterElement('line', { slot = "header" })
+
+            -- Loop through players to display them as hireable candidates
+            for _, p in ipairs(players) do
+                -- Construct the label with ID, first name, and last name
+                local label = "ID: " .. p.charId .. " - " .. p.firstname .. " " .. p.lastname
+
+                hireEmployeePage:RegisterElement('button', {
+                    label = label,
+                    slot = "content"
+                }, function()
+                    -- Call the server RPC to hire the employee
+                    BccUtils.RPC:Call("bcc-ranch:HireEmployee", {
+                        ranchId = RanchData.ranchid,
+                        characterId = p.charId
+                    }, function(success)
+                        if success then
+                            -- Hire successful, notify the client
+                            Notify(_U("hired"), "success")
+                            BccUtils.RPC:Call("bcc-ranch:CheckIfPlayerIsEmployee")
+                            employeesPage:RouteTo()
+                        else
+                            -- Employee already exists, no action needed
+                            Notify(_U("employeeAlreadyExists"), "warning")
+                        end
+                    end)
+                end)
+            end
+
+            hireEmployeePage:RegisterElement('line', { slot = "footer" })
+            hireEmployeePage:RegisterElement("button", {
+                label = _U('back'),
+                slot = "footer"
+            }, function()
+                employeesPage:RouteTo()
+            end)
+            hireEmployeePage:RegisterElement('bottomline', { slot = "footer" })
+
+            -- Open the hire employee menu
+            BCCRanchMenu:Open({ startupPage = hireEmployeePage })
+        end)
     end)
+
+    -- Button to fire employees
     employeesPage:RegisterElement("button", {
         label = _U("fire"),
         style = {}
     }, function()
-        TriggerServerEvent('bcc-ranch:GetEmployeeList', RanchData.ranchid, "fire")
+        -- Requesting employee list
+        BccUtils.RPC:Call("bcc-ranch:GetEmployeeList", { ranchId = RanchData.ranchid }, function(employees)
+            if not employees or #employees == 0 then
+                Notify(_U("noPlayersWithAccess"), "warning")
+                return
+            end
+
+            local fireEmployeePage = BCCRanchMenu:RegisterPage("bcc-ranch:fireEmployeePage")
+            fireEmployeePage:RegisterElement("header", {
+                value = _U("fire"),
+                slot = "header",
+                style = {}
+            })
+
+            -- Loop through employees to display them as buttons
+            for _, employee in ipairs(employees) do
+                fireEmployeePage:RegisterElement("button", {
+                    label = employee.firstname .. " " .. employee.lastname,
+                    slot = "content"
+                }, function()
+                    -- Call the server RPC to fire the employee
+                    BccUtils.RPC:Call("bcc-ranch:FireEmployee", {
+                        ranchId = RanchData.ranchid,
+                        characterId = employee.character_id
+                    }, function(success)
+                        if success then
+                            -- Fire employee action
+                            Notify(_U("fired") .. " " .. employee.firstname .. " " .. employee.lastname, "success", 4000)
+                            employeesPage:RouteTo()
+                        else
+                            Notify(_U("employeeFireFailed"), "error")
+                        end
+                    end)
+                end)
+            end
+
+            -- Footer buttons for back navigation
+            fireEmployeePage:RegisterElement('line', { slot = "footer", style = {} })
+            fireEmployeePage:RegisterElement("button", {
+                label = _U("back"),
+                slot = "footer",
+                style = {}
+            }, function()
+                EmployeesMenu()
+            end)
+            fireEmployeePage:RegisterElement('bottomline', { slot = "footer", style = {} })
+
+            -- Open the fire employee menu
+            BCCRanchMenu:Open({ startupPage = fireEmployeePage })
+        end)
     end)
-    employeesPage:RegisterElement('line', {
-        slot = "footer",
-        style = {}
-    })
+
+    -- Footer buttons for back navigation
+    employeesPage:RegisterElement('line', { slot = "footer", style = {} })
     employeesPage:RegisterElement("button", {
         label = _U("back"),
         slot = "footer",
@@ -29,99 +134,8 @@ function EmployeesMenu()
     }, function()
         MainRanchMenu()
     end)
-    employeesPage:RegisterElement('bottomline', {
-        slot = "footer",
-        style = {}
-    })
-    BCCRanchMenu:Open({
-        startupPage = employeesPage
-    })
+    employeesPage:RegisterElement('bottomline', { slot = "footer", style = {} })
+
+    -- Open the employees menu
+    BCCRanchMenu:Open({ startupPage = employeesPage })
 end
-
--- Firing employee menu --
-RegisterNetEvent('bcc-ranch:FireEmployeesMenu', function(employees)
-    BCCRanchMenu:Close()
-    local fireEmployeePage = BCCRanchMenu:RegisterPage("bcc-ranch:fireEmployeePage")
-    fireEmployeePage:RegisterElement("header", {
-        value = _U("fire"),
-        slot = "header",
-        style = {}
-    })
-    for k, v in pairs(employees) do
-        fireEmployeePage:RegisterElement("button", {
-            label = v.firstname .. " " .. v.lastname,
-            style = {}
-        }, function()
-            Notify(_U("fired") .. " " .. v.firstname .. " " .. v.lastname, "success", 4000)
-            TriggerServerEvent('bcc-ranch:FireEmployee', v.charidentifier)
-        end)
-    end
-    fireEmployeePage:RegisterElement('line', {
-        slot = "footer",
-        style = {}
-    })
-    fireEmployeePage:RegisterElement("button", {
-        label = _U("back"),
-        slot = "footer",
-        style = {}
-    }, function()
-        EmployeesMenu()
-    end)
-    fireEmployeePage:RegisterElement('bottomline', {
-        slot = "footer",
-        style = {}
-    })
-    BCCRanchMenu:Open({
-        startupPage = fireEmployeePage
-    })
-end)
-
----@param currentEmployees table
-RegisterNetEvent('bcc-ranch:HireEmployeeMenu', function(currentEmployees)
-    print("Called")
-    local hireEmployeePage = BCCRanchMenu:RegisterPage("bcc-ranch:hireEmployeePage")
-    hireEmployeePage:RegisterElement("header", {
-        value = _U("hire"),
-        slot = "header",
-        style = {}
-    })
-    local players = GetPlayers()
-    table.sort(players, function(a, b)
-        return a.serverId < b.serverId
-    end)
-    for k, v in pairs(players) do
-        if #currentEmployees > 0 then
-            for e, a in pairs(currentEmployees) do
-                if a.serverId == v.serverId then
-                    table.remove(players, k)
-                end
-            end
-        end
-        if GetPlayerServerId(PlayerId()) ~= v.serverId then
-            hireEmployeePage:RegisterElement("button", {
-                label = v.PlayerName,
-                style = {}
-            }, function()
-                Notify(_U("hired") .. " " .. v.PlayerName, "success", 4000)
-                TriggerServerEvent('bcc-ranch:EmployeeHired', RanchData.ranchid, v.serverId, v.staticid)
-            end)
-        end
-    end
-    hireEmployeePage:RegisterElement('line', {
-        slot = "footer",
-        style = {}
-    })
-    hireEmployeePage:RegisterElement("button", {
-        label = _U("back"),
-        style = {}
-    }, function()
-        EmployeesMenu()
-    end)
-    hireEmployeePage:RegisterElement('bottomline', {
-        slot = "footer",
-        style = {}
-    })
-    BCCRanchMenu:Open({
-        startupPage = hireEmployeePage
-    })
-end)

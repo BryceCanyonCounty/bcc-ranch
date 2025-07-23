@@ -1,8 +1,6 @@
 local pedObj, peds = {}, {}
 local saleBlip = nil
 
----@param animalType string
----@param animalCond integer
 function SellAnimals(animalType, animalCond)
     BCCRanchMenu:Close()
     local tables, model

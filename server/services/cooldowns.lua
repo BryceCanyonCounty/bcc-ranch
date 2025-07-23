@@ -1,5 +1,4 @@
-local choreCooldowns = {}
-local choreDoneCount = {}
+local choreCooldowns, choreDoneCount, herdingCooldown, feedingCooldown,harvestingEggsCooldown, milkingCowsCooldown, shearingSheepsCooldown = {}, {}, {}, {}, {}, {}, {}
 
 BccUtils.RPC:Register("bcc-ranch:ChoreCheckRanchCond", function(params, cb, source)
     local ranchId = params.ranchId
@@ -26,14 +25,14 @@ BccUtils.RPC:Register("bcc-ranch:ChoreCheckRanchCond", function(params, cb, sour
         -- Validate if chore type is valid and coordinates exist
         if not coordsKey or not ranchData[coordsKey] or ranchData[coordsKey] == "" then
             devPrint("Invalid choreType or missing coordinates for choreType: " .. tostring(choreType))
-            VORPcore.NotifyRightTip(source, _U("invalidChoreOrCoords"), 4000)
+            NotifyClient(source, _U("invalidChoreOrCoords"), "error", 4000)
             cb(false)
             return
         end
 
         -- Check if ranch condition is maxed out
         if ranchData.ranchCondition >= 100 then
-            VORPcore.NotifyRightTip(source, _U("conditionMax"), 4000)
+            NotifyClient(source, _U("conditionMax"), "error", 4000)
             cb(false)
             return
         end
@@ -48,7 +47,7 @@ BccUtils.RPC:Register("bcc-ranch:ChoreCheckRanchCond", function(params, cb, sour
             choreCooldowns[ranchId] = os.time()
             choreDoneCount[ranchId] = 1
         else
-            VORPcore.NotifyRightTip(source, _U("cooldown") .. tostring(ConfigRanch.ranchSetup.choreSetup.choreCooldown - os.difftime(os.time(), choreCooldowns[ranchId])), 4000)
+            NotifyClient(source, _U("cooldown") .. tostring(ConfigRanch.ranchSetup.choreSetup.choreCooldown - os.difftime(os.time(), choreCooldowns[ranchId])), "error", 4000)
             cb(false)
             return
         end
@@ -63,35 +62,45 @@ BccUtils.RPC:Register("bcc-ranch:ChoreCheckRanchCond", function(params, cb, sour
         end, source)
     else
         -- Ranch does not exist
-        VORPcore.NotifyRightTip(source, "Invalid Ranch Id", 4000)
+        NotifyClient(source, "Invalid Ranch Id", "error", 4000)
         cb(false)
     end
 end)
 
-local herdingCooldown = {}
-
-RegisterServerEvent('bcc-ranch:HerdingCooldown', function(ranchId, animalType)
+BccUtils.RPC:Register("bcc-ranch:HerdingCooldown", function(params, cb, source)
     local _source = source
+    local ranchId = params.ranchId
+    local animalType = params.animalType
+
     local ranch = MySQL.query.await("SELECT * FROM bcc_ranch WHERE ranchid = ?", { ranchId })
-    if #ranch > 0 then
-        if not herdingCooldown[ranchId] then
-            herdingCooldown[ranchId] = os.time()
-            TriggerClientEvent('bcc-ranch:HerdAnimalClientHandler', _source, animalType)
-        elseif os.difftime(os.time(), herdingCooldown[ranchId]) >= ConfigRanch.ranchSetup.herdingCooldown then
-            herdingCooldown[ranchId] = os.time()
-            TriggerClientEvent('bcc-ranch:HerdAnimalClientHandler', _source, animalType)
-        else
-            VORPcore.NotifyRightTip(_source, _U("cooldown") .. tostring(ConfigRanch.ranchSetup.herdingCooldown - os.difftime(os.time(), herdingCooldown[ranchId])), 4000)
-        end
+    if not ranch or #ranch == 0 then
+        NotifyClient(_source, _U("ranchNotFound"), "error", 4000)
+        cb(false)
+        return
+    end
+
+    local cooldown = ConfigRanch.ranchSetup.herdingCooldown
+    local now = os.time()
+
+    if not herdingCooldown[ranchId] then
+        herdingCooldown[ranchId] = now
+        TriggerClientEvent("bcc-ranch:HerdAnimalClientHandler", _source, animalType)
+        cb(true)
+    elseif os.difftime(now, herdingCooldown[ranchId]) >= cooldown then
+        herdingCooldown[ranchId] = now
+        TriggerClientEvent("bcc-ranch:HerdAnimalClientHandler", _source, animalType)
+        cb(true)
+    else
+        local remaining = cooldown - os.difftime(now, herdingCooldown[ranchId])
+        NotifyClient(_source, _U("cooldown") .. tostring(remaining), "error", 4000)
+        cb(false)
     end
 end)
 
-local feedingCooldown = {}
----@param ranchId integer
----@param animalType string
 RegisterServerEvent('bcc-ranch:FeedingCooldown', function(ranchId, animalType)
     local _source = source
     local ranch = MySQL.query.await("SELECT * FROM bcc_ranch WHERE ranchid = ?", { ranchId })
+
     if #ranch > 0 then
         if not feedingCooldown[ranchId] then
             feedingCooldown[ranchId] = os.time()
@@ -100,12 +109,10 @@ RegisterServerEvent('bcc-ranch:FeedingCooldown', function(ranchId, animalType)
             feedingCooldown[ranchId] = os.time()
             TriggerClientEvent('bcc-ranch:FeedAnimals', _source, animalType)
         else
-            VORPcore.NotifyRightTip(_source, _U("cooldown") .. tostring(ConfigRanch.ranchSetup.feedingCooldown - os.difftime(os.time(), feedingCooldown[ranchId])), 4000)
+            NotifyClient(_source, _U("cooldown") .. tostring(ConfigRanch.ranchSetup.feedingCooldown - os.difftime(os.time(), feedingCooldown[ranchId])), "error", 4000)
         end
     end
 end)
-
-local feedingCooldown = {}
 
 BccUtils.RPC:Register("bcc-ranch:HandleFeedingCooldown", function(params, cb, source)
     local ranchId = params.ranchId
@@ -113,6 +120,7 @@ BccUtils.RPC:Register("bcc-ranch:HandleFeedingCooldown", function(params, cb, so
 
     -- Fetch ranch data
     local ranch = MySQL.query.await("SELECT * FROM bcc_ranch WHERE ranchid = ?", { ranchId })
+
     if #ranch > 0 then
         local currentTime = os.time()
 
@@ -126,64 +134,98 @@ BccUtils.RPC:Register("bcc-ranch:HandleFeedingCooldown", function(params, cb, so
         else
             local remainingCooldown = ConfigRanch.ranchSetup.feedingCooldown - os.difftime(currentTime, feedingCooldown[ranchId])
             cb(false)
-            VORPcore.NotifyRightTip(source, _U("cooldown") .. tostring(remainingCooldown), 4000)
+            NotifyClient(source, _U("cooldown") .. tostring(remainingCooldown), "error", 4000)
         end
     else
         cb(false)
-        VORPcore.NotifyRightTip(source, "Ranch not found")
+        NotifyClient(source, "Ranch not found", "error", 4000)
     end
 end)
 
-local harvestingEggsCooldown = {}
----@param ranchId  integer
-RegisterServerEvent('bcc-ranch:HarvestEggsCooldown', function(ranchId)
+BccUtils.RPC:Register("bcc-ranch:HarvestEggsCooldown", function(params, cb, source)
     local _source = source
+    local ranchId = params.ranchId
+
     local ranch = MySQL.query.await("SELECT * FROM bcc_ranch WHERE ranchid = ?", { ranchId })
-    if #ranch > 0 then
-        if not harvestingEggsCooldown[ranchId] then
-            harvestingEggsCooldown[ranchId] = os.time()
-            TriggerClientEvent('bcc-ranch:HarvestEggs', _source)
-        elseif os.difftime(os.time(), harvestingEggsCooldown[ranchId]) >= ConfigAnimals.animalSetup.chickens.harvestingCooldown then
-            harvestingEggsCooldown[ranchId] = os.time()
-            TriggerClientEvent('bcc-ranch:HarvestEggs', _source)
-        else
-            VORPcore.NotifyRightTip(_source, _U("cooldown") .. tostring(ConfigAnimals.animalSetup.chickens.harvestingCooldown - os.difftime(os.time(), harvestingEggsCooldown[ranchId])), 4000)
-        end
+    if not ranch or #ranch == 0 then
+        NotifyClient(_source, _U("ranchNotFound"), "error", 4000)
+        cb(false)
+        return
+    end
+
+    local cooldown = ConfigAnimals.animalSetup.chickens.harvestingCooldown
+    local now = os.time()
+
+    if not harvestingEggsCooldown[ranchId] then
+        harvestingEggsCooldown[ranchId] = now
+        TriggerClientEvent("bcc-ranch:HarvestEggs", _source)
+        cb(true)
+    elseif os.difftime(now, harvestingEggsCooldown[ranchId]) >= cooldown then
+        harvestingEggsCooldown[ranchId] = now
+        TriggerClientEvent("bcc-ranch:HarvestEggs", _source)
+        cb(true)
+    else
+        local remaining = cooldown - os.difftime(now, harvestingEggsCooldown[ranchId])
+        NotifyClient(_source, _U("cooldown") .. tostring(remaining), "error", 4000)
+        cb(false)
     end
 end)
 
-local milkingCowsCooldown = {}
----@param ranchId  integer
-RegisterServerEvent('bcc-ranch:MilkingCowsCooldown', function(ranchId)
+BccUtils.RPC:Register("bcc-ranch:MilkingCowsCooldown", function(params, cb, source)
     local _source = source
+    local ranchId = params.ranchId
+
     local ranch = MySQL.query.await("SELECT * FROM bcc_ranch WHERE ranchid = ?", { ranchId })
-    if #ranch > 0 then
-        if not milkingCowsCooldown[ranchId] then
-            milkingCowsCooldown[ranchId] = os.time()
-            TriggerClientEvent('bcc-ranch:MilkCows', _source)
-        elseif os.difftime(os.time(), milkingCowsCooldown[ranchId]) >= ConfigAnimals.animalSetup.cows.milkingCooldown then
-            milkingCowsCooldown[ranchId] = os.time()
-            TriggerClientEvent('bcc-ranch:MilkCows', _source)
-        else
-            VORPcore.NotifyRightTip(_source, _U("cooldown") .. tostring(ConfigAnimals.animalSetup.cows.milkingCooldown - os.difftime(os.time(), milkingCowsCooldown[ranchId])), 4000)
-        end
+    if not ranch or #ranch == 0 then
+        NotifyClient(_source, _U("ranchNotFound"), "error", 4000)
+        cb(false)
+        return
+    end
+
+    local cooldown = ConfigAnimals.animalSetup.cows.milkingCooldown
+    local now = os.time()
+
+    if not milkingCowsCooldown[ranchId] then
+        milkingCowsCooldown[ranchId] = now
+        TriggerClientEvent("bcc-ranch:MilkCows", _source)
+        cb(true)
+    elseif os.difftime(now, milkingCowsCooldown[ranchId]) >= cooldown then
+        milkingCowsCooldown[ranchId] = now
+        TriggerClientEvent("bcc-ranch:MilkCows", _source)
+        cb(true)
+    else
+        local remaining = cooldown - os.difftime(now, milkingCowsCooldown[ranchId])
+        NotifyClient(_source, _U("cooldown") .. tostring(remaining), "error", 4000)
+        cb(false)
     end
 end)
 
-local shearingSheepsCooldown = {}
----@param ranchId  integer
-RegisterServerEvent('bcc-ranch:ShearingSheepsCooldown', function(ranchId)
+BccUtils.RPC:Register("bcc-ranch:ShearingSheepsCooldown", function(params, cb, source)
     local _source = source
+    local ranchId = params.ranchId
+
     local ranch = MySQL.query.await("SELECT * FROM bcc_ranch WHERE ranchid = ?", { ranchId })
-    if #ranch > 0 then
-        if not shearingSheepsCooldown[ranchId] then
-            shearingSheepsCooldown[ranchId] = os.time()
-            TriggerClientEvent('bcc-ranch:ShearSheeps', _source)
-        elseif os.difftime(os.time(), shearingSheepsCooldown[ranchId]) >= ConfigAnimals.animalSetup.sheeps.shearingCooldown then
-            shearingSheepsCooldown[ranchId] = os.time()
-            TriggerClientEvent('bcc-ranch:ShearSheeps', _source)
-        else
-            VORPcore.NotifyRightTip(_source, _U("cooldown") .. tostring(ConfigAnimals.animalSetup.sheeps.shearingCooldown - os.difftime(os.time(), shearingSheepsCooldown[ranchId])), 4000)
-        end
+    if not ranch or #ranch == 0 then
+        NotifyClient(_source, _U("ranchNotFound"), "error", 4000)
+        cb(false)
+        return
+    end
+
+    local cooldown = ConfigAnimals.animalSetup.sheeps.shearingCooldown
+    local now = os.time()
+
+    if not shearingSheepsCooldown[ranchId] then
+        shearingSheepsCooldown[ranchId] = now
+        TriggerClientEvent("bcc-ranch:ShearSheeps", _source)
+        cb(true)
+    elseif os.difftime(now, shearingSheepsCooldown[ranchId]) >= cooldown then
+        shearingSheepsCooldown[ranchId] = now
+        TriggerClientEvent("bcc-ranch:ShearSheeps", _source)
+        cb(true)
+    else
+        local remaining = cooldown - os.difftime(now, shearingSheepsCooldown[ranchId])
+        NotifyClient(_source, _U("cooldown") .. tostring(remaining), "error", 4000)
+        cb(false)
     end
 end)
+

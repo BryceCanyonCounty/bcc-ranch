@@ -80,10 +80,37 @@ function createRanchMenu()
             if success then
                 -- Notify success and close the menu
                 Notify(_U("ranchCreated"), "success", 4000)
+                BccUtils.RPC:Call("bcc-ranch:CheckIfPlayerOwnsARanch", {}, function(success, ranchData)
+                    if success then
+                        devPrint("Player owns a ranch: " .. ranchData.ranchname)
+                        -- Handle ranch ownership logic
+                        handleRanchData(ranchData, true) -- true indicates the player owns the ranch
+                    else
+                        devPrint("Player does not own a ranch.")
+                    end
+                end)
+
+                BccUtils.RPC:Call("bcc-ranch:CheckIfPlayerIsEmployee", {}, function(success, ranchData)
+                    if success then
+                        devPrint("Player is an employee at ranch: " .. ranchData.ranchname)
+                        -- Handle employee ranch logic
+                        handleRanchData(ranchData, false) -- false indicates the player is an employee, not the owner
+                    else
+                        devPrint("Player is not an employee at any ranch.")
+                    end
+                end)
                 BCCRanchMenu:Close()
             end
         end)
     end)
+    createRanchMenupage:RegisterElement("button", {
+        label = _U("back"),
+        slot = 'footer',
+        style = {}
+    }, function()
+        manageRanchesMain()
+    end)
+
     createRanchMenupage:RegisterElement("bottomline", {
         slot = "footer",
         style = {}
@@ -92,52 +119,42 @@ function createRanchMenu()
 end
 
 function PlayerListMenu()
-    BCCRanchMenu:Close()
-    local players = GetPlayers()
-    table.sort(players, function(a, b)
-        return a.serverId < b.serverId
-    end)
-    local playerListMenupage = BCCRanchMenu:RegisterPage("bcc-ranch:playerListMenupage")
-    playerListMenupage:RegisterElement("header", {
-        value = _U("playerList"),
-        slot = "header",
-        style = {}
-    })
-    for k, v in pairs(players) do
+    BccUtils.RPC:Call("bcc-ranch:GetPlayers", {}, function(players)
+        if not players or #players == 0 then
+            Notify(_U("noOnlinePlayersFound"), "warning")
+            return
+        end
+
+        local playerListMenupage = BCCRanchMenu:RegisterPage("bcc-ranch:playerListMenupage")
+        playerListMenupage:RegisterElement("header", {
+            value = _U("playerList"),
+            slot = "header",
+            style = {}
+        })
+
+        for _, p in ipairs(players) do
+            local label = "ID: " .. p.charId .. " - " .. p.firstname .. " " .. p.lastname
+            playerListMenupage:RegisterElement("button", {
+                label = label,
+                style = {}
+            }, function()
+                charid = p.charId
+                ownerSource = p.source
+                Notify(_U("ownerSet"), "success", 4000)
+                createRanchMenu()
+            end)
+        end
+
+        playerListMenupage:RegisterElement("line", { slot = "footer", style = {} })
         playerListMenupage:RegisterElement("button", {
-            label = v.PlayerName,
+            label = _U("back"),
+            slot = 'footer',
             style = {}
         }, function()
-            charid = v.staticid -- Assign to `charid`
-            ownerSource = v.serverId
-            Notify(_U("ownerSet"), "success", 4000)
             createRanchMenu()
         end)
-    end
-    playerListMenupage:RegisterElement("line", {
-        slot = "footer",
-        style = {}
-    })
-    playerListMenupage:RegisterElement("button", {
-        label = _U("back"),
-        slot = 'footer',
-        style = {}
-    }, function()
-        createRanchMenu()
-    end)
-    playerListMenupage:RegisterElement("bottomline", {
-        slot = "footer",
-        style = {}
-    })
-    BCCRanchMenu:Open({
-        startupPage = playerListMenupage
-    })
-end
+        playerListMenupage:RegisterElement("bottomline", { slot = "footer", style = {} })
 
-RegisterCommand(Config.commands.createRanchCommand, function()
-    if IsAdmin then
-        createRanchMenu()
-    else
-        Notify(_U("noPermission"), "error", 4000)
-    end
-end)
+        BCCRanchMenu:Open({ startupPage = playerListMenupage })
+    end)
+end

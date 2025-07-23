@@ -1,24 +1,91 @@
------- RanchAdminManagement Menu Setup --------------
-RegisterNetEvent('bcc-ranch:ShowAllRanchesMenu', function(ranches)
-    BCCRanchMenu:Close()
-    local showAllRanchesMenuPage = BCCRanchMenu:RegisterPage("bcc-ranch:ShowAllRanchesMenuPage")
-    showAllRanchesMenuPage:RegisterElement("header", {
-        value = _U("manageRanch"),
+function manageRanchesMain()
+    local mainManageRanch = BCCRanchMenu:RegisterPage("bcc-ranch:Main:Ranch:Manage:Page")
+    mainManageRanch:RegisterElement("header", {
+        value = "Manage Ranches",
         slot = "header",
         style = {}
     })
-    for k, v in pairs(ranches) do
-        showAllRanchesMenuPage:RegisterElement("button", {
-            label = _U('ranchId') .. ' ' .. v.ranchid,
-            style = {}
-        }, function()
-            RanchSelected(v)
+    mainManageRanch:RegisterElement("button", {
+        label = "Create Ranch",
+        style = {}
+    }, function()
+        createRanchMenu()
+    end)
+
+    mainManageRanch:RegisterElement("button", {
+        label = _U("manageRanch"),
+        style = {}
+    }, function()
+        BccUtils.RPC:Call("bcc-ranch:GetAllRanches", {}, function(success, ranches)
+            if success then
+                local showAllRanchesMenuPage = BCCRanchMenu:RegisterPage("bcc-ranch:ShowAllRanchesMenuPage")
+                showAllRanchesMenuPage:RegisterElement("header", {
+                    value = _U("manageRanch"),
+                    slot = "header",
+                    style = {}
+                })
+
+                for _, v in pairs(ranches) do
+                    local label = _U("ranchId") .. ": " .. v.ranchid ..
+                        " | " .. _U("farmName") .. ": " .. (v.ranchname or "N/A") ..
+                        " | " .. _U("owner") .. ": " .. (v.firstname or "-") .. " " .. (v.lastname or "-")
+
+                    showAllRanchesMenuPage:RegisterElement("button", {
+                        label = label,
+                        style = {}
+                    }, function()
+                        RanchSelected(v)
+                    end)
+                end
+
+                showAllRanchesMenuPage:RegisterElement("bottomline", {
+                    slot = "footer",
+                    style = {}
+                })
+
+                showAllRanchesMenuPage:RegisterElement("button", {
+                    label = _U("backButton"),
+                    slot = "footer",
+                    style = {}
+                }, function()
+                    mainManageRanch:RouteTo()
+                end)
+
+                showAllRanchesMenuPage:RegisterElement("bottomline", {
+                    slot = "footer",
+                    style = {}
+                })
+
+                BCCRanchMenu:Open({
+                    startupPage = showAllRanchesMenuPage
+                })
+            else
+                Notify(_U("FailedToFetchRanches"), "error", 4000)
+            end
         end)
-    end
-    BCCRanchMenu:Open({
-        startupPage = showAllRanchesMenuPage
+    end)
+
+    mainManageRanch:RegisterElement("line", {
+        slot = "footer",
+        style = {}
     })
-end)
+
+    mainManageRanch:RegisterElement("button", {
+        label = "Close",
+        slot = "footer",
+        style = {}
+    }, function()
+        BCCRanchMenu:Close()
+    end)
+
+    mainManageRanch:RegisterElement("bottomline", {
+        slot = "footer",
+        style = {}
+    })
+    BCCRanchMenu:Open({
+        startupPage = mainManageRanch
+    })
+end
 
 ------------ Ranch Selected Menu --------------
 function RanchSelected(ranchTable)
@@ -30,13 +97,42 @@ function RanchSelected(ranchTable)
         slot = "header",
         style = {}
     })
+
     ranchSelectedPage:RegisterElement("button", {
         label = _U("deleteRanch"),
         style = {}
     }, function()
-        TriggerServerEvent('bcc-ranch:DeleteRanchFromDB', ranchTable.ranchid)
-        Notify(_U("ranchDeleted"), "success", 4000)
-        BCCRanchMenu:Close()
+        BccUtils.RPC:Call("bcc-ranch:DeleteRanchFromDB", {
+            ranchId = ranchTable.ranchid
+        }, function(success)
+            if success then
+                Notify(_U("ranchDeleted"), "success", 4000)
+                ClearAllRanchBlips()
+                ClearAllRanchEntities()
+                BccUtils.RPC:Call("bcc-ranch:CheckIfPlayerOwnsARanch", {}, function(success, ranchData)
+                    if success then
+                        devPrint("Player owns a ranch: " .. ranchData.ranchname)
+                        -- Handle ranch ownership logic
+                        handleRanchData(ranchData, true) -- true indicates the player owns the ranch
+                    else
+                        devPrint("Player does not own a ranch.")
+                    end
+                end)
+
+                BccUtils.RPC:Call("bcc-ranch:CheckIfPlayerIsEmployee", {}, function(success, ranchData)
+                    if success then
+                        devPrint("Player is an employee at ranch: " .. ranchData.ranchname)
+                        -- Handle employee ranch logic
+                        handleRanchData(ranchData, false) -- false indicates the player is an employee, not the owner
+                    else
+                        devPrint("Player is not an employee at any ranch.")
+                    end
+                end)
+                BCCRanchMenu:Close()
+            else
+                Notify(_U("deletionFailed"), "error", 4000)
+            end
+        end)
     end)
 
     local newRadius = ""
@@ -47,13 +143,23 @@ function RanchSelected(ranchTable)
     }, function(data)
         newRadius = data.value
     end)
+
     ranchSelectedPage:RegisterElement("button", {
         label = _U("confirm"),
         style = {}
     }, function()
-        if tonumber(newRadius) > 0 then
-            TriggerServerEvent('bcc-ranch:ChangeRanchRadius', ranchTable.ranchid, tonumber(newRadius))
-            Notify(_U("radiusChanged"), "success", 4000)
+        local radius = tonumber(newRadius)
+        if radius and radius > 0 then
+            BccUtils.RPC:Call("bcc-ranch:ChangeRanchRadius", {
+                ranchId = ranchTable.ranchid,
+                radius = radius
+            }, function(success)
+                if success then
+                    Notify(_U("radiusChanged"), "success", 4000)
+                else
+                    Notify(_U("deletionFailed"), "error", 4000)
+                end
+            end)
         else
             Notify(_U("invalidInput"), "error", 4000)
         end
@@ -67,13 +173,22 @@ function RanchSelected(ranchTable)
     }, function(data)
         newRanchName = data.value
     end)
+
     ranchSelectedPage:RegisterElement("button", {
         label = _U("confirm"),
         style = {}
     }, function()
-        if newRanchName ~= '' and newRanchName then
-            TriggerServerEvent('bcc-ranch:ChangeRanchname', ranchTable.ranchid, newRanchName)
-            Notify(_U("ranchNameChanged"), "success", 4000)
+        if newRanchName and newRanchName ~= '' then
+            BccUtils.RPC:Call("bcc-ranch:ChangeRanchName", {
+                ranchId = ranchTable.ranchid,
+                name = newRanchName
+            }, function(success)
+                if success then
+                    Notify(_U("ranchNameChanged"), "success", 4000)
+                else
+                    Notify(_U("deletionFailed"), "error", 4000)
+                end
+            end)
         else
             Notify(_U("invalidInput"), "error", 4000)
         end
@@ -87,13 +202,23 @@ function RanchSelected(ranchTable)
     }, function(data)
         newRanchCond = data.value
     end)
+
     ranchSelectedPage:RegisterElement("button", {
         label = _U("confirm"),
         style = {}
     }, function()
-        if tonumber(newRanchCond) > 0 then
-            TriggerServerEvent('bcc-ranch:ChangeRanchCondAdminMenu', ranchTable.ranchid, tonumber(newRanchCond))
-            Notify(_U("ranchCondChanged"), "success", 4000)
+        local ranchCond = tonumber(newRanchCond)
+        if ranchCond and ranchCond > 0 then
+            BccUtils.RPC:Call("bcc-ranch:ChangeRanchCondAdminMenu", {
+                ranchId = ranchTable.ranchid,
+                cond = ranchCond
+            }, function(success)
+                if success then
+                    Notify(_U("ranchCondChanged"), "success", 4000)
+                else
+                    Notify(_U("deletionFailed"), "error", 4000)
+                end
+            end)
         else
             Notify(_U("invalidInput"), "error", 4000)
         end
@@ -112,22 +237,12 @@ function RanchSelected(ranchTable)
     })
 end
 
-CreateThread(function()
-    if Config.commands.manageRanches then
-        RegisterCommand(Config.commands.manageRanches, function(source, args, rawCommand)
-            -- Check for admin permissions (or use whatever method you need)
-            if IsAdmin then
-                -- Calling the server-side RPC
-                BccUtils.RPC:Call("bcc-ranch:GetAllRanches", {}, function(success, ranches)
-                    if success then
-                        TriggerEvent('bcc-ranch:ShowAllRanchesMenu', ranches)
-                    else
-                        Notify(_U("FailedToFetchRanches"), "error", 4000)
-                    end
-                end)
-            else
-                Notify(_U("NoPermission"), "error", 4000)
-            end
-        end)
-    end
-end)
+if Config.commands.manageRanches then
+    RegisterCommand(Config.commands.manageRanches, function()
+        if IsAdmin then
+            manageRanchesMain()
+        else
+            Notify(_U("NoPermission"), "error", 4000)
+        end
+    end)
+end

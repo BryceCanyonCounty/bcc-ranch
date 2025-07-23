@@ -1,4 +1,4 @@
-local createdPed = nil
+harvestPed = nil
 
 ------ Spawning Coop -------
 RegisterNetEvent('bcc-ranch:HarvestEggs', function()
@@ -91,26 +91,26 @@ RegisterNetEvent('bcc-ranch:MilkCows', function()
         return
     end
     Notify(_U("goMilk"), "success", 4000)
-    createdPed = BccUtils.Ped:Create(model, cowCoords.x, cowCoords.y, cowCoords.z - 1, 0.0, "world", false, nil, nil, true)
-    BccUtils.Ped.SetStatic(createdPed)
+    harvestPed = BccUtils.Ped:Create(model, cowCoords.x, cowCoords.y, cowCoords.z - 1, 0.0, "world", false, nil, nil, true)
+    BccUtils.Ped.SetStatic(harvestPed)
     local PromptGroup = BccUtils.Prompts:SetupPromptGroup()
     local firstprompt = PromptGroup:RegisterPrompt(_U("milkAnimal"), BccUtils.Keys[ConfigRanch.ranchSetup.milkAnimalKey], 1, 1, true, 'hold', { timedeventhash = "MEDIUM_TIMED_EVENT" })
     local cowDead = false
     while true do
         Wait(5)
         if IsEntityDead(PlayerPedId()) then break end
-        if IsEntityDead(createdPed:GetPed()) then
+        if IsEntityDead(harvestPed:GetPed()) then
             cowDead = true
             break
         end
-        if #(GetEntityCoords(createdPed:GetPed()) - GetEntityCoords(PlayerPedId())) <= 1 then
+        if #(GetEntityCoords(harvestPed:GetPed()) - GetEntityCoords(PlayerPedId())) <= 1 then
             PromptGroup:ShowGroup('')
             if firstprompt:HasCompleted() then break end
         end
     end
     if IsEntityDead(PlayerPedId()) or cowDead then
         IsInMission = false
-        createdPed:Remove()
+        harvestPed:Remove()
         Notify(_U("failed"), "error", 4000)
         return
     end
@@ -134,11 +134,11 @@ RegisterNetEvent('bcc-ranch:MilkCows', function()
                         devPrint("Failed to add the item.")
                     end
                 end)
-                createdPed:Remove()
+                harvestPed:Remove()
                 IsInMission = false
             else
                 IsInMission = false
-                createdPed:Remove()
+                harvestPed:Remove()
                 Notify(_U("failed"), "error", 4000)
             end
             ClearPedTasks(PlayerPedId())
@@ -155,7 +155,7 @@ RegisterNetEvent('bcc-ranch:MilkCows', function()
                 devPrint("Failed to add the item.")
             end
         end)
-        createdPed:Remove()
+        harvestPed:Remove()
     end
 end)
 
@@ -174,26 +174,26 @@ RegisterNetEvent('bcc-ranch:ShearSheeps', function()
         return
     end
     Notify(_U("shearAnimal"), "success", 4000)
-    createdPed = BccUtils.Ped:Create(model, Sheepcoords.x, Sheepcoords.y, Sheepcoords.z - 1, 0.0, "world", false, nil, nil, true)
-    FreezeEntityPosition(createdPed:GetPed(), true)
+    harvestPed = BccUtils.Ped:Create(model, Sheepcoords.x, Sheepcoords.y, Sheepcoords.z - 1, 0.0, "world", false, nil, nil, true)
+    FreezeEntityPosition(harvestPed:GetPed(), true)
     local PromptGroup = BccUtils.Prompts:SetupPromptGroup()
     local firstprompt = PromptGroup:RegisterPrompt(_U("shearAnimal"), BccUtils.Keys[ConfigRanch.ranchSetup.shearAnimalKey], 1, 1, true, 'hold', { timedeventhash = "MEDIUM_TIMED_EVENT" })
     local sheepDead = false
     while true do
         Wait(5)
         if IsEntityDead(PlayerPedId()) then break end
-        if IsEntityDead(createdPed:GetPed()) then
+        if IsEntityDead(harvestPed:GetPed()) then
             sheepDead = true
             break
         end
-        if #(GetEntityCoords(PlayerPedId()) - GetEntityCoords(createdPed:GetPed())) <= 1 then
+        if #(GetEntityCoords(PlayerPedId()) - GetEntityCoords(harvestPed:GetPed())) <= 1 then
             PromptGroup:ShowGroup('')
             if firstprompt:HasCompleted() then break end
         end
     end
     if IsEntityDead(PlayerPedId()) or sheepDead then
         IsInMission = false
-        createdPed:Remove()
+        harvestPed:Remove()
         Notify(_U("failed"), "error", 4000)
         return
     end
@@ -213,13 +213,13 @@ RegisterNetEvent('bcc-ranch:ShearSheeps', function()
                 end)
                 Notify(_U("animalSheared"), "success", 4000)
                 IsInMission = false
-                createdPed:Remove()
+                harvestPed:Remove()
                 ClearPedTasks(PlayerPedId())
                 return
             else
                 SetPedToRagdoll(PlayerPedId(), 1000, 1000, 0, 0, 0, 0)
                 IsInMission = false
-                createdPed:Remove()
+                harvestPed:Remove()
                 Notify(_U("failed"), "error", 4000)
                 return
             end
@@ -236,7 +236,7 @@ RegisterNetEvent('bcc-ranch:ShearSheeps', function()
                 devPrint("Failed to add the item.")
             end
         end)
-        createdPed:Remove()
+        harvestPed:Remove()
     end
 end)
 
@@ -250,8 +250,8 @@ end
 
 AddEventHandler('onResourceStop', function(resource)
     if resource == GetCurrentResourceName() then
-        if createdPed and type(createdPed.Remove) == "function" then
-            createdPed:Remove()
+        if harvestPed and type(harvestPed.Remove) == "function" then
+            harvestPed:Remove()
         end
     end
 end)
