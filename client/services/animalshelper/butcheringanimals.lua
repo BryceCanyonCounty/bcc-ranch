@@ -1,5 +1,5 @@
-local createdPed = nil
-local createdPedBlip = nil
+butcheringPed = nil
+butcheringPedBlip = nil
 
 function ButcherAnimals(animalType)
     local model, tables, spawnCoords
@@ -68,23 +68,23 @@ function ButcherAnimals(animalType)
     end
 
     -- Clean previous ped/blip
-    if createdPed then
-        createdPed:Remove()
-        createdPed = nil
+    if butcheringPed then
+        butcheringPed:Remove()
+        butcheringPed = nil
     end
-    if createdPedBlip then
-        createdPedBlip:Remove()
-        createdPedBlip = nil
+    if butcheringPedBlip then
+        butcheringPedBlip:Remove()
+        butcheringPedBlip = nil
     end
 
     -- Spawn animal
     IsInMission = true
-    createdPed = BccUtils.Ped:Create(model, spawnCoords.x, spawnCoords.y, spawnCoords.z, 0.0, "world", false, nil, nil,
+    butcheringPed = BccUtils.Ped:Create(model, spawnCoords.x, spawnCoords.y, spawnCoords.z, 0.0, "world", false, nil, nil,
         true)
-    createdPed:SetBlockingOfNonTemporaryEvents(true)
-    createdPed:Freeze()
+    butcheringPed:SetBlockingOfNonTemporaryEvents(true)
+    butcheringPed:Freeze()
 
-    createdPedBlip = BccUtils.Blip:SetBlip(_U("choreLocation"), 960467426, 0.2, spawnCoords.x, spawnCoords.y,
+    butcheringPedBlip = BccUtils.Blip:SetBlip(_U("choreLocation"), 960467426, 0.2, spawnCoords.x, spawnCoords.y,
         spawnCoords.z)
 
     Notify(_U("killAnimal"), "info", 4000)
@@ -93,7 +93,7 @@ function ButcherAnimals(animalType)
     while true do
         Wait(5)
         if IsEntityDead(PlayerPedId()) then break end
-        if IsEntityDead(createdPed:GetPed()) then
+        if IsEntityDead(butcheringPed:GetPed()) then
             Notify(_U("skinAnimal"), "info", 4000)
             break
         end
@@ -107,17 +107,17 @@ function ButcherAnimals(animalType)
     while true do
         Wait(5)
         if IsEntityDead(PlayerPedId()) then break end
-        if #(GetEntityCoords(PlayerPedId()) - createdPed:GetCoords()) < 3 then
+        if #(GetEntityCoords(PlayerPedId()) - butcheringPed:GetCoords()) < 3 then
             PromptGroup:ShowGroup('')
             if firstPrompt:HasCompleted() then
                 BccUtils.Ped.ScenarioInPlace(PlayerPedId(), 'WORLD_HUMAN_CROUCH_INSPECT', 5000)
 
-                createdPed:Remove()
-                createdPed = nil
+                butcheringPed:Remove()
+                butcheringPed = nil
 
-                if createdPedBlip then
-                    createdPedBlip:Remove()
-                    createdPedBlip = nil
+                if butcheringPedBlip then
+                    butcheringPedBlip:Remove()
+                    butcheringPedBlip = nil
                 end
 
                 Notify(_U("animalSkinned"), "success", 4000)
@@ -148,13 +148,13 @@ end
 -- Cleanup on resource stop
 AddEventHandler('onResourceStop', function(resource)
     if resource == GetCurrentResourceName() then
-        if createdPed then
-            createdPed:Remove()
-            createdPed = nil
+        if butcheringPed then
+            butcheringPed:Remove()
+            butcheringPed = nil
         end
-        if createdPedBlip then
-            createdPedBlip:Remove()
-            createdPedBlip = nil
+        if butcheringPedBlip then
+            butcheringPedBlip:Remove()
+            butcheringPedBlip = nil
         end
     end
 end)

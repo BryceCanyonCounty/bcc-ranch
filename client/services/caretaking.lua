@@ -1,4 +1,5 @@
 local function setCareTakingCoords(choreType)
+     devPrint("📍 Entered setCareTakingCoords for chore: " .. tostring(choreType))
     BCCRanchMenu:Close()
     local finished = false
     -- Define required minimum distance (for example: must be at least X units from the ranch center)
@@ -63,9 +64,10 @@ local function choreMenu(choreType, menuTitle)
         label = _U("setCoords"),
         style = {}
     }, function()
-        setCareTakingCoords(choreType)
         Notify(_U("setCoordsLoop"), "info", 10000)
         Notify(_U("cancelSetCoords"), "info", 10000)
+        Wait(200)
+        setCareTakingCoords(choreType)
     end)
     choreMenuPage:RegisterElement("button", {
         label = _U("startChore"),
@@ -153,7 +155,7 @@ function CaretakingMenu()
 end
 
 -- Chore Logic Area --
-local blip = nil
+local choreBlip = nil
 BccUtils.RPC:Register("bcc-ranch:StartChoreClient", function(params)
     local choreType = params.choreType
     -- Validate RanchData availability
@@ -188,6 +190,7 @@ BccUtils.RPC:Register("bcc-ranch:StartChoreClient", function(params)
             miniGame = 'skillcheck'
             miniGameCfg = ConfigRanch.ranchSetup.choreSetup.choreMinigameSettings
         end,
+
         ['repairfeedtrough'] = function()
             choreCoords = json.decode(RanchData.repair_trough_coords)
             choreAnim = joaat('PROP_HUMAN_REPAIR_WAGON_WHEEL_ON_SMALL')
@@ -196,13 +199,14 @@ BccUtils.RPC:Register("bcc-ranch:StartChoreClient", function(params)
             miniGame = 'hammertime'
             miniGameCfg = hammerTimeCfg
         end,
+
         ['scooppoop'] = function()
             choreCoords = json.decode(RanchData.scoop_poop_coords)
             incAmount = ConfigRanch.ranchSetup.choreSetup.shovelPoopCondInc
             animTime = ConfigRanch.ranchSetup.choreSetup.shovelPoopAnimTime
             miniGame = 'skillcheck'
             miniGameCfg = ConfigRanch.ranchSetup.choreSetup.choreMinigameSettings
-        end
+        end,
     }
     -- Configure based on chore type
     if selectedChoreFunc[choreType] then
@@ -221,9 +225,9 @@ BccUtils.RPC:Register("bcc-ranch:StartChoreClient", function(params)
         IsInMission = false
         return
     end
-    -- Notify and set up blip
+    -- Notify and set up choreBlip
     Notify(_U("gotoChoreLocation"), "info", 4000)
-    blip = BccUtils.Blip:SetBlip(_U("choreLocation"), 960467426, 0.2, choreCoords.x, choreCoords.y, choreCoords.z)
+    choreBlip = BccUtils.Blip:SetBlip(_U("choreLocation"), 960467426, 0.2, choreCoords.x, choreCoords.y, choreCoords.z)
     local PromptGroup = BccUtils.Prompts:SetupPromptGroup()
     local firstprompt = PromptGroup:RegisterPrompt(_U("startChore"), BccUtils.Keys[ConfigRanch.ranchSetup.choreKey], 1, 1,
         true, 'hold', { timedeventhash = "MEDIUM_TIMED_EVENT" })
@@ -232,7 +236,7 @@ BccUtils.RPC:Register("bcc-ranch:StartChoreClient", function(params)
         Wait(5)
         -- Handle player death
         if IsEntityDead(PlayerPedId()) then
-            blip:Remove()
+            choreBlip:Remove()
             IsInMission = false
             Notify(_U("failed"), "error", 4000)
             break
@@ -248,7 +252,7 @@ BccUtils.RPC:Register("bcc-ranch:StartChoreClient", function(params)
                     local function deadOrSuccessCheck()
                         if IsEntityDead(PlayerPedId()) then
                             Notify(_U("failed"), "error", 4000)
-                            blip:Remove()
+                            choreBlip:Remove()
                             IsInMission = false
                         else
                             if choreType == 'scooppoop' then
@@ -267,13 +271,14 @@ BccUtils.RPC:Register("bcc-ranch:StartChoreClient", function(params)
                             BccUtils.RPC:Call('bcc-ranch:IncreaseRanchCond',
                                 { ranchId = RanchData.ranchid, amount = incAmount }, function(success, message)
                                 if success then
-                                    devPrint("[DEBUG] Successfully increased ranch condition. Message:", message)
+                                    devPrint("[DEBUG] Successfully increased ranch condition.")
                                 else
-                                    devPrint("[ERROR] Failed to increase ranch condition. Message:", message)
+                                    devPrint("[ERROR] Failed to increase ranch condition. Reason: " .. (message or "unknown"))
                                 end
+
                             end)
                             Notify(_U("choreComplete"), "success", 4000)
-                            blip:Remove()
+                            choreBlip:Remove()
                             IsInMission = false
                         end
                     end
@@ -299,7 +304,7 @@ BccUtils.RPC:Register("bcc-ranch:StartChoreClient", function(params)
                         else
                             IsInMission = false
                             Notify(_U("failed"), "error", 4000)
-                            blip:Remove()
+                            choreBlip:Remove()
                             SetPedToRagdoll(PlayerPedId(), 1000, 1000, 0, 0, 0, 0)
                         end
                     end)
@@ -314,8 +319,8 @@ end)
 
 AddEventHandler('onResourceStop', function(resourceName)
     if GetCurrentResourceName() == resourceName then
-        if blip then
-            blip:Remove()
+        if choreBlip then
+            choreBlip:Remove()
         end
     end
 end)

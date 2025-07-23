@@ -33,18 +33,6 @@ BCCRanchMenu = FeatherMenu:RegisterMenu('bcc-ranch:Menu', {
     draggable = true
 })
 
-function GetPlayers()
-    TriggerServerEvent("bcc-ranch:GetPlayers")
-    local playersData = {}
-    RegisterNetEvent("bcc-ranch:SendPlayers", function(result)
-        playersData = result
-    end)
-    while next(playersData) == nil do
-        Wait(10)
-    end
-    return playersData
-end
-
 function PlayAnim(animDict, animName, time) --function to play an animation
     RequestAnimDict(animDict)
     while not HasAnimDictLoaded(animDict) do
@@ -137,4 +125,64 @@ function Notify(message, typeOrDuration, maybeDuration)
     else
         print("^1[Notify] Invalid Config.Notify: " .. tostring(Config.Notify))
     end
+end
+
+BccUtils.RPC:Register("bcc-ranch:NotifyClient", function(data)
+    Notify(data.message, data.type, data.duration)
+end)
+
+function ClearAllRanchBlips()
+    for _, blip in ipairs(activeBlips) do
+        blip:Remove()
+    end
+    activeBlips = {}
+end
+
+function ClearAllRanchEntities()
+    -- 1. Wandering animals
+    if wanderingPeds then
+        for _, ped in ipairs(wanderingPeds) do
+            if DoesEntityExist(ped) then
+                SetEntityAsMissionEntity(ped, true, true)
+                DeletePed(ped)
+            end
+        end
+        wanderingPeds = {}
+        devPrint("[Cleanup] Cleared wanderingPeds")
+    end
+
+    -- 2. Feed animals
+    if feedPeds then
+        for _, ped in ipairs(feedPeds) do
+            if DoesEntityExist(ped) then
+                SetEntityAsMissionEntity(ped, true, true)
+                DeletePed(ped)
+            end
+        end
+        feedPeds = {}
+        devPrint("[Cleanup] Cleared feedPeds")
+    end
+
+    -- 3. Butchering ped
+    if butcheringPed and DoesEntityExist(butcheringPed) then
+        SetEntityAsMissionEntity(butcheringPed, true, true)
+        DeletePed(butcheringPed)
+        devPrint("[Cleanup] Deleted butcheringPed")
+    end
+    butcheringPed = nil
+
+    -- 4. Butchering blip
+    if butcheringPedBlip and butcheringPedBlip.Remove then
+        butcheringPedBlip:Remove()
+        devPrint("[Cleanup] Removed butcheringPedBlip")
+    end
+    butcheringPedBlip = nil
+
+    -- 5. Harvest ped
+    if harvestPed and DoesEntityExist(harvestPed) then
+        SetEntityAsMissionEntity(harvestPed, true, true)
+        DeletePed(harvestPed)
+        devPrint("[Cleanup] Deleted harvestPed")
+    end
+    harvestPed = nil
 end

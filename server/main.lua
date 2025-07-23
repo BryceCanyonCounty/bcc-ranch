@@ -1,44 +1,64 @@
-AllPlayersTable = {}
+BccUtils.RPC:Register("bcc-ranch:AdminCheck", function(params, cb, src)
+    local user = VORPcore.getUser(src)
+    if not user then return cb(false) end
 
-BccUtils.RPC:Register("bcc-ranch:AdminCheck", function(params, cb, recSource)
-    local user = VORPcore.getUser(recSource)
     local character = user.getUsedCharacter
-    if not character then
-        return cb(false)
+    if not character then return cb(false) end
+
+    local group = character.group
+    local job = character.job
+
+    -- Check admin group
+    for _, g in ipairs(Config.RanchAdminGroup) do
+        if group == g then
+            return cb(true)
+        end
     end
-    if character.group == Config.adminGroup then
-        return cb(true)
+
+    -- Check allowed job (optional)
+    for _, j in ipairs(Config.RanchAllowedJobs or {}) do
+        if job == j then
+            return cb(true)
+        end
     end
+
     return cb(false)
 end)
 
----@param source integer
-RegisterServerEvent("bcc-ranch:StoreAllPlayers", function(source)
-    local _source = source
-    AllPlayersTable[#AllPlayersTable + 1] = _source -- add all players
-end)
+BccUtils.RPC:Register("bcc-ranch:GetPlayers", function(_, cb, source)
+    devPrint("[GetPlayers] RPC called by source:", source)
 
-------------- Get Players Function Credit to vorp admin for this ------------------
-RegisterServerEvent('bcc-ranch:GetPlayers')
-AddEventHandler('bcc-ranch:GetPlayers', function()
-    local _source = source
-    local data = {}
+    local AllPlayersTable = {}
+    local rawPlayers = GetPlayers()
+    devPrint("[GetPlayers] Found " .. #rawPlayers .. " players online.")
 
-    for _, player in ipairs(AllPlayersTable) do
-        local User = VORPcore.getUser(player)
-        if User then
-            local Character = User.getUsedCharacter
+    for _, playerId in ipairs(rawPlayers) do
+        local name = GetPlayerName(playerId)
+        local user = VORPcore.getUser(tonumber(playerId))
 
-            local playername = Character.firstname .. ' ' .. Character.lastname
+        if not user then
+            devPrint(("[GetPlayers] Skipping playerId %s (no user found)"):format(playerId))
+        else
+            local character = user.getUsedCharacter
+            if not character then
+                devPrint(("[GetPlayers] Skipping playerId %s (no character found)"):format(playerId))
+            else
+                devPrint(("[GetPlayers] Found player: %s (%s %s, charId: %s)")
+                    :format(name, character.firstname, character.lastname, character.charIdentifier))
 
-            data[tostring(player)] = {
-                serverId = player,
-                PlayerName = playername,
-                staticid = Character.charIdentifier,
-            }
+                table.insert(AllPlayersTable, {
+                    source = tonumber(playerId),
+                    charId = character.charIdentifier,
+                    firstname = character.firstname,
+                    lastname = character.lastname,
+                    name = name .. " | ID: " .. character.charIdentifier .. " | " .. character.firstname .. " " .. character.lastname
+                })
+            end
         end
     end
-    TriggerClientEvent("bcc-ranch:SendPlayers", _source, data)
+
+    devPrint("[GetPlayers] Returning " .. #AllPlayersTable .. " valid players to client.")
+    cb(AllPlayersTable)
 end)
 
 CreateThread(function()

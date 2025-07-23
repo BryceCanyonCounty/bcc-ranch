@@ -18,6 +18,26 @@ local function setAnimalsCoords(type, minDist, cost)
                     }, function(success)
                         if success then
                             Notify(_U("coordsSet"), "success", 4000)
+
+                            -- Refresh ranch ownership data
+                            BccUtils.RPC:Call("bcc-ranch:CheckIfPlayerOwnsARanch", {}, function(success, ranchData)
+                                if success then
+                                    devPrint("Player owns a ranch: " .. ranchData.ranchname)
+                                    handleRanchData(ranchData, true) -- owner
+                                else
+                                    devPrint("Player does not own a ranch.")
+                                end
+                            end)
+
+                            -- Refresh employee status
+                            BccUtils.RPC:Call("bcc-ranch:CheckIfPlayerIsEmployee", {}, function(success, ranchData)
+                                if success then
+                                    devPrint("Player is an employee at ranch: " .. ranchData.ranchname)
+                                    handleRanchData(ranchData, false) -- employee
+                                else
+                                    devPrint("Player is not an employee at any ranch.")
+                                end
+                            end)
                         else
                             Notify(_U("error"), "error", 4000)
                         end
@@ -43,10 +63,31 @@ local function setAnimalsCoords(type, minDist, cost)
                     }, function(success)
                         if success then
                             Notify(_U("coordsSet"), "success", 4000)
+
+                            -- Recheck ownership
+                            BccUtils.RPC:Call("bcc-ranch:CheckIfPlayerOwnsARanch", {}, function(success, ranchData)
+                                if success then
+                                    devPrint("Player owns a ranch: " .. ranchData.ranchname)
+                                    handleRanchData(ranchData, true) -- true = owner
+                                else
+                                    devPrint("Player does not own a ranch.")
+                                end
+                            end)
+
+                            -- Recheck employee
+                            BccUtils.RPC:Call("bcc-ranch:CheckIfPlayerIsEmployee", {}, function(success, ranchData)
+                                if success then
+                                    devPrint("Player is an employee at ranch: " .. ranchData.ranchname)
+                                    handleRanchData(ranchData, false) -- false = employee
+                                else
+                                    devPrint("Player is not an employee.")
+                                end
+                            end)
                         else
                             Notify(_U("notEnoughMoney"), "error", 4000)
                         end
                     end)
+
                     IsInMission = false
                     break
                 else
@@ -124,7 +165,12 @@ function ManageOwnedAnimalsMenu()
                     if RanchData.herd_coords == "none" or RanchData.cow_coords == "none" then
                         Notify(_U("noCoordsSet"), "error", 4000)
                     else
-                        TriggerServerEvent('bcc-ranch:HerdingCooldown', RanchData.ranchid, 'cows')
+                        BccUtils.RPC:Call("bcc-ranch:HerdingCooldown", {
+                            ranchId = RanchData.ranchid,
+                            animalType = "cows"
+                        }, function(success)
+                            -- Optional: handle result
+                        end)
                     end
                 else
                     Notify(_U("animalsAlreadyOut"), "error", 4000)
@@ -135,7 +181,8 @@ function ManageOwnedAnimalsMenu()
                 style = {}
             }, function()
                 if RanchData.feed_wagon_coords ~= 'none' and RanchData.cow_coords ~= "none" then
-                    BccUtils.RPC:Call("bcc-ranch:HandleFeedingCooldown", { ranchId = RanchData.ranchid, animalType = "cows" }, function(success)
+                    BccUtils.RPC:Call("bcc-ranch:HandleFeedingCooldown",
+                        { ranchId = RanchData.ranchid, animalType = "cows" }, function(success)
                         if success then
                             TriggerEvent('bcc-ranch:FeedAnimals', 'cows')
                         else
@@ -175,16 +222,24 @@ function ManageOwnedAnimalsMenu()
                     Notify(_U("noCoordsSet"), "error", 4000)
                 end
             end)
+
             manageCowsPage:RegisterElement('button', {
                 label = _U("milkAnimal"),
                 style = {}
             }, function()
                 if RanchData.cow_coords ~= "none" then
-                    TriggerServerEvent('bcc-ranch:MilkingCowsCooldown', RanchData.ranchid)
+                    BccUtils.RPC:Call("bcc-ranch:MilkingCowsCooldown", {
+                        ranchId = RanchData.ranchid
+                    }, function(success)
+                        if success then
+                            -- Optionally handle success notification here
+                        end
+                    end)
                 else
                     Notify(_U("noCoordsSet"), "error", 4000)
                 end
             end)
+
             manageCowsPage:RegisterElement('line', {
                 slot = "footer",
                 style = {}
@@ -248,7 +303,12 @@ function ManageOwnedAnimalsMenu()
                     if RanchData.herd_coords == "none" or RanchData.pig_coords == "none" then
                         Notify(_U("noCoordsSet"), "error", 4000)
                     else
-                        TriggerServerEvent('bcc-ranch:HerdingCooldown', RanchData.ranchid, 'pigs')
+                        BccUtils.RPC:Call("bcc-ranch:HerdingCooldown", {
+                            ranchId = RanchData.ranchid,
+                            animalType = "pigs"
+                        }, function(success)
+                            -- Optional: handle result
+                        end)
                     end
                 else
                     Notify(_U("animalsAlreadyOut"), "error", 4000)
@@ -259,7 +319,8 @@ function ManageOwnedAnimalsMenu()
                 style = {}
             }, function()
                 if RanchData.feed_wagon_coords ~= 'none' and RanchData.pig_coords ~= "none" then
-                    BccUtils.RPC:Call("bcc-ranch:HandleFeedingCooldown", { ranchId = RanchData.ranchid, animalType = "pigs" }, function(success)
+                    BccUtils.RPC:Call("bcc-ranch:HandleFeedingCooldown",
+                        { ranchId = RanchData.ranchid, animalType = "pigs" }, function(success)
                         if success then
                             TriggerEvent('bcc-ranch:FeedAnimals', 'pigs')
                         else
@@ -361,7 +422,12 @@ function ManageOwnedAnimalsMenu()
                     if RanchData.herd_coords == "none" or RanchData.sheep_coords == "none" then
                         Notify(_U("noCoordsSet"), "error", 4000)
                     else
-                        TriggerServerEvent('bcc-ranch:HerdingCooldown', RanchData.ranchid, 'sheeps')
+                        BccUtils.RPC:Call("bcc-ranch:HerdingCooldown", {
+                            ranchId = RanchData.ranchid,
+                            animalType = "sheeps"
+                        }, function(success)
+                            -- Optional: handle result
+                        end)
                     end
                 else
                     Notify(_U("animalsAlreadyOut"), "error", 4000)
@@ -372,7 +438,8 @@ function ManageOwnedAnimalsMenu()
                 style = {}
             }, function()
                 if RanchData.feed_wagon_coords ~= 'none' and RanchData.sheep_coords ~= "none" then
-                    BccUtils.RPC:Call("bcc-ranch:HandleFeedingCooldown", { ranchId = RanchData.ranchid, animalType = "sheeps" }, function(success)
+                    BccUtils.RPC:Call("bcc-ranch:HandleFeedingCooldown",
+                        { ranchId = RanchData.ranchid, animalType = "sheeps" }, function(success)
                         if success then
                             TriggerEvent('bcc-ranch:FeedAnimals', 'sheeps')
                         else
@@ -411,16 +478,22 @@ function ManageOwnedAnimalsMenu()
                     Notify(_U("noCoordsSet"), "error", 4000)
                 end
             end)
+
             manageSheepsPage:RegisterElement('button', {
                 label = _U("shearAnimal"),
                 style = {}
             }, function()
                 if RanchData.sheep_coords ~= "none" then
-                    TriggerServerEvent('bcc-ranch:ShearingSheepsCooldown', RanchData.ranchid)
+                    BccUtils.RPC:Call("bcc-ranch:ShearingSheepsCooldown", {
+                        ranchId = RanchData.ranchid
+                    }, function(success)
+                        -- Could handle additional logic here
+                    end)
                 else
                     Notify(_U("noCoordsSet"), "error", 4000)
                 end
             end)
+
             manageSheepsPage:RegisterElement('line', {
                 slot = "footer",
                 style = {}
@@ -484,7 +557,12 @@ function ManageOwnedAnimalsMenu()
                     if RanchData.herd_coords == "none" or RanchData.goat_coords == "none" then
                         Notify(_U("noCoordsSet"), "error", 4000)
                     else
-                        TriggerServerEvent('bcc-ranch:HerdingCooldown', RanchData.ranchid, 'goats')
+                        BccUtils.RPC:Call("bcc-ranch:HerdingCooldown", {
+                            ranchId = RanchData.ranchid,
+                            animalType = "goats"
+                        }, function(success)
+                            -- Optional: handle result
+                        end)
                     end
                 else
                     Notify(_U("animalsAlreadyOut"), "error", 4000)
@@ -495,7 +573,8 @@ function ManageOwnedAnimalsMenu()
                 style = {}
             }, function()
                 if RanchData.feed_wagon_coords ~= 'none' and RanchData.goat_coords ~= "none" then
-                    BccUtils.RPC:Call("bcc-ranch:HandleFeedingCooldown", { ranchId = RanchData.ranchid, animalType = "goats" }, function(success)
+                    BccUtils.RPC:Call("bcc-ranch:HandleFeedingCooldown",
+                        { ranchId = RanchData.ranchid, animalType = "goats" }, function(success)
                         if success then
                             TriggerEvent('bcc-ranch:FeedAnimals', 'goats')
                         else
@@ -597,7 +676,12 @@ function ManageOwnedAnimalsMenu()
                     if RanchData.herd_coords == "none" or RanchData.chicken_coords == "none" then
                         Notify(_U("noCoordsSet"), "error", 4000)
                     else
-                        TriggerServerEvent('bcc-ranch:HerdingCooldown', RanchData.ranchid, 'chickens')
+                        BccUtils.RPC:Call("bcc-ranch:HerdingCooldown", {
+                            ranchId = RanchData.ranchid,
+                            animalType = "chicken"
+                        }, function(success)
+                            -- Optional: handle result
+                        end)
                     end
                 else
                     Notify(_U("animalsAlreadyOut"), "error", 4000)
@@ -608,7 +692,8 @@ function ManageOwnedAnimalsMenu()
                 style = {}
             }, function()
                 if RanchData.feed_wagon_coords ~= 'none' and RanchData.chicken_coords ~= "none" then
-                    BccUtils.RPC:Call("bcc-ranch:HandleFeedingCooldown", { ranchId = RanchData.ranchid, animalType = "chickens" }, function(success)
+                    BccUtils.RPC:Call("bcc-ranch:HandleFeedingCooldown",
+                        { ranchId = RanchData.ranchid, animalType = "chickens" }, function(success)
                         if success then
                             TriggerEvent('bcc-ranch:FeedAnimals', 'chickens')
                         else
@@ -655,14 +740,19 @@ function ManageOwnedAnimalsMenu()
                     label = _U("buyChickenCoop") .. ConfigAnimals.animalSetup.chickens.coopCost,
                     style = {}
                 }, function()
-                    setAnimalsCoords('coopCoords', tonumber(RanchData.ranch_radius_limit), ConfigAnimals.animalSetup.chickens.coopCost)
+                    setAnimalsCoords('coopCoords', tonumber(RanchData.ranch_radius_limit),
+                        ConfigAnimals.animalSetup.chickens.coopCost)
                 end)
             else
                 manageChickensPage:RegisterElement('button', {
                     label = _U("harvestEggs"),
                     style = {}
                 }, function()
-                    TriggerServerEvent('bcc-ranch:HarvestEggsCooldown', RanchData.ranchid)
+                    BccUtils.RPC:Call("bcc-ranch:HarvestEggsCooldown", {
+                        ranchId = RanchData.ranchid
+                    }, function(success)
+                        -- Optional: handle result
+                    end)
                 end)
             end
             manageChickensPage:RegisterElement('line', {
