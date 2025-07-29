@@ -1,4 +1,4 @@
-BccUtils.RPC:Register('bcc-ranch:DeleteRanchFromDB', function(data, cb, src)
+BccUtils.RPC:Register("bcc-ranch:DeleteRanchFromDB", function(data, cb, src)
     local ranchId = tonumber(data.ranchId)
     if not ranchId then
         NotifyClient(src, _U("invalidRanchId"), "error", 4000)
@@ -16,30 +16,59 @@ BccUtils.RPC:Register('bcc-ranch:DeleteRanchFromDB', function(data, cb, src)
     local ownerId = ranch.charidentifier or "Unknown"
 
     -- Fetch ranch owner info
-    local ownerResult = MySQL.query.await('SELECT firstname, lastname FROM characters WHERE charidentifier = ?', { ownerId })
+    local ownerResult = MySQL.query.await("SELECT firstname, lastname FROM characters WHERE charidentifier = ?", { ownerId })
     local ownerChar = ownerResult and ownerResult[1] or { firstname = "Unknown", lastname = "Unknown" }
 
-    -- Fetch executor info (who deleted it)
+    -- Fetch executor info
     local executor = VORPcore.getUser(src).getUsedCharacter
     local executorName = executor.firstname .. " " .. executor.lastname
     local executorId = executor.charIdentifier
 
-    devPrint("[DeleteRanch] Deleting ranch ID " .. ranchId .. " (" .. ranchName .. ") owned by " .. ownerChar.firstname .. " " .. ownerChar.lastname .. ", deleted by " .. executorName .. " [" .. executorId .. "]")
+    devPrint(("[DeleteRanch] Deleting ranch ID %d (%s), owned by %s %s, deleted by %s [%s]"):format(
+        ranchId, ranchName, ownerChar.firstname, ownerChar.lastname, executorName, executorId
+    ))
 
-    -- Cleanup
+    -- Fetch employees before deletion
+    local employeeResults = MySQL.query.await("SELECT character_id FROM bcc_ranch_employees WHERE ranch_id = ?", { ranchId })
+
+    -- Cleanup: remove employees + ranch
     MySQL.update.await("DELETE FROM bcc_ranch_employees WHERE ranch_id = ?", { ranchId })
     local affected = MySQL.update.await("DELETE FROM bcc_ranch WHERE ranchid = ?", { ranchId })
 
     if affected and affected > 0 then
         MySQL.update.await("UPDATE characters SET ranchid = NULL WHERE ranchid = ?", { ranchId })
 
-        TriggerClientEvent("bcc-ranch:PlayerOwnsARanch", src, nil, false)
-        TriggerClientEvent("bcc-ranch:PlayerIsAEmployee", src, nil, false)
+        -- Update internal state/tracking
         UpdateAllRanchersRanchData(ranchId)
 
+        -- Notify command issuer
         NotifyClient(src, _U("ranchDeleted"), "success", 4000)
 
-        -- Send webhook
+        -- Notify owner if online
+        for _, playerSrc in ipairs(GetPlayers()) do
+            local user = VORPcore.getUser(tonumber(playerSrc))
+            if user then
+                local char = user.getUsedCharacter
+                if char and tostring(char.charIdentifier) == tostring(ownerId) then
+                    BccUtils.RPC:Notify("bcc-ranch:ForceUpdateRanch", {}, tonumber(playerSrc))
+                end
+            end
+        end
+
+        -- Notify each affected employee
+        for _, emp in ipairs(employeeResults or {}) do
+            for _, playerSrc in ipairs(GetPlayers()) do
+                local user = VORPcore.getUser(tonumber(playerSrc))
+                if user then
+                    local char = user.getUsedCharacter
+                    if char and tostring(char.charIdentifier) == tostring(emp.character_id) then
+                        BccUtils.RPC:Notify("bcc-ranch:ForceUpdateRanch", {}, tonumber(playerSrc))
+                    end
+                end
+            end
+        end
+
+        -- Webhook log
         BccUtils.Discord.sendMessage(Config.Webhook,
             Config.WebhookTitle,
             Config.WebhookAvatar,
@@ -47,7 +76,7 @@ BccUtils.RPC:Register('bcc-ranch:DeleteRanchFromDB', function(data, cb, src)
             nil,
             {
                 {
-                    color = 15158332, -- Red
+                    color = 15158332,
                     title = "🚫 Ranch Deleted",
                     description = table.concat({
                         "**Ranch Name:** `" .. ranchName .. "`",
@@ -171,7 +200,7 @@ BccUtils.RPC:Register("bcc-ranch:ChangeRanchname", function(data, cb, src)
 end)
 
 BccUtils.RPC:Register("bcc-ranch:GetAllRanches", function(params, cb, src)
-    devPrint("[bcc-ranch:GetAllRanches] RPC called by source: " .. tostring(src))
+    devPrint("RPC called by source: " .. tostring(src))
 
     local result = MySQL.query.await([[
         SELECT r.*, c.firstname, c.lastname
@@ -180,10 +209,10 @@ BccUtils.RPC:Register("bcc-ranch:GetAllRanches", function(params, cb, src)
     ]])
 
     if result and #result > 0 then
-        devPrint("[bcc-ranch:GetAllRanches] Successfully fetched " .. #result .. " ranches")
+        devPrint("Successfully fetched " .. #result .. " ranches")
         cb(true, result)
     else
-        devPrint("[bcc-ranch:GetAllRanches] No ranch data found.")
+        devPrint("No ranch data found.")
         NotifyClient(src, _U("NoRanches"), "error", 4000)
         cb(false)
     end

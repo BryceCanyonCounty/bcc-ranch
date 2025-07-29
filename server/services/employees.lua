@@ -5,8 +5,9 @@ BccUtils.RPC:Register("bcc-ranch:CheckIfPlayerIsEmployee", function(params, cb, 
 
     -- Get the user's character data
     local character = VORPcore.getUser(_source).getUsedCharacter
-    if not character then
-        devPrint("No character found for source: " .. _source)
+
+    if not character or not character.charIdentifier then
+        devPrint("No valid character or charIdentifier found for source: " .. tostring(_source))
         return cb(false)
     end
 
@@ -146,8 +147,8 @@ BccUtils.RPC:Register("bcc-ranch:HireEmployee", function(params, cb, source)
 
     -- Fetch ranch and character info for webhook
     local ranchResult = MySQL.query.await('SELECT ranchname FROM bcc_ranch WHERE ranchid = ?', { ranchId })
-    local ranchName = ranchResult and ranchResult[1] and ranchResult[1].ranch_name or "Unknown"
-    
+    local ranchName = ranchResult and ranchResult[1] and ranchResult[1].ranchname or "Unknown"
+ 
     -- Fetch character info (firstname, lastname)
     local charResult = MySQL.query.await('SELECT firstname, lastname FROM characters WHERE charidentifier = ?', { characterId })
     local character = charResult and charResult[1] or { firstname = "Unknown", lastname = "Unknown" }
@@ -155,7 +156,7 @@ BccUtils.RPC:Register("bcc-ranch:HireEmployee", function(params, cb, source)
     -- Debug: Log fetched ranch and character details
     devPrint("Fetched ranch name: " .. ranchName)
     devPrint("Fetched character name: " .. character.firstname .. " " .. character.lastname)
-
+    SendRanchUpdateToCharId(characterId)
     -- Send to webhook (Employee Hired)
     if ranchName then
         devPrint("Sending Employee Hired notification to Discord webhook.")
@@ -216,7 +217,7 @@ BccUtils.RPC:Register("bcc-ranch:FireEmployee", function(params, cb, source)
 
     local success = rowsChanged and rowsChanged > 0
     devPrint("Employee fired: " .. characterId .. " from ranch ID " .. ranchId .. ": " .. tostring(success))
-
+    SendRanchUpdateToCharId(characterId)
     -- Send to webhook
     if success and ranchName then
         local embed = {
@@ -238,3 +239,16 @@ BccUtils.RPC:Register("bcc-ranch:FireEmployee", function(params, cb, source)
 
     cb(success)
 end)
+
+function SendRanchUpdateToCharId(characterId)
+    for _, playerSrc in ipairs(GetPlayers()) do
+        local user = VORPcore.getUser(tonumber(playerSrc))
+        if user then
+            local char = user.getUsedCharacter
+            if char and tostring(char.charIdentifier) == characterId then
+                BccUtils.RPC:Notify("bcc-ranch:ForceUpdateRanch", {}, tonumber(playerSrc))
+                break
+            end
+        end
+    end
+end

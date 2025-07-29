@@ -175,12 +175,8 @@ BccUtils.RPC:Register("bcc-ranch:CreateRanch", function(params, cb, source)
         return cb(false)
     end
 
+    BccUtils.RPC:Notify("bcc-ranch:ForceUpdateRanch", {}, ownerSource)
     local ranch = insertedRanch[1]
-    MySQL.update.await("UPDATE characters SET ranchid = ? WHERE charidentifier = ?", { ranch.ranchid, ownerCharId })
-
-    -- Send updated ranch info to the owner
-    TriggerClientEvent("bcc-ranch:PlayerOwnsARanch", ownerSource, ranch, true)
-    TriggerClientEvent("bcc-ranch:PlayerIsAEmployee", ownerSource, ranch, true)
 
     -- Log the ranch creation to Discord
     BccUtils.Discord.sendMessage(Config.Webhook,
@@ -202,7 +198,7 @@ BccUtils.RPC:Register("bcc-ranch:CreateRanch", function(params, cb, source)
             }
         }
     )
-    cb(true)
+    cb(true, ranch)
 end)
 
 -- Server-side handler for checking if a player owns a ranch
@@ -255,7 +251,7 @@ BccUtils.RPC:Register("bcc-ranch:CheckIfPlayerOwnsARanch", function(params, cb, 
         cb(true, result[1])
     else
         devPrint("Player does not own a ranch.")
-        cb(false)  -- If no ranch is found, return false
+        cb(false) 
     end
 end)
 

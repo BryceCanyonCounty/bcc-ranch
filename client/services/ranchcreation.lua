@@ -48,7 +48,7 @@ function createRanchMenu()
     })
     createRanchMenupage:RegisterElement("button", {
         label = _U("confirm"),
-        slot = 'footer',
+        slot = "footer",
         style = {}
     }, function()
         -- Validate fields locally
@@ -68,7 +68,8 @@ function createRanchMenu()
             Notify(_U("ownerSelectionRequired"), "error", 4000)
             return
         end
-        -- RPC call to server to create ranch
+
+        -- Create ranch RPC
         BccUtils.RPC:Call("bcc-ranch:CreateRanch", {
             ranchName = ranchName,
             ranchRadius = ranchRadius,
@@ -78,31 +79,34 @@ function createRanchMenu()
             coords = GetEntityCoords(PlayerPedId())
         }, function(success)
             if success then
-                -- Notify success and close the menu
                 Notify(_U("ranchCreated"), "success", 4000)
-                BccUtils.RPC:Call("bcc-ranch:CheckIfPlayerOwnsARanch", {}, function(success, ranchData)
-                    if success then
-                        devPrint("Player owns a ranch: " .. ranchData.ranchname)
-                        -- Handle ranch ownership logic
-                        handleRanchData(ranchData, true) -- true indicates the player owns the ranch
+
+                -- Re-check ownership and employment in a thread
+                CreateThread(function()
+                    local ownsOk, ownsData = BccUtils.RPC:CallAsync("bcc-ranch:CheckIfPlayerOwnsARanch", {})
+                    if ownsOk then
+                        devPrint("Player owns a ranch: " .. ranchName)
+                        handleRanchData(ownsData, true)
                     else
                         devPrint("Player does not own a ranch.")
                     end
-                end)
 
-                BccUtils.RPC:Call("bcc-ranch:CheckIfPlayerIsEmployee", {}, function(success, ranchData)
-                    if success then
-                        devPrint("Player is an employee at ranch: " .. ranchData.ranchname)
-                        -- Handle employee ranch logic
-                        handleRanchData(ranchData, false) -- false indicates the player is an employee, not the owner
+                    local empOk, empData = BccUtils.RPC:CallAsync("bcc-ranch:CheckIfPlayerIsEmployee", {})
+                    if empOk then
+                        devPrint("Player is an employee at ranch: " .. ranchName)
+                        handleRanchData(empData, false)
                     else
                         devPrint("Player is not an employee at any ranch.")
                     end
                 end)
+
                 BCCRanchMenu:Close()
+            else
+                Notify(_U("ranchCreationFailed"), "error", 4000)
             end
         end)
     end)
+
     createRanchMenupage:RegisterElement("button", {
         label = _U("back"),
         slot = 'footer',
