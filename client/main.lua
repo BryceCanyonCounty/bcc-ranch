@@ -198,6 +198,27 @@ BccUtils.RPC:Register("bcc-ranch:UpdateRanchData", function(data)
     checkIfAgingShouldBeActive()
 end)
 
+BccUtils.RPC:Register("bcc-ranch:ForceUpdateRanch", function(params, cb)
+    CreateThread(function()
+        local ownsOk, ownsData = BccUtils.RPC:CallAsync("bcc-ranch:CheckIfPlayerOwnsARanch", {})
+        if ownsOk then
+            handleRanchData(ownsData, true)
+        else
+            devPrint("[RANCH] No ownership found.")
+        end
+
+        local empOk, empData = BccUtils.RPC:CallAsync("bcc-ranch:CheckIfPlayerIsEmployee", {})
+        if empOk then
+            handleRanchData(empData, false)
+        else
+            devPrint("[RANCH] No employment found.")
+        end
+
+        -- Optionally respond with confirmation
+        if cb then cb(true) end
+    end)
+end)
+
 -- Check if aging should be activated based on animal data
 function checkIfAgingShouldBeActive()
     agingActive = false -- Reset first
