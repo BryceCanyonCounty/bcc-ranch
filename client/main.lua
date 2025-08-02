@@ -1,101 +1,114 @@
 -- Global variables
-IsAdmin, RanchData, IsOwnerOfRanch, IsEmployeeOfRanch, IsInMission, agingActive, ranchBlip, activeBlips = false, {}, false, false, false, false, nil, {}
+IsAdmin, RanchData, IsOwnerOfRanch, IsEmployeeOfRanch, IsInMission, agingActive, ranchBlip, activeBlips = false, {},
+    false, false, false, false, nil, {}
 
 RegisterNetEvent('vorp:SelectedCharacter')
 AddEventHandler('vorp:SelectedCharacter', function()
-    -- Fetch Admin, Ownership, and Employment data asynchronously
     IsAdmin = BccUtils.RPC:CallAsync("bcc-ranch:AdminCheck")
+
     BccUtils.RPC:Call("bcc-ranch:CheckIfPlayerOwnsARanch", {}, function(success, ranchData)
         if success then
             devPrint("Player owns a ranch: " .. ranchData.ranchname)
-            -- Handle ranch ownership logic
-            handleRanchData(ranchData, true) -- true indicates the player owns the ranch
+            handleRanchData(ranchData, true)
         else
             devPrint("Player does not own a ranch.")
-        end
-    end)
 
-    BccUtils.RPC:Call("bcc-ranch:CheckIfPlayerIsEmployee", {}, function(success, ranchData)
-        if success then
-            devPrint("Player is an employee at ranch: " .. ranchData.ranchname)
-            -- Handle employee ranch logic
-            handleRanchData(ranchData, false) -- false indicates the player is an employee, not the owner
-        else
-            devPrint("Player is not an employee at any ranch.")
+            -- Only check for employment if not an owner
+            BccUtils.RPC:Call("bcc-ranch:CheckIfPlayerIsEmployee", {}, function(success, ranchData)
+                if success then
+                    devPrint("Player is an employee at ranch: " .. ranchData.ranchname)
+                    handleRanchData(ranchData, false)
+                else
+                    devPrint("Player is not an employee at any ranch.")
+                end
+            end)
         end
     end)
 end)
 
--- Helper function to handle ranch data for both ownership and employee status
 function handleRanchData(ranchData, isOwner)
-    if ranchData and ranchData.ranchname then
-        -- Safely assign ranch data to global variable
-        RanchData = ranchData
-        devPrint("Ranch data valid: " .. ranchData.ranchname)
-        
-        -- Update the ownership flag if the player owns the ranch
-        if isOwner then
-            IsOwnerOfRanch = true
-        end
+    if not ranchData or not ranchData.ranchname then
+        devPrint("[RanchLogic] Ranch data is missing or invalid.")
+        return
+    end
 
-        -- Decode ranch coordinates if they exist
-        if RanchData.ranchcoords then
-            local success, decoded = pcall(json.decode, RanchData.ranchcoords)
-            if success and decoded then
-                RanchData.ranchcoords = decoded
-                RanchData.ranchcoordsVector3 = vector3(decoded.x, decoded.y, decoded.z)
-            else
-                devPrint("[RanchLogic] Failed to decode ranchcoords. Invalid format.")
-                return
-            end
+    RanchData = ranchData
+    if isOwner then
+        IsOwnerOfRanch = true
+    else
+        IsEmployeeOfRanch = true
+    end
+
+    devPrint("Ranch data valid: " .. ranchData.ranchname)
+
+    -- Decode ranch coordinates
+    local decoded
+    if RanchData.ranchcoords then
+        local ok, coords = pcall(json.decode, RanchData.ranchcoords)
+        if ok and coords then
+            RanchData.ranchcoords = coords
+            RanchData.ranchcoordsVector3 = vector3(coords.x, coords.y, coords.z)
         else
-            devPrint("[RanchLogic] Missing or nil ranchcoords.")
+            devPrint("[RanchLogic] Failed to decode ranchcoords.")
             return
         end
+    else
+        devPrint("[RanchLogic] Missing or nil ranchcoords.")
+        return
+    end
 
-        -- Create ranch blip on the map
-        local x, y, z = RanchData.ranchcoords.x, RanchData.ranchcoords.y, RanchData.ranchcoords.z
-        ranchBlip = BccUtils.Blip:SetBlip(RanchData.ranchname, ConfigRanch.ranchSetup.ranchBlip, 0.2, x, y, z)
-        local modifier = BccUtils.Blips:AddBlipModifier(ranchBlip, 'BLIP_MODIFIER_MP_COLOR_8')
-        modifier:ApplyModifier()
-        table.insert(activeBlips, ranchBlip)
+    -- Blip
+    local x, y, z = RanchData.ranchcoords.x, RanchData.ranchcoords.y, RanchData.ranchcoords.z
+    ranchBlip = BccUtils.Blip:SetBlip(RanchData.ranchname, ConfigRanch.ranchSetup.ranchBlip, 0.2, x, y, z)
+    local modifier = BccUtils.Blips:AddBlipModifier(ranchBlip, 'BLIP_MODIFIER_MP_COLOR_8')
+    modifier:ApplyModifier()
+    table.insert(activeBlips, ranchBlip)
 
-        -- Setup prompt for ranch management
-        local promptGroup = BccUtils.Prompts:SetupPromptGroup()
-        local firstPrompt = promptGroup:RegisterPrompt(_U("manage"), BccUtils.Keys[ConfigRanch.ranchSetup.manageRanchKey], 1, 1, true, 'hold', { timedeventhash = "MEDIUM_TIMED_EVENT" })
+    -- Prompt
+    local promptGroup = BccUtils.Prompts:SetupPromptGroup()
+    local firstPrompt = promptGroup:RegisterPrompt(_U("manage"), BccUtils.Keys[ConfigRanch.ranchSetup.manageRanchKey], 1,
+        1, true, 'hold', { timedeventhash = "MEDIUM_TIMED_EVENT" })
 
-        -- Command registration for managing ranch
-        if Config.commands.manageMyRanchCommand then
-            RegisterCommand(Config.commands.manageMyRanchCommandName, function()
-                local dist = #(RanchData.ranchcoordsVector3 - GetEntityCoords(PlayerPedId()))
-                if dist < 5 then
-                    if not IsInMission then
-                        MainRanchMenu()
-                    else
-                        Notify(_U("cantManageRanch"), "error", 4000)
-                    end
+    -- Command
+    if Config.commands.manageMyRanchCommand then
+        RegisterCommand(Config.commands.manageMyRanchCommandName, function()
+            local dist = #(RanchData.ranchcoordsVector3 - GetEntityCoords(PlayerPedId()))
+            if dist < 5 then
+                if not IsInMission then
+                    MainRanchMenu()
                 else
-                    Notify(_U("tooFarFromRanch"), "error", 4000)
+                    Notify(_U("cantManageRanch"), "error", 4000)
+                end
+            else
+                Notify(_U("tooFarFromRanch"), "error", 4000)
+            end
+        end)
+    end
+
+    -- Set spawner flag
+    isSpawner = RanchData.isSpawner == true
+
+    -- Check for aging condition
+    agingActive = false
+    for animalType, config in pairs(ConfigAnimals.animalSetup) do
+        if RanchData[animalType] == "true" then
+            BccUtils.RPC:Call("bcc-ranch:GetAnimalCondition", {
+                ranchId = RanchData.ranchid,
+                animalType = animalType
+            }, function(condition)
+                if condition and condition >= config.maxCondition then
+                    devPrint("[RanchLogic] " .. animalType .. " max condition. Aging activated.")
+                    agingActive = true
                 end
             end)
         end
-        isSpawner = RanchData.isSpawner == true -- only one client gets true
-        -- Check for aging system
-        agingActive = false
-        for animalType, config in pairs(ConfigAnimals.animalSetup) do
-            if RanchData[animalType] == "true" then
-                BccUtils.RPC:Call("bcc-ranch:GetAnimalCondition", { ranchId = RanchData.ranchid, animalType = animalType }, function(condition)
-                    if condition and condition >= config.maxCondition then
-                        devPrint("[RanchLogic] Condition for " .. animalType .. " is at max. Activating aging.")
-                        agingActive = true
-                    end
-                end)
-            end
-        end
+    end
 
-        -- Start prompt loop
+    -- Prompt loop
+    CreateThread(function()
         while true do
             if Config.commands.manageMyRanchCommand then break end
+
             if not IsInMission then
                 local dist = #(RanchData.ranchcoordsVector3 - GetEntityCoords(PlayerPedId()))
                 local sleep = false
@@ -111,41 +124,34 @@ function handleRanchData(ranchData, isOwner)
                 elseif dist > 50 then
                     sleep = true
                 end
-                if sleep then Wait(1000) else Wait(5) end
+                Wait(sleep and 1000 or 5)
             else
                 Wait(500)
             end
         end
+    end)
 
-        -- Final check for aging system activation
-        checkIfAgingShouldBeActive()
-    else
-        devPrint("[RanchLogic] Ranch data is missing or invalid.")
-    end
+    checkIfAgingShouldBeActive()
 end
 
--- CreateThread to check if a player owns or is an employee at a ranch and manage ranch logic
 CreateThread(function()
     IsAdmin = BccUtils.RPC:CallAsync("bcc-ranch:AdminCheck")
-    -- Call the "CheckIfPlayerOwnsARanch" RPC
+
     BccUtils.RPC:Call("bcc-ranch:CheckIfPlayerOwnsARanch", {}, function(success, ranchData)
         if success then
             devPrint("Player owns a ranch: " .. ranchData.ranchname)
-            -- Handle ranch ownership logic
-            handleRanchData(ranchData, true) -- true indicates the player owns the ranch
+            handleRanchData(ranchData, true)
         else
             devPrint("Player does not own a ranch.")
-        end
-    end)
 
-    -- Call the "CheckIfPlayerIsEmployee" RPC to check if the player is an employee at any ranch
-    BccUtils.RPC:Call("bcc-ranch:CheckIfPlayerIsEmployee", {}, function(success, ranchData)
-        if success then
-            devPrint("Player is an employee at ranch: " .. ranchData.ranchname)
-            -- Handle employee ranch logic
-            handleRanchData(ranchData, false) -- false indicates the player is an employee, not the owner
-        else
-            devPrint("Player is not an employee at any ranch.")
+            BccUtils.RPC:Call("bcc-ranch:CheckIfPlayerIsEmployee", {}, function(success, ranchData)
+                if success then
+                    devPrint("Player is an employee at ranch: " .. ranchData.ranchname)
+                    handleRanchData(ranchData, false)
+                else
+                    devPrint("Player is not an employee at any ranch.")
+                end
+            end)
         end
     end)
 end)
@@ -175,10 +181,10 @@ BccUtils.RPC:Register("bcc-ranch:UpdateRanchData", function(data)
 
     -- Decode all chore coordinate fields
     local choreFields = {
-        { key = "shovel_hay_coords", as = "shovelHayCoords" },
-        { key = "water_animal_coords", as = "waterAnimalCoords" },
+        { key = "shovel_hay_coords",    as = "shovelHayCoords" },
+        { key = "water_animal_coords",  as = "waterAnimalCoords" },
         { key = "repair_trough_coords", as = "repairTroughCoords" },
-        { key = "scoop_poop_coords", as = "scoopPoopCoords" },
+        { key = "scoop_poop_coords",    as = "scoopPoopCoords" },
     }
 
     for _, entry in ipairs(choreFields) do
@@ -186,7 +192,7 @@ BccUtils.RPC:Register("bcc-ranch:UpdateRanchData", function(data)
         if raw and raw ~= "" then
             local ok, decoded = pcall(json.decode, raw)
             if ok and decoded then
-                RanchData[entry.key] = raw -- raw string
+                RanchData[entry.key] = raw    -- raw string
                 RanchData[entry.as] = decoded -- usable vector
                 devPrint(("[UpdateRanchData] Decoded %s -> %s"):format(entry.key, entry.as))
             else

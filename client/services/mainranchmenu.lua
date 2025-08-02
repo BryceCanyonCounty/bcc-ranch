@@ -37,8 +37,16 @@ function MainRanchMenu()
         label = _U("inventoryName"),
         style = {}
     }, function()
-        TriggerServerEvent('bcc-ranch:OpenInv', RanchData.ranchid)
-        Wait(100) --Wait or else it wont work due to weirdness of feather menu
+        BccUtils.RPC:Call("bcc-ranch:OpenInv", {
+            ranchId = RanchData.ranchid
+        }, function(success)
+            if success then
+                devPrint("[Client] Ranch inventory opened.")
+            else
+                Notify("Failed to open ranch inventory", "error", 4000)
+            end
+        end)
+        Wait(100)
         BCCRanchMenu:Close()
     end)
     if IsOwnerOfRanch then
