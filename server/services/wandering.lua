@@ -61,7 +61,7 @@ local function isRanchEmployee(playerId, ranchId)
     if not character then return false end
 
     local charId = character.charIdentifier
-    local result = MySQL.query.await("SELECT 1 FROM bcc_ranch_employees WHERE charidentifier = ? AND ranchid = ?", { charId, ranchId })
+    local result = MySQL.query.await("SELECT 1 FROM bcc_ranch_employees WHERE character_id = ? AND ranch_id = ?", { charId, ranchId })
 
     local isEmployee = result and #result > 0
     devPrint(("[isRanchEmployee] Player %d is%s an employee at ranch %s."):format(playerId, isEmployee and "" or " not", ranchId))
