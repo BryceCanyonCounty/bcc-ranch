@@ -52,19 +52,22 @@ function UpdateAllRanchersRanchData(ranchId)
     checkOnlineRanchers(ranchId)
 
     local ranchData = MySQL.query.await("SELECT * FROM bcc_ranch WHERE ranchid = ?", { ranchId })
-    if not ranchData or #ranchData == 0 or not ranchData[1].ranchcoords then
-        devPrint("Invalid ranch data for ranchId: " .. ranchId)
+    if not ranchData or #ranchData == 0 then
+        devPrint("No ranch data found for ranchId " .. ranchId)
         return
     end
 
-    if not RanchersOnline[ranchId] or #RanchersOnline[ranchId] == 0 then
+    local ranchers = RanchersOnline[ranchId]
+    if not ranchers or #ranchers == 0 then
         devPrint("No ranchers online for ranchId: " .. ranchId)
         return
     end
 
-    for index, rancher in ipairs(RanchersOnline[ranchId]) do
-        local isSpawner = (index == 1)
-        BccUtils.RPC:Notify("bcc-ranch:UpdateRanchData", { ranch = ranchData[1], isSpawner = isSpawner }, rancher.rancherSource)
+    devPrint("Found " .. #ranchers .. " online ranchers")
+    for index, rancher in ipairs(ranchers) do
+        devPrint(("Sending ForceUpdateRanch to source %s"):format(rancher.rancherSource))
+        BccUtils.RPC:Notify("bcc-ranch:ForceUpdateRanch", {}, rancher.rancherSource)
+        BccUtils.RPC:Notify("bcc-ranch:UpdateRanchData", { ranch = ranchData[1], isSpawner = index == 1 }, rancher.rancherSource)
     end
 end
 
@@ -633,7 +636,7 @@ BccUtils.RPC:Register("bcc-ranch:IncreaseAnimalAge", function(params, cb, source
     local ranchId = params.ranchId
     local animalType = params.animalType
     local incAmount = params.incAmount
-    devPrint("IncreaseAnimalAge RPC received from source: " .. tostring(source) .. " with ranchId: " .. tostring(ranchId) .. ", animalType: " .. tostring(animalType) .. ", incAmount: " .. tostring(incAmount))
+    --devPrint("IncreaseAnimalAge RPC received from source: " .. tostring(source) .. " with ranchId: " .. tostring(ranchId) .. ", animalType: " .. tostring(animalType) .. ", incAmount: " .. tostring(incAmount))
     -- Define the animal types and their respective columns, max age, and max condition
     local animalTypes = {
         ['cows'] = {column = "cows_age", conditionColumn = "cows_cond", maxAge = ConfigAnimals.animalSetup.cows.maxAge, maxCondition = ConfigAnimals.animalSetup.cows.maxCondition},
@@ -657,15 +660,15 @@ BccUtils.RPC:Register("bcc-ranch:IncreaseAnimalAge", function(params, cb, source
             local currentCondition = result[animal.conditionColumn]
             -- Check if the result contains valid data
             if currentAge == nil or currentCondition == nil then
-                devPrint("Error: Unable to fetch valid age or condition data for " .. animalType .. " at ranchId: " .. ranchId)
+                --devPrint("Error: Unable to fetch valid age or condition data for " .. animalType .. " at ranchId: " .. ranchId)
                 cb(false) -- Return failure callback if data is missing
                 return
             end
             -- Debug print the fetched values
-            devPrint("Fetched currentAge: " .. tostring(currentAge) .. ", currentCondition: " .. tostring(currentCondition))
+            --devPrint("Fetched currentAge: " .. tostring(currentAge) .. ", currentCondition: " .. tostring(currentCondition))
             -- Check if the current age has reached or exceeded the max age
             if currentAge >= animal.maxAge then
-                devPrint("Error: Animal age has reached or exceeded max age (" .. animal.maxAge .. "). Age will not be increased.")
+                --devPrint("Error: Animal age has reached or exceeded max age (" .. animal.maxAge .. "). Age will not be increased.")
                 -- Notify the player that the animal has reached its maximum age
                 NotifyClient(source, "Your " .. animalType .. " has reached the maximum age of " .. animal.maxAge .. " and will not age further.", "error", 4000)
                 cb(false) -- Return failure callback if the animal has reached max age
@@ -675,14 +678,14 @@ BccUtils.RPC:Register("bcc-ranch:IncreaseAnimalAge", function(params, cb, source
                 -- Update the animal's age in the database
                 MySQL.update("UPDATE bcc_ranch SET " .. animal.column .. " = " .. animal.column .. " + ? WHERE ranchid = ?", { incAmount, ranchId })
                 UpdateAllRanchersRanchData(ranchId)
-                devPrint("Successfully increased age for " .. animalType .. " at ranchId: " .. ranchId)
+                --devPrint("Successfully increased age for " .. animalType .. " at ranchId: " .. ranchId)
                 cb(true) -- Return success callback
             else
-                devPrint("Error: Animal condition (" .. currentCondition .. ") does not match max condition (" .. animal.maxCondition .. ") and cannot be increased.")
+                --devPrint("Error: Animal condition (" .. currentCondition .. ") does not match max condition (" .. animal.maxCondition .. ") and cannot be increased.")
                 cb(false)
             end
         else
-            devPrint("Error: Unable to fetch current age and condition for " .. animalType .. " at ranchId: " .. ranchId)
+            --devPrint("Error: Unable to fetch current age and condition for " .. animalType .. " at ranchId: " .. ranchId)
             cb(false) -- Return failure callback if data fetch fails
         end
     end)

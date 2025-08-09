@@ -100,6 +100,7 @@ ConfigAnimals = {
 
         chickens = {
             model = "a_c_chicken_01",
+            coopModel = "p_chickencoopcart01x",
             cost = 10,
             feedAnimalCondIncrease = 10,
             animalHealth = 100,

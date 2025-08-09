@@ -1,6 +1,9 @@
 -- Global variables
 IsAdmin, RanchData, IsOwnerOfRanch, IsEmployeeOfRanch, IsInMission, agingActive, ranchBlip, activeBlips = false, {},
     false, false, false, false, nil, {}
+OwnedRanchData = nil
+EmployedRanchData = nil
+activePeds = {}
 
 RegisterNetEvent('vorp:SelectedCharacter')
 AddEventHandler('vorp:SelectedCharacter', function()
@@ -9,14 +12,15 @@ AddEventHandler('vorp:SelectedCharacter', function()
     BccUtils.RPC:Call("bcc-ranch:CheckIfPlayerOwnsARanch", {}, function(success, ranchData)
         if success then
             devPrint("Player owns a ranch: " .. ranchData.ranchname)
+            OwnedRanchData = ranchData
             handleRanchData(ranchData, true)
         else
             devPrint("Player does not own a ranch.")
 
-            -- Only check for employment if not an owner
             BccUtils.RPC:Call("bcc-ranch:CheckIfPlayerIsEmployee", {}, function(success, ranchData)
                 if success then
                     devPrint("Player is an employee at ranch: " .. ranchData.ranchname)
+                    EmployedRanchData = ranchData
                     handleRanchData(ranchData, false)
                 else
                     devPrint("Player is not an employee at any ranch.")
@@ -25,6 +29,10 @@ AddEventHandler('vorp:SelectedCharacter', function()
         end
     end)
 end)
+
+function SetActiveRanchContext(ranchData)
+    RanchData = ranchData
+end
 
 function handleRanchData(ranchData, isOwner)
     if not ranchData or not ranchData.ranchname then
@@ -63,6 +71,27 @@ function handleRanchData(ranchData, isOwner)
     local modifier = BccUtils.Blips:AddBlipModifier(ranchBlip, 'BLIP_MODIFIER_MP_COLOR_8')
     modifier:ApplyModifier()
     table.insert(activeBlips, ranchBlip)
+
+    if RanchData.ranch_npc_enabled == 1 then
+        npcRanch = BccUtils.Ped:Create(
+            ConfigRanch.ranchSetup.npc.model,
+            x, y, z - 1,
+            RanchData.ranch_npc_heading or 0.0,
+            'world',
+            false
+        )
+
+        if npcRanch then
+            npcRanch:Freeze()
+            npcRanch:SetHeading(RanchData.ranch_npc_heading or 0.0)
+            npcRanch:Invincible()
+            npcRanch:SetBlockingOfNonTemporaryEvents(true)
+            table.insert(activePeds, npcRanch)
+        else
+            devPrint("[RANCH NPC] Failed to create ranch NPC at coords: ", x, y, z)
+        end
+    end
+
 
     -- Prompt
     local promptGroup = BccUtils.Prompts:SetupPromptGroup()
@@ -140,6 +169,8 @@ CreateThread(function()
     BccUtils.RPC:Call("bcc-ranch:CheckIfPlayerOwnsARanch", {}, function(success, ranchData)
         if success then
             devPrint("Player owns a ranch: " .. ranchData.ranchname)
+            OwnedRanchData = ranchData
+            SetActiveRanchContext(ranchData)
             handleRanchData(ranchData, true)
         else
             devPrint("Player does not own a ranch.")
@@ -147,6 +178,8 @@ CreateThread(function()
             BccUtils.RPC:Call("bcc-ranch:CheckIfPlayerIsEmployee", {}, function(success, ranchData)
                 if success then
                     devPrint("Player is an employee at ranch: " .. ranchData.ranchname)
+                    EmployedRanchData = ranchData
+                    SetActiveRanchContext(ranchData)
                     handleRanchData(ranchData, false)
                 else
                     devPrint("Player is not an employee at any ranch.")
@@ -162,11 +195,22 @@ BccUtils.RPC:Register("bcc-ranch:UpdateRanchData", function(data)
         return
     end
 
+    -- Determine if this ranch matches owner or employee
+    local id = data.ranch.ranchid
+    if OwnedRanchData and OwnedRanchData.ranchid == id then
+        OwnedRanchData = data.ranch
+        SetActiveRanchContext(data.ranch)
+    elseif EmployedRanchData and EmployedRanchData.ranchid == id then
+        EmployedRanchData = data.ranch
+        SetActiveRanchContext(data.ranch)
+    else
+        SetActiveRanchContext(data.ranch)
+    end
+
     RanchData = data.ranch
     isSpawner = data.isSpawner or false
     devPrint("[Client] isSpawner:", isSpawner)
 
-    -- Decode ranchcoords
     if RanchData.ranchcoords then
         local success, decoded = pcall(json.decode, RanchData.ranchcoords)
         if success and decoded then
@@ -179,7 +223,6 @@ BccUtils.RPC:Register("bcc-ranch:UpdateRanchData", function(data)
         devPrint("[UpdateRanchData] Missing ranchcoords field.")
     end
 
-    -- Decode all chore coordinate fields
     local choreFields = {
         { key = "shovel_hay_coords",    as = "shovelHayCoords" },
         { key = "water_animal_coords",  as = "waterAnimalCoords" },
@@ -192,8 +235,8 @@ BccUtils.RPC:Register("bcc-ranch:UpdateRanchData", function(data)
         if raw and raw ~= "" then
             local ok, decoded = pcall(json.decode, raw)
             if ok and decoded then
-                RanchData[entry.key] = raw    -- raw string
-                RanchData[entry.as] = decoded -- usable vector
+                RanchData[entry.key] = raw
+                RanchData[entry.as] = decoded
                 devPrint(("[UpdateRanchData] Decoded %s -> %s"):format(entry.key, entry.as))
             else
                 devPrint(("[UpdateRanchData] Failed to decode %s"):format(entry.key))
@@ -207,20 +250,28 @@ end)
 BccUtils.RPC:Register("bcc-ranch:ForceUpdateRanch", function(params, cb)
     CreateThread(function()
         local ownsOk, ownsData = BccUtils.RPC:CallAsync("bcc-ranch:CheckIfPlayerOwnsARanch", {})
-        if ownsOk then
-            handleRanchData(ownsData, true)
-        else
-            devPrint("[RANCH] No ownership found.")
-        end
-
         local empOk, empData = BccUtils.RPC:CallAsync("bcc-ranch:CheckIfPlayerIsEmployee", {})
-        if empOk then
-            handleRanchData(empData, false)
-        else
-            devPrint("[RANCH] No employment found.")
+
+        if ownsOk and ownsData and ownsData.ranchid then
+            devPrint("Handling owner data...")
+            OwnedRanchData = ownsData
+            SetActiveRanchContext(ownsData)
+            handleRanchData(ownsData, true)
         end
 
-        -- Optionally respond with confirmation
+        if empOk and empData and empData.ranchid then
+            devPrint("Handling employee data...")
+            EmployedRanchData = empData
+            if not ownsOk then -- Don't override if already set as owner
+                SetActiveRanchContext(empData)
+                handleRanchData(empData, false)
+            end
+        end
+
+        if not ownsOk and not empOk then
+            devPrint("[RANCH] No ownership or employment found.")
+        end
+
         if cb then cb(true) end
     end)
 end)
@@ -238,10 +289,39 @@ function checkIfAgingShouldBeActive()
     devPrint("[Aging] No animals found in ranch. Aging system remains OFF.")
 end
 
--- Clean up all blips on resource stop
 AddEventHandler('onResourceStop', function(resourceName)
-    if GetCurrentResourceName() == resourceName then
-        ClearAllRanchBlips()
-        BCCRanchMenu:Close()
+    if GetCurrentResourceName() ~= resourceName then return end
+
+    ClearAllRanchBlips()
+    CleanupAllAnimals("[Cleanup]")
+    ClearAllRanchEntities()
+
+    for i, v in pairs(activePeds) do
+        if type(v) == "table" and v.Remove then
+            v:Remove() -- wrapper API handles proper deletion (and any network stuff internally)
+        else
+            -- Fallback if something stored a raw handle
+            local ped = (type(v) == "table" and v.GetPed) and v:GetPed() or v
+            if type(ped) == "number" then
+                if not NetworkHasControlOfEntity(ped) then
+                    NetworkRequestControlOfEntity(ped)
+                    local tries = 0
+                    while tries < 20 and not NetworkHasControlOfEntity(ped) do
+                        Wait(10); tries = tries + 1
+                    end
+                end
+                SetEntityAsMissionEntity(ped, true, true)
+                ClearPedTasksImmediately(ped)
+                DeletePed(ped)
+                DeleteEntity(ped)
+            end
+        end
     end
+    activePeds = {}
+    BCCRanchMenu:Close()
+end)
+
+-- Cleanup on player disconnect
+AddEventHandler('playerDropped', function()
+    CleanupAllAnimals("[Disconnect]")
 end)
