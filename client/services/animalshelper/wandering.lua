@@ -1,6 +1,6 @@
-local wanderingPeds = {} -- { animalType = { peds... } }
+local wanderingPeds = {}
 local netIdToAnimalType = {}
-local spawnedLocally = {} -- Tracks local spawns per animalType
+local spawnedLocally = {}
 local despawnDistance = 50.0
 
 local animalsConfig = {
@@ -62,16 +62,14 @@ BccUtils.RPC:Register("bcc-ranch:SpawnWanderingAnimal", function(params, cb)
     end
 
     local spawnCoords = {
-        x = params.coords.x + math.random(1, 5),
-        y = params.coords.y + math.random(1, 5),
+        x = params.coords.x + math.random(1, 15),
+        y = params.coords.y + math.random(1, 25),
         z = params.coords.z
     }
 
-    local pedObj = BccUtils.Ped:Create(
-        params.model, spawnCoords.x, spawnCoords.y, spawnCoords.z,
-        math.random(0, 360), "world", true, nil, nil, true, nil
-    )
-
+    local pedObj = BccUtils.Ped:Create(params.model, spawnCoords.x, spawnCoords.y, spawnCoords.z, math.random(0, 360), "world", true, nil, nil, true, nil)
+    pedObj:Invincible(true)
+    pedObj:SetBlockingOfNonTemporaryEvents(true)
     local ped = pedObj:GetPed()
     if not ped or not DoesEntityExist(ped) then
         devPrint("[Client] Failed to create animal ped.")
@@ -116,17 +114,6 @@ RegisterNetEvent("bcc-ranch:DeleteAnimalByNetId", function(netId)
     DeletePed(entity)
     spawnedLocally[animalType] = false
     devPrint(("[Client] Deleted %s ped with netId: %d"):format(animalType, netId))
-end)
-
--- Cleanup when resource stops
-AddEventHandler('onResourceStop', function(resourceName)
-    if GetCurrentResourceName() ~= resourceName then return end
-    CleanupAllAnimals("[Cleanup]")
-end)
-
--- Cleanup on player disconnect
-AddEventHandler('playerDropped', function()
-    CleanupAllAnimals("[Disconnect]")
 end)
 
 function CleanupAllAnimals(reason)

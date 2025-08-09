@@ -1,5 +1,4 @@
 CreateThread(function()
-    -- Create the `bcc_ranch` table
     MySQL.query.await([[
         CREATE TABLE IF NOT EXISTS `bcc_ranch` (
             `charidentifier` VARCHAR(50) NOT NULL,
@@ -48,12 +47,35 @@ CreateThread(function()
             `taxes_collected` VARCHAR(50) DEFAULT 'false',
             `is_any_animals_out` VARCHAR(50) DEFAULT 'false',
 
+            `ranch_npc_enabled` TINYINT(1) DEFAULT 1,
+            `ranch_npc_heading` FLOAT DEFAULT 0,
+            `inv_limit` INT(11) DEFAULT 200,
+            `inventory_current_stage` INT(11) DEFAULT 0,
+
             PRIMARY KEY (`ranchid`),
             UNIQUE KEY `charidentifier` (`charidentifier`)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
     ]])
+	-- Add ranch_npc_enabled column
+	MySQL.query.await([[
+		ALTER TABLE `bcc_ranch` ADD COLUMN IF NOT EXISTS `ranch_npc_enabled` TINYINT(1) DEFAULT 1;
+	]])
 
-    -- Create the `bcc_ranch_employees` table
+	-- Add ranch_npc_heading column
+	MySQL.query.await([[
+		ALTER TABLE `bcc_ranch` ADD COLUMN IF NOT EXISTS `ranch_npc_heading` FLOAT DEFAULT 0;
+	]])
+
+	-- Add inv_limit column
+	MySQL.query.await([[
+		ALTER TABLE `bcc_ranch` ADD COLUMN IF NOT EXISTS `inv_limit` INT(11) DEFAULT 200;
+	]])
+
+	-- Add inventory_current_stage column
+	MySQL.query.await([[
+		ALTER TABLE `bcc_ranch` ADD COLUMN IF NOT EXISTS `inventory_current_stage` INT(11) DEFAULT 0;
+	]])
+
     MySQL.query.await([[
         CREATE TABLE IF NOT EXISTS `bcc_ranch_employees` (
             `id` INT NOT NULL AUTO_INCREMENT,
@@ -64,6 +86,5 @@ CreateThread(function()
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
     ]])
 
-    -- Console confirmation
     print("^5[Database]^0 Tables for ^3bcc_ranch^0 ^2created or verified successfully^0.")
 end)

@@ -227,8 +227,19 @@ function RanchSelected(ranchTable)
     ranchSelectedPage:RegisterElement("button", {
         label = _U("openRanchInv"),
         style = {}
-    }, function()
-        TriggerServerEvent('bcc-ranch:OpenInv', ranchTable.ranchid)
+    }, function()        
+        BccUtils.RPC:Call("bcc-ranch:openInventory", {
+            ranchId = ranchTable.ranchid,
+            ranchName = ranchTable.ranchname,
+            limit = tonumber(ranchTable.inv_limit),
+            currentStage = tonumber(ranchTable.inventory_current_stage or 0)
+        }, function(success)
+            if success then
+                devPrint("[Client] Ranch inventory opened.")
+            else
+                Notify("Failed to open ranch inventory", "error", 4000)
+            end
+        end)
         BCCRanchMenu:Close()
     end)
 

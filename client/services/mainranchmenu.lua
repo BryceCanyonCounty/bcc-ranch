@@ -37,8 +37,11 @@ function MainRanchMenu()
         label = _U("inventoryName"),
         style = {}
     }, function()
-        BccUtils.RPC:Call("bcc-ranch:OpenInv", {
-            ranchId = RanchData.ranchid
+        BccUtils.RPC:Call("bcc-ranch:openInventory", {
+            ranchId = RanchData.ranchid,
+            ranchName = RanchData.ranchname,
+            limit = tonumber(RanchData.inv_limit),
+            currentStage = tonumber(RanchData.inventory_current_stage or 0)
         }, function(success)
             if success then
                 devPrint("[Client] Ranch inventory opened.")
@@ -67,6 +70,12 @@ function MainRanchMenu()
             style = {}
         }, function()
             LedgerMenu()
+        end)
+        mainMenuPage:RegisterElement("button", {
+            label = "Others",
+            style = {}
+        }, function()
+            OthersMenu()
         end)
     end
 
