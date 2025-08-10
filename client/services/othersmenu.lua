@@ -205,9 +205,7 @@ function StartNpcPlacement()
                                 end
                             end
                             activePeds = {}
-
-                            local npc = BccUtils.Ped:Create(ConfigRanch.ranchSetup.npc.model, playerCoords.x,
-                                playerCoords.y, spawnZ, heading, 'world', true, nil, nil, false)
+                            local npc = BccUtils.Ped:Create(ConfigRanch.ranchSetup.npc.model, playerCoords.x, playerCoords.y, spawnZ, heading, 'world', true, nil, nil, true, nil)
                             if npc then
                                 npc:Freeze(true)
                                 npc:SetHeading(heading)

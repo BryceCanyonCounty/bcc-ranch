@@ -78,7 +78,11 @@ function handleRanchData(ranchData, isOwner)
             x, y, z - 1,
             RanchData.ranch_npc_heading or 0.0,
             'world',
-            false
+            true,
+            nil,
+            nil,
+            true,
+            nil
         )
 
         if npcRanch then

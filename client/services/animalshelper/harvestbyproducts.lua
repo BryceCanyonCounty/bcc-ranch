@@ -1,4 +1,4 @@
-local activeHarvestPeds = {}
+local activeHarvestPeds, activeChickenCoops = {}, {}
 
 ------ Spawning Coop -------
 RegisterNetEvent('bcc-ranch:HarvestEggs', function()
@@ -14,10 +14,11 @@ RegisterNetEvent('bcc-ranch:HarvestEggs', function()
     end
     local chickenCoop = BccUtils.Objects:Create(ConfigAnimals.animalSetup.chickens.coopModel, coopCoords.x, coopCoords.y, coopCoords.z, 0, true, 'standard')
     chickenCoop:PlaceOnGround(true)
+    table.insert(activeChickenCoops, chickenCoop)
     Notify(_U("harvestEggs"), "success", 4000)
     BccUtils.Misc.SetGps(coopCoords.x, coopCoords.y, coopCoords.z)
     local blip = BccUtils.Blips:SetBlip(_U("harvestEggs"), 'blip_teamsters', 0.2, coopCoords.x, coopCoords.y, coopCoords.z)
-    coopCoords = GetEntityCoords(chickenCoop)
+    coopCoords = GetEntityCoords(chickenCoop:GetObj())
     local PromptGroup = BccUtils.Prompts:SetupPromptGroup()
     local firstprompt = PromptGroup:RegisterPrompt(_U("harvestEggs"), BccUtils.Keys[ConfigRanch.ranchSetup.harvestEggsKey], 1, 1, true, 'hold', { timedeventhash = "MEDIUM_TIMED_EVENT" })
     while true do
@@ -39,12 +40,12 @@ RegisterNetEvent('bcc-ranch:HarvestEggs', function()
                             Notify(_U("eggsHarvested"), "success", 4000)
                             IsInMission = false
                             BccUtils.Blips:RemoveBlip(blip.rawblip)
-                            DeleteObject(chickenCoop)
+                            chickenCoop:Remove()
                             return
                         else
                             IsInMission = false
                             BccUtils.Blips:RemoveBlip(blip.rawblip)
-                            DeleteObject(chickenCoop)
+                            chickenCoop:Remove()
                             Notify(_U("failed"), "error", 4000)
                             return
                         end
@@ -61,7 +62,7 @@ RegisterNetEvent('bcc-ranch:HarvestEggs', function()
                     Notify(_U("eggsHarvested"), "success", 4000)
                     IsInMission = false
                     BccUtils.Blips:RemoveBlip(blip.rawblip)
-                    DeleteObject(chickenCoop)
+                    chickenCoop:Remove()
                     break
                 end
             end
@@ -255,6 +256,9 @@ AddEventHandler('onResourceStop', function(resource)
     if resource == GetCurrentResourceName() then
         for _, ped in ipairs(activeHarvestPeds) do
             ped:Remove()
+        end
+        for _, coop in ipairs(activeChickenCoops) do
+            coop:Remove()
         end
     end
 end)

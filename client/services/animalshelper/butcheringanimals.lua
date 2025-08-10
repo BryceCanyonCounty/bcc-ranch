@@ -79,8 +79,7 @@ function ButcherAnimals(animalType)
 
     -- Spawn animal
     IsInMission = true
-    butcheringPed = BccUtils.Ped:Create(model, spawnCoords.x, spawnCoords.y, spawnCoords.z, 0.0, "world", false, nil, nil,
-        true)
+    butcheringPed = BccUtils.Ped:Create(model, spawnCoords.x, spawnCoords.y, spawnCoords.z, 0.0, "world", false, nil, nil, true)
     butcheringPed:SetBlockingOfNonTemporaryEvents(true)
     butcheringPed:Freeze()
 

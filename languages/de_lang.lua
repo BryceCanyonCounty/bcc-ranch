@@ -177,5 +177,6 @@ Locales["de_lang"] = {
     placementModeEnd          = "] to cancel.",
     npcLocationUpdated        = "NPC location updated.",
     npcPositionUpdateFailed   = "Failed to update NPC position",
-    npcPlacementCanceled      = "Placement canceled."
+    npcPlacementCanceled      = "Placement canceled.",
+    animalsAge                = "Animal Age: "
 }

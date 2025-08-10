@@ -178,4 +178,5 @@ Locales["ro_lang"] = {
     npcLocationUpdated        = "Locatia NPC-ului a fost actualizata.",
     npcPositionUpdateFailed   = "Eroare la actualizarea pozitiei NPC-ului",
     npcPlacementCanceled      = "Plasarea a fost anulata.",
+    animalsAge                = "Varsta animalului: "
 }
