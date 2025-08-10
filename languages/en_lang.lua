@@ -178,4 +178,5 @@ Locales["en_lang"] = {
     npcLocationUpdated        = "NPC location updated.",
     npcPositionUpdateFailed   = "Failed to update NPC position",
     npcPlacementCanceled      = "Placement canceled.",
+    animalsAge                = "Animal Age: "
 }

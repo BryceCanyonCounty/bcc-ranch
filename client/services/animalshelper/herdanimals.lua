@@ -159,7 +159,7 @@ RegisterNetEvent('bcc-ranch:HerdAnimalClientHandler', function(animalType)
         checkAnimalsAtLocation(RanchData.ranchcoordsVector3)
         if animalsNear then
             ClearGpsMultiRoute()
-            local incAmount = tables.feedAnimalCondIncrease
+            local incAmount = tables.condIncreasePerHerd
             if count ~= tables.spawnAmount then
                 BccUtils.RPC:Call("bcc-ranch:IncreaseAnimalsCond", {
                     ranchId = RanchData.ranchid,

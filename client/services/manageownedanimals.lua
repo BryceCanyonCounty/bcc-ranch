@@ -654,7 +654,7 @@ function ManageOwnedAnimalsMenu()
                 style = {}
             })
             TextDisplay = manageChickensPage:RegisterElement('textdisplay', {
-                value = "Animal Age: " .. tostring(RanchData.chicken_age),
+                value = "Animal Age: " .. tostring(RanchData.chickens_age),
                 slot = "header",
                 style = {}
             })
