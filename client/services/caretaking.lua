@@ -229,7 +229,7 @@ BccUtils.RPC:Register("bcc-ranch:StartChoreClient", function(params)
     Notify(_U("gotoChoreLocation"), "info", 4000)
     choreBlip = BccUtils.Blip:SetBlip(_U("choreLocation"), 960467426, 0.2, choreCoords.x, choreCoords.y, choreCoords.z)
     local PromptGroup = BccUtils.Prompts:SetupPromptGroup()
-    local firstprompt = PromptGroup:RegisterPrompt(_U("startChore"), BccUtils.Keys[ConfigRanch.ranchSetup.choreKey], 1, 1,
+    local firstprompt = PromptGroup:RegisterPrompt(_U("startChore"), BccUtils.Keys[ConfigRanch.ranchSetup.ChoreKey], 1, 1,
         true, 'hold', { timedeventhash = "MEDIUM_TIMED_EVENT" })
     -- Monitor player interaction with the chore
     while true do

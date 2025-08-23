@@ -678,7 +678,7 @@ function ManageOwnedAnimalsMenu()
                     else
                         BccUtils.RPC:Call("bcc-ranch:HerdingCooldown", {
                             ranchId = RanchData.ranchid,
-                            animalType = "chicken"
+                            animalType = "chickens"
                         }, function(success)
                             -- Optional: handle result
                         end)
