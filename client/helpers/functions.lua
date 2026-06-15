@@ -13,7 +13,6 @@ else
 end
 
 FeatherMenu = exports['feather-menu'].initiate()
-BccUtils = exports['bcc-utils'].initiate()
 MiniGame = exports['bcc-minigames'].initiate()
 
 BCCRanchMenu = FeatherMenu:RegisterMenu('bcc-ranch:Menu', {
